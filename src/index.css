@@ -1,0 +1,549 @@
+@import 'tailwindcss';
+
+/* ========================================================= */
+/* COMPONENTES REUTILIZÁVEIS */
+/* ========================================================= */
+
+@layer components {
+  /*
+    PAINEL DE PROCESSO
+    Usado em blocos/cards das telas de criação e configuração
+    de processos.
+
+    background  -> fundo do painel
+    border      -> contorno do painel
+  */
+  .painel-processo {
+    @apply rounded-xl
+      border
+      border-[var(--border)]
+      bg-[var(--bg-card)]
+      p-4
+      transition-colors;
+  }
+
+  /*
+    CAMPO DE PROCESSO
+    Usado em inputs de texto, nomes, caminhos,
+    nomes de saída e campos semelhantes.
+
+    background       -> fundo do input
+    border           -> borda do input
+    text             -> texto digitado
+    placeholder      -> texto de exemplo
+    focus:border     -> borda azul ao selecionar
+  */
+  .campo-processo {
+    @apply mt-2
+      h-10
+      w-full
+      rounded-md
+      border
+      border-[var(--border-hover)]
+      bg-[var(--bg-input)]
+      px-3
+      text-sm
+      text-[var(--text-primary)]
+      outline-none
+      transition-colors
+      placeholder:text-[var(--text-muted)]
+      focus:border-blue-500;
+  }
+
+  /*
+    BOTÃO SECUNDÁRIO
+    Usado em ações como:
+    - Selecionar
+    - Voltar
+    - Cancelar
+    - Adicionar
+    - Outros botões neutros
+
+    background -> fundo do botão
+    border     -> contorno do botão
+    text       -> texto/ícone do botão
+  */
+  .botao-secundario {
+    @apply h-10
+      shrink-0
+      flex
+      items-center
+      justify-center
+      gap-2
+      rounded-md
+      border
+      border-[var(--border-hover)]
+      bg-[var(--hover)]
+      px-4
+      text-xs
+      text-[var(--text-secondary)]
+      transition-colors
+      hover:border-blue-500
+      hover:text-[var(--text-primary)];
+  }
+
+  /*
+    SELETOR DE ARQUIVO
+    Área clicável usada para escolher arquivos.
+
+    background -> fundo da área
+    border     -> contorno
+    text       -> nome/caminho do arquivo
+  */
+  .seletor-arquivo {
+    @apply mt-2
+      h-10
+      flex
+      cursor-pointer
+      items-center
+      gap-2
+      rounded-md
+      border
+      border-[var(--border-hover)]
+      bg-[var(--bg-input)]
+      px-3
+      text-sm
+      text-[var(--text-muted)]
+      transition-colors
+      hover:border-blue-500
+      hover:text-[var(--text-primary)];
+  }
+
+  /*
+    OPÇÃO DE MODO
+    Usado em cards de seleção, como:
+    - concatenar
+    - separados
+    - opções de processamento
+
+    background -> fundo da opção
+    border     -> contorno
+  */
+  .opcao-modo {
+    @apply flex
+      items-start
+      gap-3
+      rounded-lg
+      border
+      border-[var(--border-hover)]
+      bg-[var(--bg-input)]
+      p-3
+      text-left
+      text-[var(--text-primary)]
+      transition-colors
+      hover:border-blue-500;
+  }
+
+  /*
+    ESTADO VAZIO
+    Usado quando uma lista/seção ainda não possui conteúdo.
+
+    border -> borda tracejada
+    text   -> mensagem informativa
+  */
+  .estado-vazio {
+    @apply mt-5
+      rounded-lg
+      border
+      border-dashed
+      border-[var(--border-hover)]
+      p-6
+      text-center
+      text-xs
+      text-[var(--text-muted)];
+  }
+}
+
+/* ========================================================= */
+/* TEMA CLARO */
+/* ========================================================= */
+
+:root {
+  /*
+    FUNDO PRINCIPAL DA APLICAÇÃO
+
+    Afeta:
+    - área central da Home
+    - página Processos
+    - Novo Processo
+    - Configurar Processo
+    - fundo geral do App
+  */
+  --bg-app: #f3f6f9;
+
+  /*
+    FUNDO DA SIDEBAR
+
+    Afeta:
+    - menu lateral inteiro
+  */
+  --bg-sidebar: #ffffff;
+
+  /*
+    FUNDO DOS CARDS PRINCIPAIS
+
+    Afeta:
+    - cards de processos
+    - cards de ferramentas
+    - painéis
+    - alguns blocos do modal
+  */
+  --bg-card: #ffffff;
+
+  /*
+    FUNDO DE CARDS SECUNDÁRIOS
+
+    Afeta:
+    - painel de logs
+    - blocos internos
+    - áreas levemente diferentes do card principal
+  */
+  --bg-card-secondary: #f8fafc;
+
+  /*
+    FUNDO DE INPUTS E CAMPOS
+
+    Afeta:
+    - inputs
+    - selects
+    - campos de caminho
+    - seletor de arquivo
+  */
+  --bg-input: #f1f5f9;
+
+  /*
+    COR PRINCIPAL DAS BORDAS
+
+    Afeta:
+    - cards
+    - sidebar
+    - divisores
+    - rodapé
+    - containers
+  */
+  --border: #d7e0e8;
+
+  /*
+    BORDA MAIS FORTE
+
+    Afeta:
+    - inputs
+    - botões secundários
+    - seletores
+    - elementos que precisam de mais contraste
+  */
+  --border-hover: #94a3b8;
+
+  /*
+    TEXTO PRINCIPAL
+
+    Afeta:
+    - títulos
+    - nomes dos processos
+    - nome do usuário
+    - textos importantes
+  */
+  --text-primary: #0f172a;
+
+  /*
+    TEXTO SECUNDÁRIO
+
+    Afeta:
+    - subtítulos
+    - descrições
+    - textos informativos
+  */
+  --text-secondary: #475569;
+
+  /*
+    TEXTO SUAVE / DESABILITADO
+
+    Afeta:
+    - horários
+    - placeholders
+    - textos de apoio
+    - informações menos importantes
+  */
+  --text-muted: #64748b;
+
+  /*
+    FUNDO DE HOVER
+
+    Afeta:
+    - hover da sidebar
+    - botões neutros
+    - cards internos
+    - elementos selecionáveis
+  */
+  --hover: #e8eef4;
+
+  /* ===================================================== */
+  /* BANNER */
+  /* ===================================================== */
+
+  /*
+    FUNDO DO BANNER
+
+    No modo claro fica igual ao fundo do miolo,
+    evitando aquele cinza diferente.
+  */
+  --banner-bg: #f3f6f9;
+
+  /*
+    COR USADA NOS FADES LATERAIS DA FOTO
+
+    Afeta:
+    - fade esquerdo
+    - fade direito
+  */
+  --banner-fade: #f3f6f9;
+
+  /*
+    SOBREPOSIÇÃO DA FOTO
+
+    No light mode praticamente não escurece a imagem.
+  */
+  --banner-overlay: rgba(255, 255, 255, 0.02);
+
+  /*
+    COR DA PALAVRA "DataHub!" NO BANNER
+
+    Mais escura no modo claro para melhorar contraste.
+  */
+  --banner-accent: #b07b00;
+
+  /* ===================================================== */
+  /* CONTROLES DA JANELA */
+  /* ===================================================== */
+
+  /*
+    COR DOS ÍCONES:
+    - lua/sol
+    - minimizar
+    - maximizar
+    - fechar
+  */
+  --window-control: #334155;
+
+  /*
+    FUNDO DOS CONTROLES NO HOVER
+  */
+  --window-control-hover: rgba(15, 23, 42, 0.08);
+
+  /*
+    LINHA ENTRE BOTÃO DE TEMA E BOTÕES DA JANELA
+  */
+  --window-divider: rgba(15, 23, 42, 0.14);
+
+  /* ===================================================== */
+  /* CORES DE DESTAQUE */
+  /* ===================================================== */
+
+  /*
+    AZUL PRINCIPAL DO SISTEMA
+
+    Pode ser usado em:
+    - botões principais
+    - itens ativos
+    - links
+    - bordas de foco
+  */
+  --accent: #2563eb;
+
+  /*
+    AZUL AO PASSAR O MOUSE
+  */
+  --accent-hover: #3b82f6;
+
+  /*
+    FUNDO AZUL BEM SUAVE
+
+    Ideal para item ativo da sidebar.
+  */
+  --accent-soft: rgba(37, 99, 235, 0.1);
+
+  /*
+    STATUS
+  */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+/* ========================================================= */
+/* TEMA ESCURO */
+/* ========================================================= */
+
+[data-theme='dark'] {
+  /*
+    FUNDO PRINCIPAL
+  */
+  --bg-app: #06111c;
+
+  /*
+    SIDEBAR
+  */
+  --bg-sidebar: #071522;
+
+  /*
+    CARDS
+  */
+  --bg-card: #0b1c2b;
+
+  /*
+    CARDS / ÁREAS SECUNDÁRIAS
+  */
+  --bg-card-secondary: #091927;
+
+  /*
+    INPUTS
+  */
+  --bg-input: #0d2133;
+
+  /*
+    BORDAS PRINCIPAIS
+  */
+  --border: #173249;
+
+  /*
+    BORDAS MAIS VISÍVEIS
+  */
+  --border-hover: #23425e;
+
+  /*
+    TEXTO PRINCIPAL
+  */
+  --text-primary: #ffffff;
+
+  /*
+    TEXTO SECUNDÁRIO
+  */
+  --text-secondary: #cbd5e1;
+
+  /*
+    TEXTO SUAVE
+  */
+  --text-muted: #94a3b8;
+
+  /*
+    HOVER
+  */
+  --hover: #132a3f;
+
+  /* ===================================================== */
+  /* BANNER */
+  /* ===================================================== */
+
+  /*
+    FUNDO ESCURO DO BANNER
+  */
+  --banner-bg: #06111c;
+
+  /*
+    FADES LATERAIS DA FOTO
+  */
+  --banner-fade: #06111c;
+
+  /*
+    SOMBRA SOBRE A FOTO
+  */
+  --banner-overlay: rgba(0, 0, 0, 0.1);
+
+  /*
+    "DataHub!" AMARELO NO DARK MODE
+  */
+  --banner-accent: #facc15;
+
+  /* ===================================================== */
+  /* CONTROLES DA JANELA */
+  /* ===================================================== */
+
+  /*
+    COR DOS ÍCONES
+  */
+  --window-control: #cbd5e1;
+
+  /*
+    HOVER DOS BOTÕES
+  */
+  --window-control-hover: rgba(255, 255, 255, 0.08);
+
+  /*
+    DIVISOR DOS CONTROLES
+  */
+  --window-divider: rgba(255, 255, 255, 0.12);
+
+  /* ===================================================== */
+  /* DESTAQUES */
+  /* ===================================================== */
+
+  --accent: #3b82f6;
+
+  --accent-hover: #60a5fa;
+
+  --accent-soft: rgba(59, 130, 246, 0.12);
+
+  /*
+    STATUS
+  */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+}
+
+/* ========================================================= */
+/* CONFIGURAÇÃO GLOBAL */
+/* ========================================================= */
+
+html,
+body,
+#root {
+  /*
+    Usa automaticamente o fundo do tema atual.
+  */
+  background: var(--bg-app);
+
+  /*
+    Usa automaticamente a cor de texto principal.
+  */
+  color: var(--text-primary);
+
+  /*
+    Evita mudança brusca quando troca dark/light.
+  */
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+/* ========================================================= */
+/* SCROLLBAR */
+/* ========================================================= */
+
+/*
+  Scrollbar global discreta.
+  Também acompanha o tema através das variáveis.
+*/
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-hover) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
