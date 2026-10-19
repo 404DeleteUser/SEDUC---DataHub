@@ -5,6 +5,9 @@ export type AuxiliarProcesso = {
 };
 
 export type ProcessoBase = {
+  origem: 'ferramentas' | 'script-python';
+  scriptPython: File | null;
+  etapas: EtapaProcesso[];
   nome: string;
   descricao: string;
 

@@ -2,6 +2,7 @@ import {
   Combine,
   Eraser,
   FileCheck2,
+  FileCode2,
   Paintbrush,
   Rows3,
   Trash2,
@@ -59,6 +60,14 @@ export const ferramentasMock = [
     descricao: 'Aplica cores alternadas nas linhas para facilitar a leitura.',
     icone: Rows3,
     cor: 'bg-orange-600',
+    usaColunas: false,
+  },
+  {
+    id: 'script-python',
+    nome: 'Script Python conectado',
+    descricao: 'Script existente conectado ao fluxo do processo.',
+    icone: FileCode2,
+    cor: 'bg-slate-600',
     usaColunas: false,
   },
 ];

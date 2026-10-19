@@ -9,6 +9,7 @@ import NovoProcesso from './pages/NovoProcesso';
 import ConfigurarProcesso from './pages/ConfigurarProcesso';
 
 import type { ProcessoBase } from './types/processo';
+import { criarConfiguracaoProcessoMock } from './mock/configuracaoProcessosMock';
 
 function App() {
   const [tema, setTema] = useState<'dark' | 'light'>(() => {
@@ -26,6 +27,13 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const [paginaAtual, setPaginaAtual] = useState('inicio');
+  const [salvamentoSimulado, setSalvamentoSimulado] = useState(false);
+  const [processoEmEdicaoId, setProcessoEmEdicaoId] = useState<number | null>(
+    null
+  );
+  const [processosConfigurados, setProcessosConfigurados] = useState<
+    Record<number, ProcessoBase>
+  >({});
 
   const [processoEmCriacao, setProcessoEmCriacao] =
     useState<ProcessoBase | null>(null);
@@ -35,17 +43,10 @@ function App() {
   }
 
   return (
-    <div
-      className="
-        h-screen
-        flex
-        bg-[var(--bg-app)]
-        text-[var(--text-primary)]
-        overflow-hidden
-        transition-colors
-        duration-200
-      "
-    >
+    <div className="app-shell">
+      <a href="#conteudo-principal" className="skip-link">
+        Ir para o conteúdo
+      </a>
       <ThemeToggle tema={tema} onToggleTema={alternarTema} />
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -54,14 +55,48 @@ function App() {
         onNavigate={setPaginaAtual}
       />
 
-      {paginaAtual === 'inicio' && <Home />}
+      {paginaAtual === 'inicio' && (
+        <Home
+          processosConfigurados={processosConfigurados}
+          onEditarProcesso={(id) => {
+            const configuracao =
+              processosConfigurados[id] ?? criarConfiguracaoProcessoMock(id);
+            if (!configuracao) return;
+            setProcessoEmEdicaoId(id);
+            setProcessoEmCriacao(configuracao);
+            setSalvamentoSimulado(false);
+            setPaginaAtual('novo-processo');
+          }}
+          onProcessos={() => setPaginaAtual('processos')}
+        />
+      )}
 
       {paginaAtual === 'processos' && (
-        <Processos onNovoProcesso={() => setPaginaAtual('novo-processo')} />
+        <Processos
+          salvamentoSimulado={salvamentoSimulado}
+          processosConfigurados={processosConfigurados}
+          onEditarProcesso={(id) => {
+            const configuracao =
+              processosConfigurados[id] ?? criarConfiguracaoProcessoMock(id);
+            if (!configuracao) return;
+            setProcessoEmEdicaoId(id);
+            setProcessoEmCriacao(configuracao);
+            setSalvamentoSimulado(false);
+            setPaginaAtual('novo-processo');
+          }}
+          onNovoProcesso={() => {
+            setProcessoEmCriacao(null);
+            setProcessoEmEdicaoId(null);
+            setSalvamentoSimulado(false);
+            setPaginaAtual('novo-processo');
+          }}
+        />
       )}
 
       {paginaAtual === 'novo-processo' && (
         <NovoProcesso
+          processoInicial={processoEmCriacao}
+          modoEdicao={processoEmEdicaoId !== null}
           onVoltar={() => setPaginaAtual('processos')}
           onProximo={(processo) => {
             setProcessoEmCriacao(processo);
@@ -74,9 +109,19 @@ function App() {
       {paginaAtual === 'configurar-processo' && processoEmCriacao && (
         <ConfigurarProcesso
           processo={processoEmCriacao}
-          onVoltar={() => setPaginaAtual('novo-processo')}
-          onSalvar={() => {
-            console.log('Processo salvo com sucesso.');
+          modoEdicao={processoEmEdicaoId !== null}
+          onVoltar={(processoAtualizado) => {
+            setProcessoEmCriacao(processoAtualizado);
+            setPaginaAtual('novo-processo');
+          }}
+          onSalvar={(processoSalvo) => {
+            if (processoEmEdicaoId !== null) {
+              setProcessosConfigurados((atuais) => ({
+                ...atuais,
+                [processoEmEdicaoId]: processoSalvo,
+              }));
+            }
+            setSalvamentoSimulado(true);
 
             setPaginaAtual('processos');
           }}
