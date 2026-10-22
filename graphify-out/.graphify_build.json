@@ -1,0 +1,1 @@
+{"excludes": [".claude/**", ".agents/**", "src-tauri/icons/**", "public/**", "src/assets/seduc-banner.png", "test-results/**", "dist/**"]}

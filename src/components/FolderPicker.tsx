@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { FolderOpen } from 'lucide-react';
+import { Button } from './ui';
 
 export default function FolderPicker({
   onSelect,
@@ -18,14 +19,9 @@ export default function FolderPicker({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        className="botao-secundario"
-      >
-        <FolderOpen size={15} />
+      <Button icon={FolderOpen} onClick={() => inputRef.current?.click()}>
         Selecionar
-      </button>
+      </Button>
       <input
         name="pasta-destino"
         ref={(element) => {

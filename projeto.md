@@ -54,23 +54,36 @@ Futuro:
 src/
 ├── assets/
 ├── components/
-│   ├── sidebar.tsx
+│   ├── ui/                      # Button, IconButton, Field, FileField, OptionCard,
+│   │                            # Checkbox, SelectableChip, SectionTitle,
+│   │                            # SimulationNotice, StatusText (+ ui.test.tsx)
+│   ├── Sidebar.tsx
 │   ├── ThemeToggle.tsx
+│   ├── PageHeader.tsx           # PageHeader + ProcessSteps
+│   ├── ProcessCardAction.tsx
+│   ├── FolderPicker.tsx
 │   └── ExecuteProcessModal.tsx
 ├── mock/
 │   ├── homeMock.ts
 │   ├── ferramentasMock.ts
-│   └── processosMock.ts
+│   ├── processosMock.ts
+│   └── configuracaoProcessosMock.ts
 ├── pages/
 │   ├── Home.tsx
 │   ├── Processos.tsx
 │   ├── NovoProcesso.tsx
-│   └── ConfigurarProcesso.tsx
+│   ├── novo-processo/           # subcomponentes da etapa 1
+│   ├── ConfigurarProcesso.tsx
+│   └── configurar-processo/     # subcomponentes da etapa 2
+├── styles/                      # tokens, base, ui, shell e um arquivo por tela
+├── test/                        # testes de caracterização e de decisões aprovadas
 ├── types/
 │   └── processo.ts
 ├── App.tsx
 ├── main.tsx
-└── index.css
+└── index.css                    # ponto de entrada: importa src/styles/*
+
+e2e/                             # Playwright: axe, fonte mínima, overflow, teclado
 
 src-tauri/
 └── ...
@@ -201,12 +214,12 @@ Controle:
 - `data-theme="light|dark"`
 
 Botão global:
-`src/components/ThemeToggle.tsx`
+`src/components/ThemeToggle.tsx`, montado na barra superior (`.app-topbar`) pelo `App.tsx`.
 
 Não duplicar lógica de tema em páginas.
 
 ### Cores
-Paleta centralizada em `src/index.css`.
+Paleta centralizada em `src/styles/tokens.css`. Decisões e escala completa (tipografia, espaço, raio, movimento) em `DESIGN.md`.
 
 Variáveis:
 ```css
@@ -270,7 +283,7 @@ Cores fixas são permitidas quando representam identidade/status:
 
 ## 9. CSS global
 
-Usar `src/index.css` como CSS global principal.
+Usar `src/index.css` como ponto de entrada global; ele importa `src/styles/*` (tokens, base, ui, shell e um arquivo por tela).
 
 Não reintroduzir o `App.css` padrão do template Vite/Tauri nem estilos genéricos antigos de:
 - `.logo`
@@ -280,17 +293,12 @@ Não reintroduzir o `App.css` padrão do template Vite/Tauri nem estilos genéri
 - `input`
 - `prefers-color-scheme`
 
-Classes reutilizáveis existentes:
+Componentes e classes reutilizáveis (ver `DESIGN.md`):
 ```css
-.painel-processo
-.campo-processo
-.botao-secundario
-.seletor-arquivo
-.opcao-modo
-.estado-vazio
+.ui-panel  .ui-input  .ui-empty  .ui-alert  /* + componentes de src/components/ui */
 ```
 
-Reutilize antes de duplicar grandes blocos Tailwind.
+Reutilize antes de duplicar grandes blocos Tailwind. As classes antigas (`.painel-processo`, `.campo-processo`, `.botao-secundario`, `.seletor-arquivo`, `.opcao-modo`, `.estado-vazio`) foram substituídas no redesign de 21/10/2026.
 
 ## 10. UI atual
 
@@ -327,7 +335,7 @@ Itens conhecidos:
 - Configurações
 - Perfil
 
-Pode ser expandida/recolhida.
+Pode ser expandida/recolhida; recolhe automaticamente abaixo de 1100px de largura, salvo escolha manual. Itens sem tela mostram "Em breve". O Perfil não exibe nome fictício.
 
 ### `ExecuteProcessModal.tsx`
 Objetivo: interface de execução de processo.
@@ -337,7 +345,7 @@ Layout:
 - direita superior: progresso/barra/etapa/tempo;
 - direita inferior: logs.
 
-A execução atual pode ser mock/simulada; não tratar como backend real.
+A execução atual é simulada; não tratar como backend real. O modal abre sem iniciar e sem caminhos fictícios; o termo exibido ao usuário é sempre "Simulação".
 
 ## 11. Mocks e persistência
 
@@ -415,6 +423,8 @@ Não implementar esses formatos como padrão sem confirmação.
 
 ## 14. Regras de UX/UI
 
+> Em 21/10/2026 foi feito um redesign completo com autorização explícita (exceção registrada em `docs/ux-ui-modernization-plan.md` §11). Para mudanças futuras, as regras abaixo voltam a valer, agora sobre o layout redesenhado e os tokens de `DESIGN.md`.
+
 Preservar:
 - hierarquia visual;
 - interface compacta;
@@ -457,11 +467,11 @@ Ao ajustar UI:
 Código atual usa português em estados, funções, props e UI. Preserve esse padrão em arquivos existentes.
 
 ### Formatação
-Projeto usa Prettier. Configuração conhecida/aproximada:
+Projeto usa Prettier. Configuração real (`package.json`):
 ```json
 {
   "semi": true,
-  "singleQuote": false,
+  "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "es5"
 }
@@ -489,6 +499,8 @@ npm run dev
 npm run build
 npm run tauri dev
 npm run tauri build
+npm test            # Vitest: componentes ui, fluxos e decisões aprovadas
+npm run test:e2e    # Playwright: axe, fonte ≥12px, overflow, teclado (light/dark × 960/1280/1920)
 ```
 
 Execute apenas scripts existentes.

@@ -1,0 +1,481 @@
+/* ============================================================
+   Configurar Processo (etapa 2): mestre-detalhe (Fluent 2) com
+   densidade Carbon. Só tokens de DESIGN.md.
+   ============================================================ */
+.config-layout {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 1440px;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* ---------- Origem: faixa de resumo ---------- */
+.config-origin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-2);
+  row-gap: var(--space-1);
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.config-origin > svg {
+  color: var(--accent);
+}
+.config-origin__label {
+  color: var(--text-muted);
+  font-weight: var(--weight-medium);
+}
+.config-origin__value {
+  min-width: 0;
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+.config-origin__description {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+.config-origin__description::before {
+  content: '·';
+  margin-right: var(--space-2);
+}
+
+/* ---------- Leitura dos cabeçalhos ---------- */
+.config-reading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.config-reading__skeleton {
+  width: 40px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--accent-soft);
+  animation: config-pulse 1s var(--ease-out) infinite alternate;
+}
+@keyframes config-pulse {
+  to {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- Mestre-detalhe ---------- */
+.config-master-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+.config-flow,
+.config-detail,
+.config-logs {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+.config-flow {
+  padding: var(--space-4);
+}
+@container (min-width: 940px) {
+  .config-master-detail {
+    grid-template-columns: minmax(340px, 380px) minmax(0, 1fr);
+  }
+  .config-flow {
+    position: sticky;
+    top: 0;
+  }
+  .config-flow__list {
+    max-height: max(240px, calc(100vh - 440px));
+    overflow-y: auto;
+    padding-right: var(--space-1);
+    scrollbar-width: thin;
+  }
+}
+
+/* ---------- Lista de etapas ---------- */
+.config-steps {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.config-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 56px;
+  padding-right: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card-secondary);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+.config-step:hover {
+  border-color: var(--border-hover);
+}
+.config-step.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.config-step.is-dragging {
+  z-index: 10;
+  opacity: 0.9;
+  box-shadow: var(--shadow-dialog);
+}
+.config-step__grip {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  width: 28px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+.config-step__grip:hover {
+  background: var(--hover);
+  color: var(--text-primary);
+}
+.config-step__grip:active,
+.config-step.is-dragging .config-step__grip {
+  cursor: grabbing;
+}
+.config-step__select {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  align-self: stretch;
+  padding: var(--space-2) var(--space-1) var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+.config-step__select:hover .config-step__name {
+  color: var(--accent);
+}
+.config-step__number {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--hover);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.config-step.is-selected .config-step__number {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+/* Cor de identidade da ferramenta (mock) com ícone branco (text-white no JSX). */
+.config-step__icon,
+.config-tool__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.config-step__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+}
+.config-step__text {
+  display: grid;
+  min-width: 0;
+}
+.config-step__name,
+.config-step__summary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.config-step__name {
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.config-step__summary {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+.config-step__order {
+  display: grid;
+  flex-shrink: 0;
+}
+.config-step__order .ui-icon-button--sm {
+  width: 28px;
+  height: 24px;
+}
+.config-step__spacer {
+  width: 30px;
+  flex-shrink: 0;
+}
+
+/* ---------- Adicionar ferramenta ---------- */
+.config-flow__add {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+.config-flow__add .ui-field {
+  flex: 1;
+}
+.config-flow__add .ui-button {
+  flex-shrink: 0;
+  min-height: 38px;
+}
+
+/* ---------- Detalhe da etapa ---------- */
+.config-detail__body {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+.config-detail__empty {
+  padding-block: var(--space-8);
+}
+.config-tool {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+.config-tool__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+}
+.config-tool__text {
+  display: grid;
+  min-width: 0;
+}
+.config-tool__name {
+  color: var(--text-primary);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+.config-tool__description {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.config-group {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.config-group__title {
+  margin-bottom: var(--space-1);
+  padding: 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.config-sheets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2);
+}
+.config-sheets .ui-checkbox {
+  min-width: 0;
+  min-height: 48px;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+.config-sheets .ui-checkbox:hover:not(.ui-checkbox--checked) {
+  border-color: var(--border-hover);
+}
+.config-sheets .ui-checkbox__text {
+  min-width: 0;
+}
+.config-sheets .ui-checkbox__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Colunas por planilha (blocos recolhíveis) */
+.config-columns {
+  display: grid;
+  gap: var(--space-2);
+}
+.config-sheet {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card-secondary);
+}
+.config-sheet__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding-right: var(--space-2);
+}
+.config-sheet__toggle {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  min-width: 0;
+  align-self: stretch;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+.config-sheet__toggle:hover {
+  background: var(--hover);
+}
+.config-sheet__chevron {
+  color: var(--text-muted);
+  transform: rotate(-90deg);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.config-sheet.is-open .config-sheet__chevron {
+  transform: rotate(0deg);
+}
+.config-sheet__name {
+  min-width: 0;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+.config-sheet__count {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+.config-sheet__body {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.config-sheet__body[hidden] {
+  display: none;
+}
+.config-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2);
+}
+.config-chips .ui-chip {
+  min-width: 0;
+}
+
+/* Bloco recuado (script, condição) */
+.config-block {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card-secondary);
+}
+.config-block .ui-checkbox {
+  cursor: pointer;
+}
+.config-block__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.config-block__title > svg {
+  color: var(--accent);
+}
+.config-condition {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--space-3);
+}
+.config-mono {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+.config-hint {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+/* ---------- Logs ---------- */
+.config-logs__body {
+  display: grid;
+  gap: var(--space-4);
+}
+.config-logs__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-2);
+}
+.config-logs__options .ui-checkbox {
+  cursor: pointer;
+}
+@container (min-width: 940px) {
+  .config-logs__body {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    align-items: end;
+  }
+  .config-logs__indicator {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--border);
+  }
+}
+
+/* ---------- Rodapé ---------- */
+.config-footer__meta {
+  margin-right: auto;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .config-reading__skeleton {
+    animation: none;
+  }
+  .config-sheet__chevron {
+    transition: none;
+  }
+}

@@ -1,0 +1,114 @@
+/* Tokens do DataHub. Fonte das decisões: DESIGN.md. */
+:root {
+  color-scheme: light;
+
+  /* Tipografia */
+  --font-sans:
+    'IBM Plex Sans Variable', 'Segoe UI Variable', 'Segoe UI', system-ui,
+    sans-serif;
+  --font-mono: 'Cascadia Mono', Consolas, ui-monospace, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 26px;
+  --text-3xl: 32px;
+  --leading-tight: 1.3;
+  --leading-normal: 1.55;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* Espaço (base 4) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Raio */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Movimento */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Cor — light */
+  --bg-app: #f3f5f8;
+  --bg-sidebar: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-secondary: #f7f9fb;
+  --bg-input: #f7f9fb;
+  --border: #dde3ec;
+  --border-hover: #aebbcc;
+  --text-primary: #16283f;
+  --text-secondary: #475870;
+  --text-muted: #56667c;
+  --hover: #edf2f8;
+  --accent: #245bcc;
+  --accent-hover: #194aa9;
+  --accent-soft: #e8effc;
+  --on-accent: #ffffff;
+  --success: #087853;
+  --warning: #8a5b00;
+  --danger: #bf2f3b;
+  --success-soft: color-mix(in srgb, var(--success) 10%, var(--bg-card));
+  --warning-soft: color-mix(in srgb, var(--warning) 10%, var(--bg-card));
+  --danger-soft: color-mix(in srgb, var(--danger) 9%, var(--bg-card));
+  --banner-bg: #edf2f7;
+  --banner-fade: #edf2f7;
+  --banner-overlay: transparent;
+  --banner-accent: #8a5f06;
+  --window-control: #475870;
+  --window-control-hover: #edf2f8;
+  --window-divider: #dde3ec;
+  --brand-green: #0b7a4b;
+  --brand-gold: #b98a12;
+  --brand-blue: #245bcc;
+  --scrim: #07132399;
+  --shadow-surface: 0 1px 2px #16283f0d, 0 4px 16px #16283f08;
+  --shadow-dialog: 0 2px 6px #0d223a1f, 0 24px 80px #0d223a40;
+  --surface-shadow: var(--shadow-surface);
+  --modal-shadow: var(--shadow-dialog);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-app: #0b1422;
+  --bg-sidebar: #0e1929;
+  --bg-card: #111e30;
+  --bg-card-secondary: #0e1a2b;
+  --bg-input: #0c1828;
+  --border: #24344a;
+  --border-hover: #415773;
+  --text-primary: #e8eff8;
+  --text-secondary: #b1bfd2;
+  --text-muted: #90a2bc;
+  --hover: #1b2d44;
+  --accent: #75a8ff;
+  --accent-hover: #97bdff;
+  --accent-soft: #1c3151;
+  --on-accent: #0a1a31;
+  --success: #64d7af;
+  --warning: #efc269;
+  --danger: #ff9299;
+  --success-soft: color-mix(in srgb, var(--success) 16%, var(--bg-card));
+  --warning-soft: color-mix(in srgb, var(--warning) 16%, var(--bg-card));
+  --danger-soft: color-mix(in srgb, var(--danger) 16%, var(--bg-card));
+  --banner-bg: #142438;
+  --banner-fade: #142438;
+  --banner-accent: #efc269;
+  --window-control: #b1bfd2;
+  --window-control-hover: #1b2d44;
+  --window-divider: #24344a;
+  --brand-green: #4cc38a;
+  --brand-gold: #e3b54f;
+  --brand-blue: #75a8ff;
+  --shadow-surface: 0 1px 2px #030c1a33, 0 4px 16px #030c1a26;
+  --shadow-dialog: 0 2px 6px #030b1866, 0 24px 80px #030b18aa;
+}

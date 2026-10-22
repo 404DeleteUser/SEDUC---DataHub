@@ -1,59 +1,68 @@
 import type { ReactNode } from 'react';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
+
+import { IconButton } from './ui';
+
+type PageHeaderProps = {
+  titulo: string;
+  descricao: string;
+  onVoltar?: () => void;
+  acao?: ReactNode;
+};
 
 export default function PageHeader({
   titulo,
   descricao,
   onVoltar,
   acao,
-}: {
-  titulo: string;
-  descricao: string;
-  onVoltar?: () => void;
-  acao?: ReactNode;
-}) {
+}: PageHeaderProps) {
   return (
     <header className="page-header">
-      <div className="min-w-0">
-        <div className="page-breadcrumb">
-          <span>DataHub</span>
-          <ChevronRight size={12} aria-hidden="true" />
-          <span>{titulo}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          {onVoltar && (
-            <button
-              type="button"
-              onClick={onVoltar}
-              className="icon-button"
-              aria-label="Voltar"
-            >
-              <ArrowLeft size={19} />
-            </button>
-          )}
-          <div className="min-w-0">
-            <h1>{titulo}</h1>
-            <p>{descricao}</p>
-          </div>
+      <div className="page-header-main">
+        {onVoltar && (
+          <IconButton
+            icon={ArrowLeft}
+            label="Voltar"
+            onClick={onVoltar}
+            className="page-header-back"
+          />
+        )}
+        <div className="min-w-0">
+          <h1>{titulo}</h1>
+          <p>{descricao}</p>
         </div>
       </div>
       {acao && <div className="page-header-action">{acao}</div>}
     </header>
   );
 }
+
+const PASSOS_DO_PROCESSO = ['Arquivos e saída', 'Configuração do processo'];
+
 export function ProcessSteps({ atual }: { atual: 1 | 2 }) {
   return (
     <ol className="process-steps" aria-label="Criação do processo">
-      {['Arquivos e saída', 'Configuração do processo'].map((nome, indice) => (
-        <li
-          key={nome}
-          aria-current={atual === indice + 1 ? 'step' : undefined}
-          className={atual >= indice + 1 ? 'step-active' : ''}
-        >
-          <span>{String(indice + 1).padStart(2, '0')}</span>
-          {nome}
-        </li>
-      ))}
+      {PASSOS_DO_PROCESSO.map((nome, indice) => {
+        const numero = indice + 1;
+        const concluido = numero < atual;
+        const corrente = numero === atual;
+        const estado = concluido ? 'step-done' : corrente ? 'step-current' : '';
+        return (
+          <li
+            key={nome}
+            aria-current={corrente ? 'step' : undefined}
+            className={`process-step ${estado}`.trim()}
+          >
+            <span className="process-step-marker" aria-hidden="true">
+              {concluido ? <Check size={14} strokeWidth={2.5} /> : numero}
+            </span>
+            <span className="process-step-label">
+              {nome}
+              {concluido && <span className="sr-only"> (concluído)</span>}
+            </span>
+          </li>
+        );
+      })}
     </ol>
   );
 }
