@@ -103,7 +103,6 @@
 .ferramentas-item[aria-pressed='true'] {
   border-color: var(--accent);
   background: var(--accent-soft);
-  box-shadow: inset 3px 0 0 var(--accent);
 }
 .ferramentas-icone {
   display: grid;

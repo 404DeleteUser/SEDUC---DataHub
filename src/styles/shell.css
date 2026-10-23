@@ -153,16 +153,6 @@
   background: var(--accent-soft);
   color: var(--accent);
 }
-.nav-item-active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: var(--space-2);
-  bottom: var(--space-2);
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-}
 .nav-item:disabled {
   color: var(--text-muted);
 }
@@ -218,8 +208,9 @@
   color: var(--text-primary);
 }
 .sidebar-profile.is-active .profile-avatar {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
+  outline: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+  color: var(--accent);
 }
 .profile-avatar {
   overflow: hidden;
@@ -254,6 +245,16 @@
 .is-collapsed .nav-item {
   justify-content: center;
   padding-inline: 0;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin-inline: auto;
+  border-radius: 50%;
+  border: 1px solid transparent;
+}
+.is-collapsed .nav-item-active,
+.is-collapsed .nav-item-active:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
 }
 .is-collapsed .nav-item:disabled {
   opacity: 0.45;

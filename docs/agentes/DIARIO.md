@@ -18,6 +18,27 @@ Modelo:
 
 ---
 
+## 2026-10-23 · codespace · feat/tema-mais-dark-ascii · AGUARDANDO ACORDO
+
+**Pedido do usuário:** tema "mais dark", sidebar sem a linha do item ativo (e círculos quando recolhida), Logs sem a caixa da lista, seleção de Ferramentas sem a barra lateral, card de Logs do Início com a altura de "Ferramentas mais utilizadas", banner com "SEDUC" em ASCII animado, Perfil sem caixas e com o brasão em ASCII tremulando.
+
+**Feito (sem conflito):** itens 2, 3, 4, 5, a parte do item 8 sem o brasão (caixas removidas, seções separadas por 40px, dados funcionais em linha, avatar ativo com contorno) e o item 7 conferido (a fonte self-hosted tem pesos 100–700). Branch criada a partir de `feat/perfil` (o Perfil só existe nela).
+
+**AGUARDANDO ACORDO (o usuário decide; não implementar antes):**
+- C1 · item 1 · `DESIGN.md` › Cor: tabela fixa os valores dark e "não crie paleta paralela". Proposta: trocar os valores do `[data-theme='dark']` (Anexo A) e atualizar a tabela. Contraste conferido: `--text-muted` fica entre 5,53:1 e 6,54:1.
+- C2 · item 1 · `DESIGN.md` › Identidade: "navy no dark". O novo dark é quase preto.
+- C3 · item 6 · `DESIGN.md` › Identidade: "sede da SEDUC no banner". A foto sai e entra o ASCII.
+- C4 · item 6 · `DESIGN.md` › Modo: "texto do banner não mudam". Remove o lema.
+- C5 · itens 6 e 8 · `DESIGN.md` › Movimento: "Anima só transform, opacity e cores". Os canvas redesenham a cada quadro (respeitam `prefers-reduced-motion`).
+- C6 · itens 6 e 8 · `DESIGN.md` › Tipografia: "Nenhum texto renderizado abaixo de 12px". Caracteres do canvas com 7–8px, decorativos.
+- C9 · item 8 · `DESIGN.md` › Exclusões: "nenhuma cor fora da paleta, exceto corIcone e status". O brasão ASCII usa as cores da imagem do brasão.
+- C10 · item 6 · `DESIGN.md` › Exclusões: "sem gradientes decorativos, sem neon". A faixa de luz do "scanner" é um efeito decorativo de brilho.
+- Sem conflito: C7 já resolvido na sessão `feat/perfil` (Perfil navegável, teste D3d atualizado, decisão em `DECISOES.md`); C8 resolvido mantendo o contador em `sr-only`.
+
+**Verificações (parciais, antes das aprovações):** tsc ✓ · vitest 225/225 ✓ · pytest e e2e — (rodar ao final, depois das decisões).
+
+**Push:** não feito.
+
 ## 2026-10-23 · codespace · feat/perfil · CONCLUÍDO
 
 **Pedido do usuário:** tirar "Configurações" da sidebar e transformar o Perfil numa tela (mantendo a sidebar) com foto em círculo (trocar), nome (editar), matrícula e vínculo fictícios, e-mail institucional @edu e "sair da conta".

@@ -114,6 +114,22 @@
     grid-template-columns: minmax(0, 1fr) 320px;
   }
 }
+/* Logs recentes termina junto com "Ferramentas mais utilizadas" e rola por dentro. */
+@media (min-width: 1280px) {
+  .home-workspace {
+    align-items: stretch;
+  }
+  .home-logs {
+    contain: size;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    overflow: hidden;
+  }
+  .home-logs .log-timeline {
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+  }
+}
 .home-panel {
   display: grid;
   gap: var(--space-3);

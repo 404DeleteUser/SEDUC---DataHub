@@ -58,7 +58,8 @@ export default function FiltrosDeExecucoes({
           <option value="ferramenta">Ferramentas</option>
         </select>
       </label>
-      <span role="status">
+      {/* Só para leitores de tela: a contagem não aparece na tela. */}
+      <span role="status" className="sr-only">
         {quantidade} {quantidade === 1 ? 'execução' : 'execuções'}
       </span>
     </div>
