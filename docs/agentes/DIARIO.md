@@ -28,7 +28,7 @@ Modelo:
 
 **Plano aprovado** (escolhas em `DECISOES.md`). **F1 preparada:** `vercel.json` (build estático, cabeçalhos de segurança) e `docs/web/PUBLICAR.md` (passo a passo das contas). **Próximo:** o usuário cria as contas e envia a Project URL e a chave anon; então F2 (login e perfil). CSP fica para a F2/F3, quando os domínios (Supabase, Pyodide) estiverem definidos.
 
-**Push:** não feito.
+**Push:** feito em 2026-10-23 (branches `feat/perfil`, `feat/tema-mais-dark-ascii` e `docs/migracao-web`, empilhadas nessa ordem; ainda não integradas na `main`).
 
 ## 2026-10-23 · codespace · feat/tema-mais-dark-ascii · AGUARDANDO ACORDO (C6)
 
@@ -55,7 +55,7 @@ Modelo:
 
 **Verificações:** tsc ✓ · vitest 225/225 ✓ · build ✓ · pytest 79/79 ✓ · e2e 100/100 ✓ (rodado de novo depois da correção do canvas). Capturas conferidas em claro e escuro, sidebar aberta e recolhida, 1280×800 e 960×640.
 
-**Push:** não feito.
+**Push:** feito em 2026-10-23 (branches `feat/perfil`, `feat/tema-mais-dark-ascii` e `docs/migracao-web`, empilhadas nessa ordem; ainda não integradas na `main`).
 
 ## 2026-10-23 · codespace · feat/perfil · CONCLUÍDO
 
@@ -74,7 +74,7 @@ Modelo:
 
 **Divergências ou dúvidas para o outro agente / usuário:** nenhuma em aberto. Observação: a venv do motor no Codespace precisou de `pip install -e "engine[dev]"` de novo para ter o pandas (migração feita no ambiente local).
 
-**Push:** não feito (aguardando pedido do usuário).
+**Push:** feito em 2026-10-23 (`origin/feat/perfil`).
 
 ## 2026-10-23 · local · main · CONCLUÍDO
 
