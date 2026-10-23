@@ -1,0 +1,172 @@
+.logs-pagina {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.logs-filtros {
+  display: flex;
+  align-items: end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.logs-filtros .ferramentas-busca {
+  flex: 1 1 300px;
+  max-width: 520px;
+}
+.logs-filtros label:not(.ferramentas-busca) {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.logs-filtros select {
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.logs-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap: var(--space-4);
+  min-width: 0;
+}
+.logs-lista,
+.logs-detalhe {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-surface);
+  padding: var(--space-4);
+}
+.logs-lista ul {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.logs-lista .logs-item {
+  width: 100%;
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+.logs-lista .logs-item:hover {
+  border-color: var(--border-hover);
+}
+.logs-lista .logs-item[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.logs-item__meta {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+.logs-detalhe {
+  overflow-wrap: anywhere;
+}
+.logs-detalhe h2 {
+  font-size: var(--text-lg);
+}
+.logs-detalhe h3 {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+.logs-detalhe h4 {
+  font-size: var(--text-sm);
+}
+.logs-detalhe p,
+.logs-detalhe dd {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.logs-detalhe code,
+.logs-rodape code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  overflow-wrap: anywhere;
+}
+.logs-metadados,
+.logs-etapas dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-2);
+}
+.logs-metadados div,
+.logs-etapas dl div {
+  min-width: 0;
+}
+.logs-metadados dt,
+.logs-etapas dt {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+.logs-metadados dd,
+.logs-etapas dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.logs-etapas {
+  display: grid;
+  gap: var(--space-3);
+  padding-left: var(--space-5);
+}
+.logs-etapas li {
+  padding-left: var(--space-1);
+}
+.logs-detalhe .logs-aviso {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--warning);
+}
+.logs-erro {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.logs-rodape {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.logs-status--concluido_com_avisos {
+  color: var(--warning);
+}
+.logs-status--cancelado {
+  color: var(--text-muted);
+}
+.logs-status--interrompido {
+  color: var(--warning);
+}
+.logs-status--em_andamento {
+  color: var(--accent);
+}
+@media (max-width: 1099px) {
+  .logs-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* Uma coluna: a lista rola sozinha para o detalhe ficar logo abaixo. */
+  .logs-lista {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+}
+.logs-rodape .ui-button {
+  justify-self: start;
+}
+.logs-detalhe .logs-etapa__situacao--falhou {
+  color: var(--danger);
+  font-weight: var(--weight-semibold);
+}

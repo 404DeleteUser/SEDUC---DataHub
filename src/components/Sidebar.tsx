@@ -106,7 +106,7 @@ export default function Sidebar({
           {item(House, 'Início', 'inicio')}
           {item(FolderCog, 'Processos', 'processos')}
           {item(Wrench, 'Ferramentas', 'ferramentas')}
-          {item(ShieldCheck, 'Logs de Execução')}
+          {item(ShieldCheck, 'Logs de Execução', 'logs')}
         </nav>
         <nav aria-label="Institucional" className="nav-group">
           {rotuloGrupo('Institucional')}

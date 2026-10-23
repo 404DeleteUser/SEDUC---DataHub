@@ -9,6 +9,7 @@ import ConfigurarProcesso from './pages/ConfigurarProcesso';
 import Ferramentas from './pages/Ferramentas';
 import Coordenadorias from './pages/Coordenadorias';
 import SitesInstitucionais from './pages/SitesInstitucionais';
+import LogsExecucao from './pages/LogsExecucao';
 
 import type { ProcessoBase } from './types/processo';
 import type { FerramentaId } from './types/ferramenta';
@@ -116,6 +117,7 @@ function App() {
         {paginaAtual === 'coordenadorias' && <Coordenadorias />}
 
         {paginaAtual === 'sites' && <SitesInstitucionais />}
+        {paginaAtual === 'logs' && <LogsExecucao />}
 
         {paginaAtual === 'processos' && (
           <Processos

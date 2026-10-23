@@ -62,7 +62,8 @@ src/
 │   ├── PageHeader.tsx           # PageHeader + ProcessSteps
 │   ├── ProcessCardAction.tsx
 │   ├── ExecuteProcessModal.tsx
-│   └── organograma/             # Organograma: caixas no arranjo do PDF, zoom e arraste
+│   ├── organograma/             # Organograma: caixas no arranjo do PDF, zoom e arraste
+│   └── logs/                    # Logs de Execução: filtros, lista, detalhe, etapa, status
 ├── utils/explorador.ts         # abre o explorador: diálogo nativo (Tauri) ou do navegador
 ├── data/
 │   └── organogramaSeduc.ts      # setores do Decreto nº 2.236/2026 (dados reais, públicos)
@@ -70,14 +71,16 @@ src/
 │   ├── homeMock.ts
 │   ├── ferramentasMock.ts
 │   ├── processosMock.ts
-│   └── configuracaoProcessosMock.ts
+│   ├── configuracaoProcessosMock.ts
+│   └── logsExecucaoMock.ts      # registro fictício de logs no formato do contrato v1
 ├── pages/
 │   ├── Home.tsx
 │   ├── Processos.tsx
 │   ├── NovoProcesso.tsx
 │   ├── novo-processo/           # subcomponentes da etapa 1
 │   ├── ConfigurarProcesso.tsx
-│   └── configurar-processo/     # subcomponentes da etapa 2
+│   ├── configurar-processo/     # subcomponentes da etapa 2
+│   └── LogsExecucao.tsx
 ├── styles/                      # tokens, base, ui, shell e um arquivo por tela
 ├── test/                        # testes de caracterização e de decisões aprovadas
 ├── types/
@@ -342,6 +345,9 @@ Pode ser expandida/recolhida; recolhe automaticamente abaixo de 1100px de largur
 
 ### Motor de execução (`engine/`)
 Projeto Python separado que executa as ferramentas de verdade e grava o log de cada execução (um `.jsonl` por execução, retenção de 90 dias). Contrato dos eventos em `engine/contrato/EVENTOS.md`, espelhado em `src/domain/eventosExecucao.ts`; os dois lados testam os mesmos exemplos. Ver `engine/README.md`. Ainda não está ligado ao app: o modal e a aba Ferramentas continuam simulados até a entrega 2/3.
+
+### Logs de Execução (`pages/LogsExecucao.tsx`)
+Histórico das execuções de processos e ferramentas: busca (processo, usuário ou arquivo de saída, sem caixa e acento), filtros de status e origem, lista da mais recente para a mais antiga e detalhe com entradas, etapas (parâmetros, linhas antes → depois, resumo, avisos), resultado, erro e caminho do `.jsonl`. Por enquanto é **Simulação**: lê `mock/logsExecucaoMock.ts`, gerado no formato dos eventos do motor (contrato v1). `domain/logsExecucao.ts` espelha `registro.resumo_do_arquivo` (o mesmo resumo de `datahub-engine logs listar`) e o log legível (`relatorio.py`); os rótulos dos parâmetros vêm de `src/generated/catalogo.json`. Nunca mostra valores de células nem do Dicionário (só a quantidade) nem o traceback. Para ligar aos logs reais, troque a fonte do mock pela listagem do motor.
 
 ### Sites Institucionais (`pages/SitesInstitucionais.tsx`)
 Atalhos para os sistemas do dia a dia, agrupados por órgão (`src/data/sitesInstitucionais.ts`), com busca e "Copiar link". Os sites abrem fora do app (`utils/abrirLink.ts`): no app desktop, no navegador padrão (plugin opener, permissão `opener:default`); no navegador, em nova aba com `noopener`. Só endereços `http`/`https` são aceitos; site sem HTTPS recebe o selo "Sem HTTPS".

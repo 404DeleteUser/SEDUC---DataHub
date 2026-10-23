@@ -91,6 +91,20 @@ const estados: Record<string, (page: Page) => Promise<void>> = {
       page.getByRole('heading', { level: 1, name: 'Sites Institucionais' })
     ).toBeVisible();
   },
+  logs: async (page) => {
+    await page.getByRole('button', { name: 'Logs de Execução' }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Logs de Execução' })
+    ).toBeVisible();
+  },
+  'logs-erro': async (page) => {
+    await estados.logs(page);
+    await page
+      .getByRole('list', { name: 'Execuções' })
+      .getByRole('button', { name: /Lotação por DRE/ })
+      .click();
+    await expect(page.getByText('Na etapa 2')).toBeVisible();
+  },
   'etapa-com-parametros': async (page) => {
     await estados['configurar-processo'](page);
     await page
