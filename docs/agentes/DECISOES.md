@@ -28,6 +28,10 @@ Fonte da verdade para os dois agentes (local e Codespace). Não contrarie nada d
 - **Cancelar execução** é direto, sem confirmação: o botão aparece só durante a execução (modal de processo e aba Ferramentas). Nenhuma saída é gravada. *(2026-10-23)*
 - **Logs de Execução:** por enquanto é Simulação. Lê `src/mock/logsExecucaoMock.ts`, no formato dos eventos v1. O widget do Início usa a mesma fonte. *(2026-10-22/23)*
 
+- **Sidebar sem "Configurações"**: as opções do usuário ficam centralizadas na tela de **Perfil** (clique no perfil, no rodapé da sidebar). *(2026-10-23)*
+- **Perfil:** nome e foto ficam salvos **no computador** (`localStorage`, app individual). Matrícula, vínculo e e-mail institucional são **fictícios** com o selo Simulação, até o usuário definir a fonte. Sem nome definido, a sidebar mostra só "Perfil" (respeita a D3d: nada de perfil fictício como real). *(2026-10-23)*
+- **"Sair da conta"** é uma Simulação: pede confirmação e mostra a tela "Você saiu do DataHub" com "Entrar novamente", porque ainda não há login. *(2026-10-23)*
+
 ## Git e ambientes
 
 - Remoto `origin` = `github.com/404DeleteUser/SEDUC---DataHub` (**público**), branch principal `main`. *(2026-10-23)*

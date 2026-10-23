@@ -106,7 +106,9 @@ describe('sidebar', () => {
   it('D3d: não exibe um perfil fictício como real', async () => {
     await irPara('Início');
     expect(screen.queryByText('Davi Silva')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Perfil/ })).toBeDisabled();
+    // Sem nome definido pela pessoa, a sidebar mostra só "Perfil" (2026-10-23:
+    // o Perfil virou uma tela; dados funcionais de exemplo levam o selo Simulação).
+    expect(screen.getByRole('button', { name: 'Perfil' })).toBeEnabled();
   });
 });
 

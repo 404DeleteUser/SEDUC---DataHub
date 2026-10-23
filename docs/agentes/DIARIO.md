@@ -18,6 +18,25 @@ Modelo:
 
 ---
 
+## 2026-10-23 · codespace · feat/perfil · CONCLUÍDO
+
+**Pedido do usuário:** tirar "Configurações" da sidebar e transformar o Perfil numa tela (mantendo a sidebar) com foto em círculo (trocar), nome (editar), matrícula e vínculo fictícios, e-mail institucional @edu e "sair da conta".
+
+**Feito:**
+- Sidebar sem o item "Configurações"; o Perfil (rodapé) navega para a tela nova e mostra foto/iniciais e o nome, ou só "Perfil" sem nome definido (D3d mantida).
+- Tela `pages/Perfil.tsx`: foto (trocar/remover; recorte central e redução para 256×256 JPEG em `utils/perfilLocal.ts`), nome com validação (`domain/perfil.ts`), dados funcionais de exemplo com selo Simulação (`mock/perfilMock.ts`, e-mail `@edu.mt.gov.br`), "Sair da conta" com confirmação em `<dialog>` e tela de saída (`components/TelaSaida.tsx`).
+- Nome e foto salvos em `localStorage` (`datahub-perfil`), com leitura tolerante a dado corrompido e aviso se não der para salvar.
+- Teste D3d de `decisoes-aprovadas.test.tsx` atualizado: o Perfil deixou de ser desabilitado, mas continua sem nome fictício.
+- Decisões novas registradas em `DECISOES.md` (aprovadas pelo usuário nesta sessão).
+
+**Verificações:** tsc ✓ · vitest 225/225 ✓ · pytest 79/79 ✓ · e2e 100/100 ✓ (inclui `e2e/perfil.spec.ts`, foto reduzida em canvas real, e os estados `perfil` e `tela-de-saida` no axe).
+
+**Pendente / próximos passos:** definir a fonte real de matrícula, vínculo e e-mail (o usuário vai decidir como armazenar e puxar); login real para "Sair da conta".
+
+**Divergências ou dúvidas para o outro agente / usuário:** nenhuma em aberto. Observação: a venv do motor no Codespace precisou de `pip install -e "engine[dev]"` de novo para ter o pandas (migração feita no ambiente local).
+
+**Push:** não feito (aguardando pedido do usuário).
+
 ## 2026-10-23 · local · main · CONCLUÍDO
 
 **Pedido do usuário:** ferramentas de Excel no motor (duplicidade, dicionário, dividir por…) com log em arquivo, usando o Alethe; categoria "Logs de Execução" com dados fictícios; widget do Início; remover usuário e máquina da tela; botão Cancelar execução; push para o GitHub; boas práticas de git; protocolo de colaboração entre o Claude local e o do Codespace.

@@ -105,6 +105,23 @@ const estados: Record<string, (page: Page) => Promise<void>> = {
       .click();
     await expect(page.getByText('Na etapa 2')).toBeVisible();
   },
+  perfil: async (page) => {
+    await page.getByRole('button', { name: /^Perfil/ }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Perfil' })
+    ).toBeVisible();
+  },
+  'tela-de-saida': async (page) => {
+    await estados.perfil(page);
+    await page.getByRole('button', { name: 'Sair da conta' }).click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Sair', exact: true })
+      .click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Você saiu do DataHub' })
+    ).toBeVisible();
+  },
   'etapa-com-parametros': async (page) => {
     await estados['configurar-processo'](page);
     await page

@@ -338,10 +338,12 @@ Itens conhecidos:
 - Logs de Execução
 - Sites Institucionais
 - Coordenadorias e Equipes
-- Configurações
-- Perfil
+- Perfil (rodapé)
 
-Pode ser expandida/recolhida; recolhe automaticamente abaixo de 1100px de largura, salvo escolha manual. Itens sem tela mostram "Em breve". O Perfil não exibe nome fictício.
+Pode ser expandida/recolhida; recolhe automaticamente abaixo de 1100px de largura, salvo escolha manual. Itens sem tela mostram "Em breve". O Perfil não exibe nome fictício: sem nome definido, mostra só "Perfil".
+
+### Perfil (`pages/Perfil.tsx`)
+Foto (círculo; trocar e remover) e nome (definir/editar), salvos **neste computador** (`utils/perfilLocal.ts`, `localStorage`; a foto é recortada e reduzida para 256×256 JPEG). Matrícula, vínculo e e-mail institucional (`@edu.mt.gov.br`) são **dados de exemplo** (`mock/perfilMock.ts`) com o selo Simulação, até existir a fonte real. "Sair da conta" pede confirmação e mostra a tela de saída (`components/TelaSaida.tsx`), também Simulação: ainda não há login.
 
 ### Motor de execução (`engine/`)
 Projeto Python separado que executa as ferramentas de verdade e grava o log de cada execução (um `.jsonl` por execução, retenção de 90 dias). Contrato dos eventos em `engine/contrato/EVENTOS.md`, espelhado em `src/domain/eventosExecucao.ts`; os dois lados testam os mesmos exemplos. Ver `engine/README.md`. Ainda não está ligado ao app: o modal e a aba Ferramentas continuam simulados até a entrega 2/3.

@@ -6,12 +6,13 @@ import {
   Landmark,
   ShieldCheck,
   Building2,
-  Settings,
   User,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import { iniciaisDoNome } from '../domain/perfil';
+import type { PerfilLocal } from '../types/perfil';
 import brasaoMT from '../assets/brasao-mt.png';
 
 type SidebarProps = {
@@ -21,6 +22,7 @@ type SidebarProps = {
   onToggle: () => void;
   paginaAtual: string;
   onNavigate: (pagina: string) => void;
+  perfil: PerfilLocal;
 };
 
 const PAGINAS_DE_PROCESSOS = [
@@ -44,7 +46,11 @@ export default function Sidebar({
   onToggle,
   paginaAtual,
   onNavigate,
+  perfil,
 }: SidebarProps) {
+  const perfilAtivo = paginaAtual === 'perfil';
+  const nomeDoPerfil = perfil.nome || 'Perfil';
+  const iniciais = iniciaisDoNome(perfil.nome);
   function item(Icone: LucideIcon, nome: string, pagina?: string) {
     const ativo = estaAtivo(paginaAtual, pagina);
     const disponivel = Boolean(pagina);
@@ -113,9 +119,6 @@ export default function Sidebar({
           {item(Landmark, 'Sites Institucionais', 'sites')}
           {item(Building2, 'Coordenadorias e Equipes', 'coordenadorias')}
         </nav>
-        <nav aria-label="Preferências" className="nav-group">
-          {item(Settings, 'Configurações')}
-        </nav>
       </div>
       <div className="sidebar-footer">
         <ThemeToggle
@@ -142,20 +145,23 @@ export default function Sidebar({
         </button>
         <button
           type="button"
-          className="sidebar-profile"
-          title="Perfil (em breve)"
-          disabled
+          className={`sidebar-profile ${perfilAtivo ? 'is-active' : ''}`.trim()}
+          aria-current={perfilAtivo ? 'page' : undefined}
+          aria-label={perfil.nome ? `Perfil: ${perfil.nome}` : 'Perfil'}
+          title={collapsed ? nomeDoPerfil : undefined}
+          onClick={() => onNavigate('perfil')}
         >
           <span className="profile-avatar" aria-hidden="true">
-            <User size={TAMANHO_ICONE} />
+            {perfil.foto ? (
+              <img src={perfil.foto} alt="" />
+            ) : iniciais ? (
+              iniciais
+            ) : (
+              <User size={TAMANHO_ICONE} />
+            )}
           </span>
-          {collapsed ? (
-            <span className="sr-only">Perfil (em breve)</span>
-          ) : (
-            <>
-              <span className="sidebar-profile-name">Perfil</span>
-              <span className="nav-soon">Em breve</span>
-            </>
+          {!collapsed && (
+            <span className="sidebar-profile-name">{nomeDoPerfil}</span>
           )}
         </button>
       </div>

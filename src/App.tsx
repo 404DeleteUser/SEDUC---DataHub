@@ -10,11 +10,16 @@ import Ferramentas from './pages/Ferramentas';
 import Coordenadorias from './pages/Coordenadorias';
 import SitesInstitucionais from './pages/SitesInstitucionais';
 import LogsExecucao from './pages/LogsExecucao';
+import Perfil from './pages/Perfil';
+import TelaSaida from './components/TelaSaida';
 
 import type { ProcessoBase } from './types/processo';
 import type { FerramentaId } from './types/ferramenta';
 import { processosMock } from './mock/processosMock';
 import { criarConfiguracaoProcessoMock } from './mock/configuracaoProcessosMock';
+import { dadosFuncionaisFicticios } from './mock/perfilMock';
+import type { PerfilLocal } from './types/perfil';
+import { lerPerfilLocal, salvarPerfilLocal } from './utils/perfilLocal';
 
 const CONSULTA_JANELA_ESTREITA = '(max-width: 1099px)';
 
@@ -68,6 +73,14 @@ function App() {
     useState<ProcessoBase | null>(null);
   const [ferramentaInicial, setFerramentaInicial] = useState<FerramentaId>();
   const [logInicial, setLogInicial] = useState<string>();
+  const [perfil, setPerfil] = useState<PerfilLocal>(lerPerfilLocal);
+  // Ainda não há login: sair é uma Simulação que mostra a tela de saída.
+  const [sessaoEncerrada, setSessaoEncerrada] = useState(false);
+
+  function alterarPerfil(novo: PerfilLocal) {
+    setPerfil(novo);
+    return salvarPerfilLocal(novo);
+  }
 
   function abrirFerramentas(ferramentaId?: FerramentaId) {
     setFerramentaInicial(ferramentaId);
@@ -89,6 +102,17 @@ function App() {
     setTema((temaAtual) => (temaAtual === 'dark' ? 'light' : 'dark'));
   }
 
+  if (sessaoEncerrada) {
+    return (
+      <TelaSaida
+        onEntrar={() => {
+          setSessaoEncerrada(false);
+          setPaginaAtual('inicio');
+        }}
+      />
+    );
+  }
+
   return (
     <div className="app-shell">
       <a href="#conteudo-principal" className="skip-link">
@@ -101,6 +125,7 @@ function App() {
         onToggle={() => setSidebarManual(!sidebarCollapsed)}
         paginaAtual={paginaAtual}
         onNavigate={navegar}
+        perfil={perfil}
       />
       <div className="app-column">
         {paginaAtual === 'inicio' && (
@@ -126,6 +151,15 @@ function App() {
         {paginaAtual === 'coordenadorias' && <Coordenadorias />}
 
         {paginaAtual === 'sites' && <SitesInstitucionais />}
+
+        {paginaAtual === 'perfil' && (
+          <Perfil
+            perfil={perfil}
+            dados={dadosFuncionaisFicticios}
+            onAlterar={alterarPerfil}
+            onSair={() => setSessaoEncerrada(true)}
+          />
+        )}
         {paginaAtual === 'logs' && (
           <LogsExecucao
             key={logInicial ?? 'recentes'}
