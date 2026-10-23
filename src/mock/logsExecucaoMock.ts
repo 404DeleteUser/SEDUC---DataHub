@@ -36,7 +36,12 @@ type ExecucaoFicticia = {
   origem: 'processo' | 'ferramenta';
   usuario: string;
   inicio: string;
-  entradas: { caminho: string; linhas: number; colunas: number; abas?: number }[];
+  entradas: {
+    caminho: string;
+    linhas: number;
+    colunas: number;
+    abas?: number;
+  }[];
   saida: string;
   etapas: EtapaFicticia[];
   desfecho: Desfecho;
@@ -75,7 +80,16 @@ function lerEntradas(
   for (const entrada of ficticia.entradas) {
     const abas = entrada.abas ?? 1;
     const arquivo = nomeDoArquivo(entrada.caminho);
-    emitir({ tipo: 'entrada.lida', arquivo, abas, linhas: entrada.linhas, colunas: entrada.colunas }, 180);
+    emitir(
+      {
+        tipo: 'entrada.lida',
+        arquivo,
+        abas,
+        linhas: entrada.linhas,
+        colunas: entrada.colunas,
+      },
+      180
+    );
     if (abas > 1) {
       emitir({
         tipo: 'log',
@@ -95,9 +109,24 @@ function executarEtapas(
   let linhas = ficticia.entradas[0].linhas;
   let abas = 1;
   ficticia.etapas.slice(0, ate).forEach((etapa, indice) => {
-    emitir({ tipo: 'etapa.inicio', indice, ferramenta: etapa.ferramenta, nome: etapa.nome }, 20);
-    emitir({ tipo: 'progresso', percentual: Math.round(((indice + 1) / (ficticia.etapas.length + 2)) * 100), mensagem: etapa.nome });
-    for (const log of etapa.logs ?? []) emitir({ tipo: 'log', ...log, etapa: indice }, 40);
+    emitir(
+      {
+        tipo: 'etapa.inicio',
+        indice,
+        ferramenta: etapa.ferramenta,
+        nome: etapa.nome,
+      },
+      20
+    );
+    emitir({
+      tipo: 'progresso',
+      percentual: Math.round(
+        ((indice + 1) / (ficticia.etapas.length + 2)) * 100
+      ),
+      mensagem: etapa.nome,
+    });
+    for (const log of etapa.logs ?? [])
+      emitir({ tipo: 'log', ...log, etapa: indice }, 40);
     const depois = etapa.linhasDepois ?? linhas;
     emitir(
       {
@@ -123,7 +152,15 @@ function iniciarEtapaSemFim(
   indice: number
 ) {
   const etapa = ficticia.etapas[indice];
-  emitir({ tipo: 'etapa.inicio', indice, ferramenta: etapa.ferramenta, nome: etapa.nome }, 20);
+  emitir(
+    {
+      tipo: 'etapa.inicio',
+      indice,
+      ferramenta: etapa.ferramenta,
+      nome: etapa.nome,
+    },
+    20
+  );
 }
 
 function montar(ficticia: ExecucaoFicticia): ExecucaoRegistrada {
@@ -135,9 +172,16 @@ function montar(ficticia: ExecucaoFicticia): ExecucaoRegistrada {
     origem: ficticia.origem,
     usuario: ficticia.usuario,
     maquina: MAQUINA,
-    entradas: ficticia.entradas.map(({ caminho }) => ({ nome: nomeDoArquivo(caminho), caminho })),
+    entradas: ficticia.entradas.map(({ caminho }) => ({
+      nome: nomeDoArquivo(caminho),
+      caminho,
+    })),
     saida: { nome: nomeDoArquivo(ficticia.saida), caminho: ficticia.saida },
-    etapas: ficticia.etapas.map(({ ferramenta, parametros }, indice) => ({ indice, ferramenta, parametros })),
+    etapas: ficticia.etapas.map(({ ferramenta, parametros }, indice) => ({
+      indice,
+      ferramenta,
+      parametros,
+    })),
   });
 
   if (desfecho.tipo !== 'erro_na_leitura') lerEntradas(ficticia, emitir);
@@ -148,18 +192,36 @@ function montar(ficticia: ExecucaoFicticia): ExecucaoRegistrada {
         ? 0
         : (desfecho.naEtapa ?? 0);
   const final = executarEtapas(ficticia, emitir, ate);
-  if ((desfecho.tipo === 'erro' && desfecho.naEtapa !== undefined) || desfecho.tipo === 'sem_fim') {
+  if (
+    (desfecho.tipo === 'erro' && desfecho.naEtapa !== undefined) ||
+    desfecho.tipo === 'sem_fim'
+  ) {
     iniciarEtapaSemFim(ficticia, emitir, ate);
   }
   if (desfecho.tipo === 'concluido') {
-    emitir({ tipo: 'saida.gravada', caminho: ficticia.saida, abas: final.abas, linhas: final.linhas }, 420);
+    emitir(
+      {
+        tipo: 'saida.gravada',
+        caminho: ficticia.saida,
+        abas: final.abas,
+        linhas: final.linhas,
+      },
+      420
+    );
     emitir({ tipo: 'progresso', percentual: 100, mensagem: 'Concluído' });
   }
   if (desfecho.tipo !== 'sem_fim') {
-    const avisos = eventos.filter((e) => e.tipo === 'log' && e.nivel === 'aviso').length;
+    const avisos = eventos.filter(
+      (e) => e.tipo === 'log' && e.nivel === 'aviso'
+    ).length;
     const erro =
       desfecho.tipo === 'erro' || desfecho.tipo === 'erro_na_leitura'
-        ? { mensagem: desfecho.mensagem, ...(desfecho.tipo === 'erro' && desfecho.naEtapa !== undefined ? { etapa: desfecho.naEtapa } : {}) }
+        ? {
+            mensagem: desfecho.mensagem,
+            ...(desfecho.tipo === 'erro' && desfecho.naEtapa !== undefined
+              ? { etapa: desfecho.naEtapa }
+              : {}),
+          }
         : undefined;
     const status =
       desfecho.tipo === 'concluido'
@@ -169,7 +231,16 @@ function montar(ficticia: ExecucaoFicticia): ExecucaoRegistrada {
         : desfecho.tipo === 'cancelado'
           ? 'cancelado'
           : 'erro';
-    emitir({ tipo: 'execucao.fim', status, duracao_ms: decorrido() + 30, avisos, ...(erro ? { erro } : {}) }, 30);
+    emitir(
+      {
+        tipo: 'execucao.fim',
+        status,
+        duracao_ms: decorrido() + 30,
+        avisos,
+        ...(erro ? { erro } : {}),
+      },
+      30
+    );
   }
 
   const data = ficticia.inicio.slice(0, 10);
@@ -181,7 +252,11 @@ function montar(ficticia: ExecucaoFicticia): ExecucaoRegistrada {
   };
 }
 
-const ZEBRA = { corCabecalho: '#1f4e79', corLinhaA: '#ffffff', corLinhaB: '#e8effc' };
+const ZEBRA = {
+  corCabecalho: '#1f4e79',
+  corLinhaA: '#ffffff',
+  corLinhaB: '#e8effc',
+};
 const DADOS = 'C:\\Users\\servidor\\Documents\\DataHub';
 
 const execucoesFicticias: ExecucaoFicticia[] = [
@@ -192,13 +267,32 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     usuario: 'ana.souza',
     inicio: '2026-10-22T14:05:12.000Z',
     entradas: [
-      { caminho: `${DADOS}\\entrada\\seap_outubro.xlsx`, linhas: 14532, colunas: 18 },
-      { caminho: `${DADOS}\\entrada\\folha_outubro.xlsx`, linhas: 14610, colunas: 18 },
+      {
+        caminho: `${DADOS}\\entrada\\seap_outubro.xlsx`,
+        linhas: 14532,
+        colunas: 18,
+      },
+      {
+        caminho: `${DADOS}\\entrada\\folha_outubro.xlsx`,
+        linhas: 14610,
+        colunas: 18,
+      },
     ],
     saida: `${DADOS}\\saida\\cruzamento_seap_folha.xlsx`,
     etapas: [
-      { ferramenta: 'mesclar-planilhas', nome: 'Mesclar Planilhas', parametros: { modo: 'vertical' }, linhasDepois: 29142, resumo: { arquivos_mesclados: 2, linhas: 29142 }, duracaoMs: 2100 },
-      { ferramenta: 'eliminar-duplicatas', nome: 'Eliminar Duplicatas', parametros: { colunasChave: ['Matrícula', 'CPF'] } },
+      {
+        ferramenta: 'mesclar-planilhas',
+        nome: 'Mesclar Planilhas',
+        parametros: { modo: 'vertical' },
+        linhasDepois: 29142,
+        resumo: { arquivos_mesclados: 2, linhas: 29142 },
+        duracaoMs: 2100,
+      },
+      {
+        ferramenta: 'eliminar-duplicatas',
+        nome: 'Eliminar Duplicatas',
+        parametros: { colunasChave: ['Matrícula', 'CPF'] },
+      },
     ],
     desfecho: { tipo: 'sem_fim', naEtapa: 1 },
     emAndamento: true,
@@ -210,15 +304,54 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     usuario: 'ana.souza',
     inicio: '2026-10-22T13:42:03.000Z',
     entradas: [
-      { caminho: `${DADOS}\\entrada\\seap_setembro.xlsx`, linhas: 14498, colunas: 18 },
-      { caminho: `${DADOS}\\entrada\\folha_setembro.xlsx`, linhas: 14533, colunas: 18 },
+      {
+        caminho: `${DADOS}\\entrada\\seap_setembro.xlsx`,
+        linhas: 14498,
+        colunas: 18,
+      },
+      {
+        caminho: `${DADOS}\\entrada\\folha_setembro.xlsx`,
+        linhas: 14533,
+        colunas: 18,
+      },
     ],
     saida: `${DADOS}\\saida\\cruzamento_setembro.xlsx`,
     etapas: [
-      { ferramenta: 'mesclar-planilhas', nome: 'Mesclar Planilhas', parametros: { ferramentaId: 'mesclar-planilhas', modo: 'vertical' }, linhasDepois: 29031, resumo: { arquivos_mesclados: 2, linhas: 29031 }, duracaoMs: 2040 },
-      { ferramenta: 'eliminar-duplicatas', nome: 'Eliminar Duplicatas', parametros: { colunasChave: ['Matrícula', 'CPF'] }, linhasDepois: 14532, resumo: { duplicadas_removidas: 14499, grupos_com_duplicatas: 14466 }, duracaoMs: 5310 },
-      { ferramenta: 'dicionario', nome: 'Dicionário', parametros: { coluna: 'Cargo', modo: 'contem', valores: ['professor', 'técnico', 'apoio'] }, linhasDepois: 12877, resumo: { linhas_mantidas: 12877, linhas_removidas: 1655 }, duracaoMs: 1280 },
-      { ferramenta: 'zebrar-planilha', nome: 'Zebrar Planilha', parametros: ZEBRA, resumo: { abas_formatadas: 1 }, duracaoMs: 90 },
+      {
+        ferramenta: 'mesclar-planilhas',
+        nome: 'Mesclar Planilhas',
+        parametros: { ferramentaId: 'mesclar-planilhas', modo: 'vertical' },
+        linhasDepois: 29031,
+        resumo: { arquivos_mesclados: 2, linhas: 29031 },
+        duracaoMs: 2040,
+      },
+      {
+        ferramenta: 'eliminar-duplicatas',
+        nome: 'Eliminar Duplicatas',
+        parametros: { colunasChave: ['Matrícula', 'CPF'] },
+        linhasDepois: 14532,
+        resumo: { duplicadas_removidas: 14499, grupos_com_duplicatas: 14466 },
+        duracaoMs: 5310,
+      },
+      {
+        ferramenta: 'dicionario',
+        nome: 'Dicionário',
+        parametros: {
+          coluna: 'Cargo',
+          modo: 'contem',
+          valores: ['professor', 'técnico', 'apoio'],
+        },
+        linhasDepois: 12877,
+        resumo: { linhas_mantidas: 12877, linhas_removidas: 1655 },
+        duracaoMs: 1280,
+      },
+      {
+        ferramenta: 'zebrar-planilha',
+        nome: 'Zebrar Planilha',
+        parametros: ZEBRA,
+        resumo: { abas_formatadas: 1 },
+        duracaoMs: 90,
+      },
     ],
     desfecho: { tipo: 'concluido' },
   },
@@ -228,22 +361,50 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     origem: 'processo',
     usuario: 'carlos.lima',
     inicio: '2026-10-22T11:51:40.000Z',
-    entradas: [{ caminho: `${DADOS}\\entrada\\contratos_vigentes.xlsx`, linhas: 3210, colunas: 12, abas: 3 }],
+    entradas: [
+      {
+        caminho: `${DADOS}\\entrada\\contratos_vigentes.xlsx`,
+        linhas: 3210,
+        colunas: 12,
+        abas: 3,
+      },
+    ],
     saida: `${DADOS}\\saida\\vigencia_outubro.xlsx`,
     etapas: [
-      { ferramenta: 'dicionario', nome: 'Dicionário', parametros: { coluna: 'Situação', modo: 'exato', valores: ['ativo'] }, linhasDepois: 2984, resumo: { linhas_mantidas: 2984, linhas_removidas: 226 }, duracaoMs: 410 },
+      {
+        ferramenta: 'dicionario',
+        nome: 'Dicionário',
+        parametros: { coluna: 'Situação', modo: 'exato', valores: ['ativo'] },
+        linhasDepois: 2984,
+        resumo: { linhas_mantidas: 2984, linhas_removidas: 226 },
+        duracaoMs: 410,
+      },
       {
         ferramenta: 'script-python',
         nome: 'Script Python conectado',
-        parametros: { script: `${DADOS}\\scripts\\vigencia\\verificar_datas.py`, pasta: `${DADOS}\\scripts\\vigencia` },
+        parametros: {
+          script: `${DADOS}\\scripts\\vigencia\\verificar_datas.py`,
+          pasta: `${DADOS}\\scripts\\vigencia`,
+        },
         resumo: { abas: 1 },
         duracaoMs: 3870,
         logs: [
-          { nivel: 'info', mensagem: 'Conferindo as datas de término dos contratos' },
+          {
+            nivel: 'info',
+            mensagem: 'Conferindo as datas de término dos contratos',
+          },
           { nivel: 'aviso', mensagem: '27 contratos sem data de término' },
         ],
       },
-      { ferramenta: 'dividir-por', nome: 'Dividir Por', parametros: { coluna: 'DRE' }, linhasDepois: 5968, abasDepois: 15, resumo: { abas_criadas: 14, linhas_sem_valor: 12 }, duracaoMs: 960 },
+      {
+        ferramenta: 'dividir-por',
+        nome: 'Dividir Por',
+        parametros: { coluna: 'DRE' },
+        linhasDepois: 5968,
+        abasDepois: 15,
+        resumo: { abas_criadas: 14, linhas_sem_valor: 12 },
+        duracaoMs: 960,
+      },
     ],
     desfecho: { tipo: 'concluido' },
   },
@@ -253,10 +414,23 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     origem: 'ferramenta',
     usuario: 'carlos.lima',
     inicio: '2026-10-22T10:18:27.000Z',
-    entradas: [{ caminho: `${DADOS}\\entrada\\inscricoes_seletivo.csv`, linhas: 8240, colunas: 9 }],
+    entradas: [
+      {
+        caminho: `${DADOS}\\entrada\\inscricoes_seletivo.csv`,
+        linhas: 8240,
+        colunas: 9,
+      },
+    ],
     saida: `${DADOS}\\saida\\inscricoes_sem_duplicatas.xlsx`,
     etapas: [
-      { ferramenta: 'eliminar-duplicatas', nome: 'Eliminar Duplicatas', parametros: { colunasChave: ['CPF'] }, linhasDepois: 7828, resumo: { duplicadas_removidas: 412, grupos_com_duplicatas: 388 }, duracaoMs: 1730 },
+      {
+        ferramenta: 'eliminar-duplicatas',
+        nome: 'Eliminar Duplicatas',
+        parametros: { colunasChave: ['CPF'] },
+        linhasDepois: 7828,
+        resumo: { duplicadas_removidas: 412, grupos_com_duplicatas: 388 },
+        duracaoMs: 1730,
+      },
     ],
     desfecho: { tipo: 'concluido' },
   },
@@ -266,13 +440,34 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     origem: 'processo',
     usuario: 'ana.souza',
     inicio: '2026-10-21T19:33:08.000Z',
-    entradas: [{ caminho: `${DADOS}\\entrada\\lotacao_geral.xlsx`, linhas: 22916, colunas: 14 }],
+    entradas: [
+      {
+        caminho: `${DADOS}\\entrada\\lotacao_geral.xlsx`,
+        linhas: 22916,
+        colunas: 14,
+      },
+    ],
     saida: `${DADOS}\\saida\\lotacao_por_dre.xlsx`,
     etapas: [
-      { ferramenta: 'eliminar-duplicatas', nome: 'Eliminar Duplicatas', parametros: { colunasChave: ['Matrícula'] }, linhasDepois: 22874, resumo: { duplicadas_removidas: 42, grupos_com_duplicatas: 40 }, duracaoMs: 4120 },
-      { ferramenta: 'dividir-por', nome: 'Dividir Por', parametros: { coluna: 'DRE' } },
+      {
+        ferramenta: 'eliminar-duplicatas',
+        nome: 'Eliminar Duplicatas',
+        parametros: { colunasChave: ['Matrícula'] },
+        linhasDepois: 22874,
+        resumo: { duplicadas_removidas: 42, grupos_com_duplicatas: 40 },
+        duracaoMs: 4120,
+      },
+      {
+        ferramenta: 'dividir-por',
+        nome: 'Dividir Por',
+        parametros: { coluna: 'DRE' },
+      },
     ],
-    desfecho: { tipo: 'erro', mensagem: 'A coluna DRE não existe na aba Lotação.', naEtapa: 1 },
+    desfecho: {
+      tipo: 'erro',
+      mensagem: 'A coluna DRE não existe na aba Lotação.',
+      naEtapa: 1,
+    },
   },
   {
     id: '58a0e3f1d79b',
@@ -281,11 +476,25 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     usuario: 'marina.alves',
     inicio: '2026-10-21T16:02:55.000Z',
     entradas: [
-      { caminho: `${DADOS}\\entrada\\escolas_norte.xlsx`, linhas: 1204, colunas: 7 },
-      { caminho: `${DADOS}\\entrada\\escolas_sul.xlsx`, linhas: 1388, colunas: 7 },
+      {
+        caminho: `${DADOS}\\entrada\\escolas_norte.xlsx`,
+        linhas: 1204,
+        colunas: 7,
+      },
+      {
+        caminho: `${DADOS}\\entrada\\escolas_sul.xlsx`,
+        linhas: 1388,
+        colunas: 7,
+      },
     ],
     saida: `${DADOS}\\saida\\escolas_mt.xlsx`,
-    etapas: [{ ferramenta: 'mesclar-planilhas', nome: 'Mesclar Planilhas', parametros: { modo: 'abas' } }],
+    etapas: [
+      {
+        ferramenta: 'mesclar-planilhas',
+        nome: 'Mesclar Planilhas',
+        parametros: { modo: 'abas' },
+      },
+    ],
     desfecho: { tipo: 'cancelado', naEtapa: 0 },
   },
   {
@@ -294,11 +503,32 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     origem: 'processo',
     usuario: 'marina.alves',
     inicio: '2026-10-20T12:47:19.000Z',
-    entradas: [{ caminho: `${DADOS}\\entrada\\matriculas_2026.xlsx`, linhas: 61230, colunas: 21 }],
+    entradas: [
+      {
+        caminho: `${DADOS}\\entrada\\matriculas_2026.xlsx`,
+        linhas: 61230,
+        colunas: 21,
+      },
+    ],
     saida: `${DADOS}\\saida\\matriculas_consolidadas.xlsx`,
     etapas: [
-      { ferramenta: 'dicionario', nome: 'Dicionário', parametros: { coluna: 'Etapa de ensino', modo: 'contem', valores: ['fundamental', 'médio'] }, linhasDepois: 54012, resumo: { linhas_mantidas: 54012, linhas_removidas: 7218 }, duracaoMs: 6650 },
-      { ferramenta: 'dividir-por', nome: 'Dividir Por', parametros: { coluna: 'Município' } },
+      {
+        ferramenta: 'dicionario',
+        nome: 'Dicionário',
+        parametros: {
+          coluna: 'Etapa de ensino',
+          modo: 'contem',
+          valores: ['fundamental', 'médio'],
+        },
+        linhasDepois: 54012,
+        resumo: { linhas_mantidas: 54012, linhas_removidas: 7218 },
+        duracaoMs: 6650,
+      },
+      {
+        ferramenta: 'dividir-por',
+        nome: 'Dividir Por',
+        parametros: { coluna: 'Município' },
+      },
     ],
     desfecho: { tipo: 'sem_fim', naEtapa: 1 },
   },
@@ -308,10 +538,25 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     origem: 'processo',
     usuario: 'carlos.lima',
     inicio: '2026-10-17T13:10:44.000Z',
-    entradas: [{ caminho: `${DADOS}\\entrada\\contratos_setembro.xlsx`, linhas: 0, colunas: 0 }],
+    entradas: [
+      {
+        caminho: `${DADOS}\\entrada\\contratos_setembro.xlsx`,
+        linhas: 0,
+        colunas: 0,
+      },
+    ],
     saida: `${DADOS}\\saida\\vigencia_setembro.xlsx`,
-    etapas: [{ ferramenta: 'dicionario', nome: 'Dicionário', parametros: { coluna: 'Situação', modo: 'exato', valores: ['ativo'] } }],
-    desfecho: { tipo: 'erro_na_leitura', mensagem: `Arquivo não encontrado: ${DADOS}\\entrada\\contratos_setembro.xlsx` },
+    etapas: [
+      {
+        ferramenta: 'dicionario',
+        nome: 'Dicionário',
+        parametros: { coluna: 'Situação', modo: 'exato', valores: ['ativo'] },
+      },
+    ],
+    desfecho: {
+      tipo: 'erro_na_leitura',
+      mensagem: `Arquivo não encontrado: ${DADOS}\\entrada\\contratos_setembro.xlsx`,
+    },
   },
   {
     id: '6a4c8e1b03d7',
@@ -319,15 +564,36 @@ const execucoesFicticias: ExecucaoFicticia[] = [
     origem: 'ferramenta',
     usuario: 'ana.souza',
     inicio: '2026-10-15T17:25:31.000Z',
-    entradas: [{ caminho: `${DADOS}\\entrada\\servidores_ativos.xlsx`, linhas: 18453, colunas: 11 }],
+    entradas: [
+      {
+        caminho: `${DADOS}\\entrada\\servidores_ativos.xlsx`,
+        linhas: 18453,
+        colunas: 11,
+      },
+    ],
     saida: `${DADOS}\\saida\\servidores_por_municipio.xlsx`,
     etapas: [
-      { ferramenta: 'dividir-por', nome: 'Dividir Por', parametros: { coluna: 'Município' }, linhasDepois: 36906, abasDepois: 142, resumo: { abas_criadas: 141, linhas_sem_valor: 0 }, duracaoMs: 71200 },
-      { ferramenta: 'zebrar-planilha', nome: 'Zebrar Planilha', parametros: ZEBRA, resumo: { abas_formatadas: 142 }, duracaoMs: 15400 },
+      {
+        ferramenta: 'dividir-por',
+        nome: 'Dividir Por',
+        parametros: { coluna: 'Município' },
+        linhasDepois: 36906,
+        abasDepois: 142,
+        resumo: { abas_criadas: 141, linhas_sem_valor: 0 },
+        duracaoMs: 71200,
+      },
+      {
+        ferramenta: 'zebrar-planilha',
+        nome: 'Zebrar Planilha',
+        parametros: ZEBRA,
+        resumo: { abas_formatadas: 142 },
+        duracaoMs: 15400,
+      },
     ],
     desfecho: { tipo: 'concluido' },
   },
 ];
 
 /** Os .jsonl fictícios do registro, na ordem em que estariam na pasta (não ordenados). */
-export const logsExecucaoMock: ExecucaoRegistrada[] = execucoesFicticias.map(montar);
+export const logsExecucaoMock: ExecucaoRegistrada[] =
+  execucoesFicticias.map(montar);

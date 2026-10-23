@@ -20,7 +20,8 @@ type Evento<T extends EventoDeExecucao['tipo']> = Extract<
   EventoDeExecucao,
   { tipo: T }
 >;
-type ParametroDoCatalogo = (typeof catalogo.ferramentas)[number]['parametros'][number];
+type ParametroDoCatalogo =
+  (typeof catalogo.ferramentas)[number]['parametros'][number];
 
 const SCRIPT_PYTHON = 'script-python';
 
@@ -71,7 +72,9 @@ export function resumoDaExecucao({
   const inicio = doTipo(eventos, 'execucao.inicio')[0];
   if (!inicio) return null;
   const fim = ultimo(doTipo(eventos, 'execucao.fim'));
-  const semFim: StatusDaExecucao = emAndamento ? 'em_andamento' : 'interrompido';
+  const semFim: StatusDaExecucao = emAndamento
+    ? 'em_andamento'
+    : 'interrompido';
   return {
     execucao: inicio.execucao,
     arquivo,
@@ -82,7 +85,8 @@ export function resumoDaExecucao({
     fim: fim?.ts ?? null,
     status: fim?.status ?? semFim,
     duracao_ms: fim?.duracao_ms ?? null,
-    avisos: doTipo(eventos, 'log').filter((log) => log.nivel === 'aviso').length,
+    avisos: doTipo(eventos, 'log').filter((log) => log.nivel === 'aviso')
+      .length,
     etapas: inicio.etapas.length,
     saida: inicio.saida.caminho,
     erro: fim?.erro?.mensagem ?? null,
@@ -115,7 +119,10 @@ export function filtrarExecucoes(
   );
 }
 
-function valorDoParametro(parametro: ParametroDoCatalogo, valor: unknown): string {
+function valorDoParametro(
+  parametro: ParametroDoCatalogo,
+  valor: unknown
+): string {
   switch (parametro.tipo) {
     case 'lista_texto': {
       const itens = Array.isArray(valor) ? valor : [];
@@ -168,7 +175,9 @@ export function nomeDaFerramenta(ferramenta: string): string {
 
 function rotuloDoResumo(chave: string): string {
   const texto = chave.replace(/_/g, ' ');
-  return ROTULOS_DO_RESUMO[chave] ?? texto.charAt(0).toUpperCase() + texto.slice(1);
+  return (
+    ROTULOS_DO_RESUMO[chave] ?? texto.charAt(0).toUpperCase() + texto.slice(1)
+  );
 }
 
 function situacaoDaEtapa(
@@ -199,7 +208,12 @@ function etapasDoDetalhe(
       nome:
         iniciadas.find((etapa) => etapa.indice === indice)?.nome ??
         nomeDaFerramenta(ferramenta),
-      situacao: situacaoDaEtapa(indice, indicesIniciados, indicesFinalizados, etapaComErro),
+      situacao: situacaoDaEtapa(
+        indice,
+        indicesIniciados,
+        indicesFinalizados,
+        etapaComErro
+      ),
       parametros: parametrosLegiveis(ferramenta, parametros),
       linhasAntes: fim?.linhas_antes ?? null,
       linhasDepois: fim?.linhas_depois ?? null,
@@ -230,14 +244,23 @@ export function detalheDaExecucao(
     resumo,
     maquina: doTipo(eventos, 'execucao.inicio')[0].maquina,
     entradas: doTipo(eventos, 'entrada.lida').map(
-      ({ arquivo, linhas, colunas, abas }) => ({ arquivo, linhas, colunas, abas })
+      ({ arquivo, linhas, colunas, abas }) => ({
+        arquivo,
+        linhas,
+        colunas,
+        abas,
+      })
     ),
     etapas: etapasDoDetalhe(eventos, erro?.etapa ?? null),
     avisosGerais: doTipo(eventos, 'log')
       .filter((log) => log.etapa === undefined)
       .map((log) => log.mensagem),
     saidaGravada: saida
-      ? { nome: nomeDoArquivo(saida.caminho), abas: saida.abas, linhas: saida.linhas }
+      ? {
+          nome: nomeDoArquivo(saida.caminho),
+          abas: saida.abas,
+          linhas: saida.linhas,
+        }
       : null,
     erro,
   };

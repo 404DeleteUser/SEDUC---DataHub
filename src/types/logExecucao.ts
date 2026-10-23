@@ -31,10 +31,7 @@ export type ResumoDaExecucao = {
 export type ItemRotulado = { rotulo: string; valor: string };
 
 export type SituacaoDaEtapa =
-  | 'concluida'
-  | 'falhou'
-  | 'em_andamento'
-  | 'nao_executada';
+  'concluida' | 'falhou' | 'em_andamento' | 'nao_executada';
 
 export type EtapaDoDetalhe = {
   indice: number;
@@ -51,7 +48,12 @@ export type EtapaDoDetalhe = {
 export type DetalheDaExecucao = {
   resumo: ResumoDaExecucao;
   maquina: string;
-  entradas: { arquivo: string; linhas: number; colunas: number; abas: number }[];
+  entradas: {
+    arquivo: string;
+    linhas: number;
+    colunas: number;
+    abas: number;
+  }[];
   etapas: EtapaDoDetalhe[];
   avisosGerais: string[];
   saidaGravada: { nome: string; abas: number; linhas: number } | null;
