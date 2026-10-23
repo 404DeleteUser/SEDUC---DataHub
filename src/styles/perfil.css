@@ -199,3 +199,35 @@
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
+
+/* Telas de acesso (login, cadastro, recuperação e nova senha) */
+.tela-acesso {
+  justify-items: stretch;
+  text-align: left;
+}
+.tela-acesso > img,
+.tela-acesso > h1,
+.tela-acesso > p {
+  justify-self: center;
+  text-align: center;
+}
+.tela-acesso__form {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+.tela-acesso__aviso {
+  min-height: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.tela-acesso__aviso:empty {
+  display: none;
+}
+.tela-acesso__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}

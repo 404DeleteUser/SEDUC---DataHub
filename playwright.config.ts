@@ -9,7 +9,8 @@ export default defineConfig({
     ...devices['Desktop Chrome'],
   },
   webServer: {
-    command: 'npm run dev',
+    // Modo "e2e": não lê .env.development.local, então o app roda no modo local (sem login).
+    command: 'npx vite --mode e2e',
     url: 'http://localhost:1420',
     reuseExistingServer: true,
     timeout: 60_000,

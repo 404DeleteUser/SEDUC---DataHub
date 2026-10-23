@@ -18,6 +18,20 @@ Modelo:
 
 ---
 
+## 2026-10-23 · codespace · feat/f2-login · CONCLUÍDO (aguarda ações do usuário no Supabase)
+
+**Pedido do usuário:** iniciar a F2 com a Project URL e a chave publishable do Supabase.
+
+**Feito:** `@supabase/supabase-js` 2.117.3; `services/supabase.ts` e `services/conta.ts`; `domain/acesso.ts` (validação `@edu.mt.gov.br` e mensagens de erro em português); telas `TelaAcesso` (entrar, criar conta, esqueci a senha) e `TelaNovaSenha`; hook `useConta`; `App.tsx` exige conta quando o Supabase está configurado; `Perfil.tsx` com `onAlterar` assíncrono e textos "na sua conta"/"neste computador"; SQL `supabase/migrations/0001_perfis_e_acesso.sql`; `.env.example`; Playwright com `--mode e2e` (sempre modo local). Decisão em `DECISOES.md`; passo a passo em `docs/web/PUBLICAR.md`.
+
+**Verificações:** tsc ✓ · vitest 236/236 ✓ · build ✓ (aviso de bundle > 500 kB) · e2e 100/100 ✓ (modo local) · pytest — (motor não mudou). Fluxo real contra o Supabase **não testado**: depende do SQL e da URL Configuration.
+
+**Pendente / próximos passos:** usuário roda o SQL, ajusta Site URL/Redirect URLs e cria as variáveis na Vercel; depois testar cadastro, confirmação, login, foto e recuperação de senha de verdade. Code splitting do bundle; CSP com o domínio do Supabase (F3). Depois: F3 (Pyodide).
+
+**Divergências ou dúvidas para o outro agente / usuário:** nenhuma. O outro agente não deve gravar a chave real em arquivo versionado (fica em `.env.development.local`, ignorado).
+
+**Push:** não feito (aguarda pedido).
+
 ## 2026-10-23 · codespace · docs/migracao-web · EM ANDAMENTO (plano aprovado; F1 preparada)
 
 **Pedido do usuário:** trocar o app desktop (Tauri + instalador) por um **app web na Vercel + Supabase, ambos gratuitos**. Motivo: não pagar certificado de assinatura (o instalador sem assinatura dispara aviso de vírus) e poder deixar o repositório privado depois (o que elimina o SignPath, que é gratuito só para código aberto e repositório público).

@@ -16,18 +16,25 @@ import { reduzirFoto, validarArquivoDeFoto } from '../utils/perfilLocal';
 type PerfilProps = {
   perfil: PerfilLocal;
   dados: DadosFuncionais;
-  /** Devolve false se não deu para salvar neste computador. */
-  onAlterar: (perfil: PerfilLocal) => boolean;
+  /** Onde nome e foto ficam: no navegador (modo local) ou na conta (Supabase). */
+  armazenamento?: 'computador' | 'conta';
+  /** Devolve false se não deu para salvar. */
+  onAlterar: (perfil: PerfilLocal) => boolean | Promise<boolean>;
   onSair: () => void;
 };
 
 const ID_BOTAO_NOME = 'perfil-editar-nome';
-const AVISO_NAO_SALVO =
-  'Não foi possível salvar neste computador: a alteração vale só até fechar o app.';
+const AVISO_NAO_SALVO = {
+  computador:
+    'Não foi possível salvar neste computador: a alteração vale só até fechar o app.',
+  conta:
+    'Não foi possível salvar na sua conta. Verifique a internet e tente de novo.',
+};
 
 export default function Perfil({
   perfil,
   dados,
+  armazenamento = 'computador',
   onAlterar,
   onSair,
 }: PerfilProps) {
@@ -44,8 +51,11 @@ export default function Perfil({
     if (editandoNome) campoNomeRef.current?.focus();
   }, [editandoNome]);
 
-  function alterar(novo: PerfilLocal, sucesso: string) {
-    setAviso(onAlterar(novo) ? sucesso : AVISO_NAO_SALVO);
+  async function alterar(novo: PerfilLocal, sucesso: string) {
+    setAviso('Salvando…');
+    setAviso(
+      (await onAlterar(novo)) ? sucesso : AVISO_NAO_SALVO[armazenamento]
+    );
   }
 
   function abrirEdicaoDoNome() {
@@ -69,7 +79,7 @@ export default function Perfil({
       campoNomeRef.current?.focus();
       return;
     }
-    alterar(
+    void alterar(
       { ...perfil, nome: rascunho.trim().replace(/\s+/g, ' ') },
       'Nome atualizado.'
     );
@@ -83,7 +93,7 @@ export default function Perfil({
     if (erro) return;
     setProcessandoFoto(true);
     try {
-      alterar(
+      await alterar(
         { ...perfil, foto: await reduzirFoto(arquivo) },
         'Foto atualizada.'
       );
@@ -136,7 +146,7 @@ export default function Perfil({
                     size="sm"
                     icon={Trash2}
                     onClick={() =>
-                      alterar({ ...perfil, foto: null }, 'Foto removida.')
+                      void alterar({ ...perfil, foto: null }, 'Foto removida.')
                     }
                   >
                     Remover foto
@@ -214,7 +224,13 @@ export default function Perfil({
           >
             <div className="perfil-dados__cabecalho">
               <SectionTitle id="perfil-dados-titulo" title="Dados funcionais" />
-              <SimulationNotice detail="Dados de exemplo: a fonte real ainda será definida." />
+              <SimulationNotice
+                detail={
+                  armazenamento === 'conta'
+                    ? 'Matrícula e vínculo de exemplo: a fonte real ainda será definida.'
+                    : 'Dados de exemplo: a fonte real ainda será definida.'
+                }
+              />
             </div>
             <dl className="perfil-dados__lista">
               <div>
@@ -257,6 +273,7 @@ export default function Perfil({
 
       <ConfirmarSaida
         aberto={confirmandoSaida}
+        armazenamento={armazenamento}
         onCancelar={() => setConfirmandoSaida(false)}
         onConfirmar={() => {
           setConfirmandoSaida(false);
@@ -269,10 +286,12 @@ export default function Perfil({
 
 function ConfirmarSaida({
   aberto,
+  armazenamento,
   onCancelar,
   onConfirmar,
 }: {
   aberto: boolean;
+  armazenamento: 'computador' | 'conta';
   onCancelar: () => void;
   onConfirmar: () => void;
 }) {
@@ -307,7 +326,8 @@ function ConfirmarSaida({
       <h2 id="perfil-confirmacao-titulo">Sair do DataHub?</h2>
       <p id="perfil-confirmacao-texto">
         Você poderá entrar de novo em seguida. Seu nome e sua foto continuam
-        salvos neste computador.
+        salvos {armazenamento === 'conta' ? 'na sua conta' : 'neste computador'}
+        .
       </p>
       <div className="perfil-confirmacao__botoes">
         <Button variant="ghost" onClick={onCancelar}>

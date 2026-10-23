@@ -25,7 +25,30 @@ avalie o plano Pro.
 3. Na Vercel, em **Settings → Environment Variables**, crie:
    - `VITE_SUPABASE_URL` = Project URL
    - `VITE_SUPABASE_ANON_KEY` = chave anon/publishable
-4. Quando o agente preparar as tabelas, rode o arquivo SQL indicado em **SQL Editor** do Supabase.
+   Marque os três ambientes (Production, Preview, Development) e faça um **Redeploy**: o Vite
+   lê as variáveis no build. Sem elas, o site abre em **modo local** (sem login).
+4. **Tabelas e regras de acesso (F2):** em **SQL Editor → New query**, cole todo o conteúdo de
+   `supabase/migrations/0001_perfis_e_acesso.sql` e clique em **Run**. Pode rodar de novo sem
+   problema. Ele cria:
+   - a recusa, no banco, de qualquer cadastro fora de `@edu.mt.gov.br`;
+   - a tabela `perfis` (nome e caminho da foto), em que cada pessoa só vê e altera o próprio;
+   - o bucket privado `fotos-perfil` (JPEG até 1 MB, cada pessoa só na própria pasta).
+5. **Endereços de retorno dos e-mails:** em **Authentication → URL Configuration**:
+   - **Site URL:** o endereço do site na Vercel (ex.: `https://seduc-datahub.vercel.app`);
+   - **Redirect URLs:** o mesmo endereço e `http://localhost:5173` (para testar no computador).
+   Sem isso, o link de confirmação e o de "Esqueci a senha" voltam para o lugar errado.
+6. **Confirmação de e-mail:** deixe ligada (**Authentication → Sign In / Providers → Email →
+   Confirm email**). Assim só entra quem tem acesso à caixa `@edu.mt.gov.br`.
+
+O envio de e-mails do plano gratuito tem **limite baixo** (poucos por hora). Se várias pessoas se
+cadastrarem ao mesmo tempo e os e-mails não chegarem, configure um SMTP próprio em
+**Authentication → Emails → SMTP Settings**.
+
+### Testar no computador (Codespaces ou local)
+
+Crie `.env.development.local` (não vai para o git) com as duas variáveis do `.env.example` e rode
+`npm run dev`. Os testes automáticos (`npm test` e Playwright) não leem esse arquivo e rodam
+sempre em modo local.
 
 O projeto gratuito do Supabase **pausa depois de 1 semana sem uso**; para reativar, abra o painel
 do projeto e clique em **Restore**.

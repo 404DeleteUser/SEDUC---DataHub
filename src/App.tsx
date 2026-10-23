@@ -12,6 +12,16 @@ import SitesInstitucionais from './pages/SitesInstitucionais';
 import LogsExecucao from './pages/LogsExecucao';
 import Perfil from './pages/Perfil';
 import TelaSaida from './components/TelaSaida';
+import TelaAcesso from './components/acesso/TelaAcesso';
+import TelaNovaSenha from './components/acesso/TelaNovaSenha';
+import { useConta } from './hooks/useConta';
+import {
+  carregarPerfil,
+  removerFoto,
+  sair,
+  salvarFoto,
+  salvarNome,
+} from './services/conta';
 
 import type { ProcessoBase } from './types/processo';
 import type { FerramentaId } from './types/ferramenta';
@@ -73,13 +83,58 @@ function App() {
     useState<ProcessoBase | null>(null);
   const [ferramentaInicial, setFerramentaInicial] = useState<FerramentaId>();
   const [logInicial, setLogInicial] = useState<string>();
-  const [perfil, setPerfil] = useState<PerfilLocal>(lerPerfilLocal);
-  // Ainda não há login: sair é uma Simulação que mostra a tela de saída.
+  const { estado: estadoDaConta, concluirRecuperacao } = useConta();
+  const conta = estadoDaConta.modo === 'conectado' ? estadoDaConta.conta : null;
+  const [perfil, setPerfil] = useState<PerfilLocal>(() =>
+    estadoDaConta.modo === 'local' ? lerPerfilLocal() : { nome: '', foto: null }
+  );
+  // Modo local (sem Supabase): sair é uma Simulação que mostra a tela de saída.
   const [sessaoEncerrada, setSessaoEncerrada] = useState(false);
 
-  function alterarPerfil(novo: PerfilLocal) {
-    setPerfil(novo);
-    return salvarPerfilLocal(novo);
+  // Conectado: o perfil vem da conta; ao trocar de conta, volta ao Início.
+  useEffect(() => {
+    if (!conta) return;
+    let ativo = true;
+    setPaginaAtual('inicio');
+    setPerfil({ nome: '', foto: null });
+    carregarPerfil(conta)
+      .then((remoto) => ativo && setPerfil(remoto))
+      .catch(() => undefined); // sem perfil carregado, a tela mostra "Nome não definido"
+    return () => {
+      ativo = false;
+    };
+    // Depende só do id: o objeto da conta muda a cada evento de sessão.
+  }, [conta?.id]);
+
+  async function alterarPerfil(novo: PerfilLocal): Promise<boolean> {
+    if (!conta) {
+      setPerfil(novo);
+      return salvarPerfilLocal(novo);
+    }
+    try {
+      let foto = novo.foto;
+      if (novo.nome !== perfil.nome) await salvarNome(conta, novo.nome);
+      if (novo.foto !== perfil.foto) {
+        if (novo.foto) foto = await salvarFoto(conta, novo.foto);
+        else await removerFoto(conta);
+      }
+      setPerfil({ nome: novo.nome, foto });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function sairDaConta() {
+    if (!conta) {
+      setSessaoEncerrada(true);
+      return;
+    }
+    try {
+      await sair();
+    } catch {
+      // Mesmo se o servidor não responder, a sessão local é encerrada pelo Supabase.
+    }
   }
 
   function abrirFerramentas(ferramentaId?: FerramentaId) {
@@ -100,6 +155,18 @@ function App() {
 
   function alternarTema() {
     setTema((temaAtual) => (temaAtual === 'dark' ? 'light' : 'dark'));
+  }
+
+  if (estadoDaConta.modo === 'carregando') {
+    return (
+      <main id="conteudo-principal" className="tela-saida">
+        <p role="status">Carregando…</p>
+      </main>
+    );
+  }
+  if (estadoDaConta.modo === 'sem-conta') return <TelaAcesso />;
+  if (estadoDaConta.modo === 'recuperando-senha') {
+    return <TelaNovaSenha onConcluir={concluirRecuperacao} />;
   }
 
   if (sessaoEncerrada) {
@@ -155,9 +222,17 @@ function App() {
         {paginaAtual === 'perfil' && (
           <Perfil
             perfil={perfil}
-            dados={dadosFuncionaisFicticios}
+            dados={
+              conta
+                ? {
+                    ...dadosFuncionaisFicticios,
+                    emailInstitucional: conta.email,
+                  }
+                : dadosFuncionaisFicticios
+            }
+            armazenamento={conta ? 'conta' : 'computador'}
             onAlterar={alterarPerfil}
-            onSair={() => setSessaoEncerrada(true)}
+            onSair={() => void sairDaConta()}
           />
         )}
         {paginaAtual === 'logs' && (
