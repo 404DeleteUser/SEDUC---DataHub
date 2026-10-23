@@ -1,16 +1,28 @@
 # Instruções do Projeto
 
+## Dois ambientes, dois agentes (leia primeiro)
+
+O usuário alterna entre o **ambiente local** (Windows) e o **GitHub Codespaces** (Linux), cada um com seu próprio Claude. Vocês não compartilham memória: tudo o que precisam saber um do outro está no repositório.
+
+No início de **toda** sessão, antes de qualquer tarefa:
+
+1. Atualize a branch (`git fetch`, depois `git pull --ff-only`). Se houver divergência, pare e avise o usuário.
+2. Leia [`docs/agentes/COLABORACAO.md`](docs/agentes/COLABORACAO.md) (protocolo, limites de cada ambiente, início e fim de sessão, divergências).
+3. Leia [`docs/agentes/DECISOES.md`](docs/agentes/DECISOES.md) (decisões aprovadas; não contrarie sem aprovação) e as últimas entradas de [`docs/agentes/DIARIO.md`](docs/agentes/DIARIO.md), principalmente as **AGUARDANDO ACORDO** e **PENDENTE**.
+
+Ao terminar, registre a sessão no topo do `DIARIO.md`. Se o pedido atual divergir das decisões, das regras abaixo ou do que o outro agente fez, **avise o usuário antes de agir** e registre a divergência no diário para que os dois agentes cheguem a um acordo, que o usuário decide.
+
 ## Regras Obrigatórias de Engenharia
 
-Antes de implementar qualquer funcionalidade, regra de negócio ou alteração de código, siga as regras de engenharia aplicáveis definidas em `.AgentsRule/`.
+Antes de implementar qualquer funcionalidade, regra de negócio ou alteração de código, siga as regras de engenharia aplicáveis definidas em `AgentsRule/`.
 
 Essas regras são obrigatórias e devem ser consideradas durante toda a tarefa, não apenas na análise inicial.
 
 ### Regras Obrigatórias
 
-- `.AgentsRule/ask-refactoring.md` — Solicite autorização explícita antes de realizar refatorações opcionais fora do escopo solicitado.
-- `.AgentsRule/domain-isolation.md` — Analise as dependências, preserve os limites entre domínios e evite regressões não intencionais em outras partes da aplicação.
-- `.AgentsRule/suggest-best-approach.md` — Avalie a abordagem proposta e interrompa a execução para solicitar aprovação antes de implementar alternativas que alterem significativamente o design, a arquitetura ou as regras de negócio.
+- `AgentsRule/ask-refactoring.md` — Solicite autorização explícita antes de realizar refatorações opcionais fora do escopo solicitado.
+- `AgentsRule/isolation.md` — Analise as dependências, preserve os limites entre domínios e evite regressões não intencionais em outras partes da aplicação.
+- `AgentsRule/suggest-code.md` — Avalie a abordagem proposta e interrompa a execução para solicitar aprovação antes de implementar alternativas que alterem significativamente o design, a arquitetura ou as regras de negócio.
 
 ### Fluxo de Trabalho Obrigatório
 
