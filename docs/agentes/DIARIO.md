@@ -18,11 +18,13 @@ Modelo:
 
 ---
 
-## 2026-10-23 · codespace · feat/entrada-supabase · AGUARDANDO ACORDO (branch do local)
+## 2026-10-23 · codespace · feat/entrada-supabase · RESOLVIDO (2026-10-23, a Entrada desta branch é a final)
 
 **Pedido do usuário:** prompt "Tela de entrada do DataHub (login real com Supabase Auth)", trocando a parte simulada da Entrada pela autenticação real e mantendo o visual.
 
-**Divergência:** o prompt diz que a branch `feat/tela-de-entrada` já tinha `Entrada.tsx`, `entrada.css`, `entrada.ts` e `Raiz.tsx`, mas ela **não existe no GitHub** (deve estar só no Windows). O usuário escolheu **recriar aqui pelo prompt**, na branch `feat/entrada-supabase` (nome diferente de propósito, para não sobrescrever a do local). **Agente local:** não faça push da `feat/tela-de-entrada` por cima. Compare com esta e combine com o usuário qual versão fica. Esta já tem os testes e a autenticação real.
+**Decisão do usuário (2026-10-23):** em conflito com qualquer outra tela de login, **esta branch sobrescreve**: a Entrada descrita no prompt, como implementada aqui, é a **tela final do site**. **Agente local:** descarte a `feat/tela-de-entrada` (ou só aproveite dela o que não conflitar) e parta da `feat/entrada-supabase`.
+
+**Divergência (histórico):** o prompt diz que a branch `feat/tela-de-entrada` já tinha `Entrada.tsx`, `entrada.css`, `entrada.ts` e `Raiz.tsx`, mas ela **não existe no GitHub** (deve estar só no Windows). O usuário escolheu **recriar aqui pelo prompt**, na branch `feat/entrada-supabase` (nome diferente de propósito, para não sobrescrever a do local). **Agente local:** não faça push da `feat/tela-de-entrada` por cima. Compare com esta e combine com o usuário qual versão fica. Esta já tem os testes e a autenticação real.
 
 **Outras decisões do usuário nesta sessão:**
 - Contas **só por convite**: sai o "Criar conta" da F2.
