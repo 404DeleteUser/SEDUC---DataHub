@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, TextIO
@@ -144,12 +145,19 @@ class Emissor:
             arquivo_log.parent.mkdir(parents=True, exist_ok=True)
             self._arquivo = arquivo_log.open("a", encoding="utf-8")
         self.avisos = 0
+        self._eventos: list[dict[str, Any]] = []
+
+    @property
+    def eventos(self) -> list[dict[str, Any]]:
+        """Devolve uma cópia dos eventos emitidos nesta execução."""
+        return deepcopy(self._eventos)
 
     def emitir(self, tipo: str, **campos: Any) -> dict[str, Any]:
         self._seq += 1
         evento = {"v": VERSAO, "execucao": self.execucao, "seq": self._seq, "ts": self._relogio(), "tipo": tipo}
         evento.update({chave: valor for chave, valor in campos.items() if valor is not None})
         validar_evento(evento)
+        self._eventos.append(deepcopy(evento))
         if tipo == "log" and evento["nivel"] == "aviso":
             self.avisos += 1
         linha = json.dumps(evento, ensure_ascii=False)

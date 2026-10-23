@@ -7,6 +7,7 @@ que o motor lê de volta. O que o script imprimir vira log "info".
 from __future__ import annotations
 
 import contextlib
+from dataclasses import replace
 import io
 import runpy
 import sys
@@ -96,6 +97,8 @@ def executar(
         except ErroDePlanilha as erro:
             raise ErroDaFerramenta(f"A saída do script é inválida: {erro}") from None
         if len(pasta.abas) == 1:
-            resultado.aba.nome = pasta.abas[0].nome  # o script não precisa se preocupar com o nome da aba
-        nova = Pasta([resultado.aba], pasta.zebra)
+            resultado_aba = replace(resultado.aba, nome=pasta.abas[0].nome)  # o script não precisa se preocupar com o nome da aba
+        else:
+            resultado_aba = resultado.aba
+        nova = Pasta([resultado_aba], pasta.zebra)
         return ResultadoDaEtapa(nova, {"abas": len(nova.abas)})

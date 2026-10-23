@@ -1,0 +1,151 @@
+{
+  "versao": 1,
+  "ferramentas": [
+    {
+      "id": "zebrar-planilha",
+      "nome": "Zebrar Planilha",
+      "descricao": "Pinta o cabeçalho e alterna duas cores nas linhas para facilitar a leitura.",
+      "especial": false,
+      "parametros": [
+        {
+          "nome": "corCabecalho",
+          "rotulo": "Cor do cabeçalho",
+          "tipo": "cor",
+          "mensagem": "A cor do cabeçalho é inválida (use o formato #RRGGBB).",
+          "opcoes": [],
+          "padrao": "#1f4e79",
+          "ajuda": ""
+        },
+        {
+          "nome": "corLinhaA",
+          "rotulo": "Cor das linhas ímpares",
+          "tipo": "cor",
+          "mensagem": "A cor das linhas ímpares é inválida (use o formato #RRGGBB).",
+          "opcoes": [],
+          "padrao": "#ffffff",
+          "ajuda": ""
+        },
+        {
+          "nome": "corLinhaB",
+          "rotulo": "Cor das linhas pares",
+          "tipo": "cor",
+          "mensagem": "A cor das linhas pares é inválida (use o formato #RRGGBB).",
+          "opcoes": [],
+          "padrao": "#e8effc",
+          "ajuda": ""
+        }
+      ]
+    },
+    {
+      "id": "eliminar-duplicatas",
+      "nome": "Eliminar Duplicatas",
+      "descricao": "Remove linhas repetidas considerando as colunas escolhidas como chave.",
+      "especial": false,
+      "parametros": [
+        {
+          "nome": "colunasChave",
+          "rotulo": "Colunas-chave",
+          "tipo": "colunas",
+          "mensagem": "Escolha ao menos uma coluna para identificar as duplicatas.",
+          "opcoes": [],
+          "padrao": null,
+          "ajuda": "Linhas com os mesmos valores nessas colunas são duplicatas; uma delas é mantida."
+        }
+      ]
+    },
+    {
+      "id": "dicionario",
+      "nome": "Dicionário",
+      "descricao": "Mantém só as linhas em que a coluna contém, ou é igual a, um dos valores informados.",
+      "especial": false,
+      "parametros": [
+        {
+          "nome": "coluna",
+          "rotulo": "Coluna",
+          "tipo": "coluna",
+          "mensagem": "Escolha a coluna do dicionário.",
+          "opcoes": [],
+          "padrao": null,
+          "ajuda": ""
+        },
+        {
+          "nome": "modo",
+          "rotulo": "Como comparar",
+          "tipo": "escolha",
+          "mensagem": "Escolha se o valor deve estar contido ou ser exato.",
+          "opcoes": [
+            {
+              "valor": "contem",
+              "rotulo": "Contém"
+            },
+            {
+              "valor": "exato",
+              "rotulo": "Exato"
+            }
+          ],
+          "padrao": "contem",
+          "ajuda": ""
+        },
+        {
+          "nome": "valores",
+          "rotulo": "Valores para manter",
+          "tipo": "lista_texto",
+          "mensagem": "Informe ao menos um valor para manter.",
+          "opcoes": [],
+          "padrao": null,
+          "ajuda": "Sem diferenciar maiúsculas, minúsculas e acentos."
+        }
+      ]
+    },
+    {
+      "id": "mesclar-planilhas",
+      "nome": "Mesclar Planilhas",
+      "descricao": "Empilha planilhas com o mesmo cabeçalho ou junta cada arquivo como uma aba.",
+      "especial": false,
+      "parametros": [
+        {
+          "nome": "modo",
+          "rotulo": "Como mesclar",
+          "tipo": "escolha",
+          "mensagem": "Escolha como mesclar: empilhar linhas ou um arquivo por aba.",
+          "opcoes": [
+            {
+              "valor": "vertical",
+              "rotulo": "Empilhar linhas"
+            },
+            {
+              "valor": "abas",
+              "rotulo": "Um arquivo por aba"
+            }
+          ],
+          "padrao": "vertical",
+          "ajuda": ""
+        }
+      ]
+    },
+    {
+      "id": "dividir-por",
+      "nome": "Dividir Por",
+      "descricao": "Mantém a aba consolidada e cria uma aba para cada valor da coluna escolhida.",
+      "especial": false,
+      "parametros": [
+        {
+          "nome": "coluna",
+          "rotulo": "Coluna",
+          "tipo": "coluna",
+          "mensagem": "Escolha a coluna para dividir.",
+          "opcoes": [],
+          "padrao": null,
+          "ajuda": ""
+        }
+      ]
+    },
+    {
+      "id": "script-python",
+      "nome": "Script Python conectado",
+      "descricao": "Script existente conectado ao fluxo do processo.",
+      "especial": true,
+      "parametros": []
+    }
+  ]
+}

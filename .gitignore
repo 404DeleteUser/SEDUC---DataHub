@@ -38,3 +38,6 @@ engine/.venv/
 __pycache__/
 .pytest_cache/
 *.egg-info/
+
+# Worktrees dos workers do Alethe
+.alethe/

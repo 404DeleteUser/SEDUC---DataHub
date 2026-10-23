@@ -10,43 +10,33 @@ from typing import Any
 
 from ..pasta import Aba, Pasta
 from ..texto import ABA_CONSOLIDADA, ABA_OUTROS, gerador_de_nomes_unicos, texto_normalizado
-from .base import (
-    ContextoDaEtapa,
-    ErroDaFerramenta,
-    Ferramenta,
-    Parametro,
-    ResultadoDaEtapa,
-    indice_obrigatorio,
-    texto_obrigatorio,
-)
+from .base import ContextoDaEtapa, ErroDaFerramenta, Ferramenta, Parametro, ResultadoDaEtapa, indice_obrigatorio
 
 
 def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa) -> ResultadoDaEtapa:
-    coluna = texto_obrigatorio(parametros, "coluna", "Escolha a coluna para dividir.")
     if len(pasta.abas) != 1:
         raise ErroDaFerramenta(f"Dividir Por precisa de uma aba só, e a planilha tem {len(pasta.abas)}.")
     origem = pasta.abas[0]
-    indice = indice_obrigatorio(origem, coluna)
+    indice = indice_obrigatorio(origem, parametros["coluna"])
+    dados = origem.dados.reset_index(drop=True)
+    valores = dados.iloc[:, indice]
 
-    grupos: dict[str, tuple[str, list[list[Any]]]] = {}
-    vazias: list[list[Any]] = []
-    for linha in origem.linhas:
-        chave = texto_normalizado(linha[indice])
-        if not chave:
-            vazias.append(linha)
-            continue
-        if chave not in grupos:
-            grupos[chave] = (str(linha[indice]).strip(), [])
-        grupos[chave][1].append(linha)
+    grupos: dict[str, list[int]] = {}  # na ordem da primeira aparição
+    vazias: list[int] = []
+    for posicao, chave in enumerate(valores.map(texto_normalizado)):
+        (grupos.setdefault(chave, []) if chave else vazias).append(posicao)
 
     contexto.verificar_cancelamento()
     unico = gerador_de_nomes_unicos([ABA_CONSOLIDADA])
-    abas = [Aba.de_linhas(ABA_CONSOLIDADA, list(origem.cabecalho), list(origem.linhas))]
-    abas += [Aba.de_linhas(unico(nome), list(origem.cabecalho), linhas) for nome, linhas in grupos.values()]
+    abas = [Aba(ABA_CONSOLIDADA, dados.copy())]
+    abas += [
+        Aba(unico(str(valores.iloc[posicoes[0]]).strip()), dados.iloc[posicoes].reset_index(drop=True))
+        for posicoes in grupos.values()
+    ]
     if vazias:
         nomes = {texto_normalizado(aba.nome) for aba in abas}
         nome_outros = f"{ABA_OUTROS} (vazios)" if texto_normalizado(ABA_OUTROS) in nomes else ABA_OUTROS
-        abas.append(Aba.de_linhas(unico(nome_outros), list(origem.cabecalho), vazias))
+        abas.append(Aba(unico(nome_outros), dados.iloc[vazias].reset_index(drop=True)))
     return ResultadoDaEtapa(
         Pasta(abas, pasta.zebra),
         {"abas_criadas": len(abas) - 1, "linhas_sem_valor": len(vazias)},

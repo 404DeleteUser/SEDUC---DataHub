@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pandas as pd
+
 from ..pasta import Aba, Pasta
 from ..texto import gerador_de_nomes_unicos, texto_normalizado
 from .base import ContextoDaEtapa, ErroDaFerramenta, Ferramenta, Parametro, ResultadoDaEtapa
@@ -34,10 +36,7 @@ def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa
 
     if modo == "abas":
         unico = gerador_de_nomes_unicos([])
-        novas = [
-            Aba.de_linhas(unico(entrada.caminho.stem), list(entrada.aba.cabecalho), [list(l) for l in entrada.aba.linhas])
-            for entrada in contexto.entradas
-        ]
+        novas = [Aba(unico(entrada.caminho.stem), entrada.aba.dados.copy(deep=True)) for entrada in contexto.entradas]
         return ResultadoDaEtapa(Pasta(novas, pasta.zebra), {"arquivos_mesclados": len(novas), "abas": len(novas)})
 
     referencia = abas[0]
@@ -48,14 +47,25 @@ def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa
     ]
     if problemas:
         raise ErroDaFerramenta("Os cabeçalhos são diferentes. " + " | ".join(problemas))
-    linhas: list[list[Any]] = []
+    quadros = []
     for aba in abas:
         contexto.verificar_cancelamento()
-        posicoes = {texto_normalizado(coluna): i for i, coluna in enumerate(aba.cabecalho)}
-        ordem = [posicoes[texto_normalizado(coluna)] for coluna in referencia.cabecalho]
-        linhas.extend([linha[i] for i in ordem] for linha in aba.linhas)
-    mesclada = Aba.de_linhas(referencia.nome, list(referencia.cabecalho), linhas)
-    return ResultadoDaEtapa(Pasta([mesclada], pasta.zebra), {"arquivos_mesclados": len(abas), "linhas": len(linhas)})
+        posicoes: dict[str, list[int]] = {}
+        for indice, coluna in enumerate(aba.cabecalho):
+            posicoes.setdefault(texto_normalizado(coluna), []).append(indice)
+        usados: dict[str, int] = {}
+        ordem = []
+        for coluna in referencia.cabecalho:
+            chave = texto_normalizado(coluna)
+            ocorrencia = usados.get(chave, 0)
+            ordem.append(posicoes[chave][ocorrencia])
+            usados[chave] = ocorrencia + 1
+        quadro = aba.dados.iloc[:, ordem].copy(deep=True).reset_index(drop=True)
+        quadro.columns = list(referencia.cabecalho)
+        quadros.append(quadro)
+    dados = pd.concat(quadros, ignore_index=True).astype(object)
+    mesclada = referencia.com_dados(dados)
+    return ResultadoDaEtapa(Pasta([mesclada], pasta.zebra), {"arquivos_mesclados": len(abas), "linhas": len(dados)})
 
 
 FERRAMENTA = Ferramenta(

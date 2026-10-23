@@ -24,6 +24,7 @@ from .catalogo import gravar_catalogo
 from .eventos import Emissor
 from .execucao import Cancelamento, executar_plano
 from .plano import PlanoInvalido, carregar_plano
+from .relatorio import caminho_do_relatorio, gravar_relatorio
 
 RETENCAO_PADRAO_DIAS = 90
 CODIGOS = {"concluido": 0, "concluido_com_avisos": 0, "erro": 1, "cancelado": 130}
@@ -73,6 +74,11 @@ def _executar(args: argparse.Namespace) -> int:
     finally:
         emissor.fechar()
         registro.desmarcar(arquivo)
+        if plano.saida.parent.is_dir():
+            try:
+                gravar_relatorio(emissor.eventos, caminho_do_relatorio(plano.saida))
+            except OSError as erro:
+                print(json.dumps({"aviso": f"Não foi possível gravar o log legível: {erro}"}, ensure_ascii=False), file=sys.stderr)
     return CODIGOS[status]
 
 

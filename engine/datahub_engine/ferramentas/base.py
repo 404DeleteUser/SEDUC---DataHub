@@ -85,10 +85,3 @@ def indice_obrigatorio(aba: Aba, coluna: str) -> int:
     if indice is None:
         raise ErroDaFerramenta(f"A coluna {coluna} não existe na aba {aba.nome}.")
     return indice
-
-
-def texto_obrigatorio(parametros: dict[str, Any], campo: str, mensagem: str) -> str:
-    valor = parametros.get(campo)
-    if not isinstance(valor, str) or not valor.strip():
-        raise ErroDaFerramenta(mensagem)
-    return valor

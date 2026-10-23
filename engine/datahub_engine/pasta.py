@@ -63,11 +63,6 @@ class Aba:
         """Cópia das linhas como listas Python (para gravar, comparar e testar)."""
         return [[valor_python(valor) for valor in linha] for linha in self.dados.itertuples(index=False, name=None)]
 
-    @linhas.setter
-    def linhas(self, linhas: list[list[Any]]) -> None:
-        # Ponte provisória: remover quando todas as ferramentas trabalharem com `dados`.
-        self.dados = novo_dataframe(self.cabecalho, linhas)
-
     def com_dados(self, dados: pd.DataFrame) -> Aba:
         return replace(self, dados=dados)
 
