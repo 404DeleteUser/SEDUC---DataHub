@@ -32,6 +32,11 @@ Fonte da verdade para os dois agentes (local e Codespace). Não contrarie nada d
 - **Perfil:** nome e foto ficam salvos **no computador** (`localStorage`, app individual). Matrícula, vínculo e e-mail institucional são **fictícios** com o selo Simulação, até o usuário definir a fonte. Sem nome definido, a sidebar mostra só "Perfil" (respeita a D3d: nada de perfil fictício como real). *(2026-10-23)*
 - **"Sair da conta"** é uma Simulação: pede confirmação e mostra a tela "Você saiu do DataHub" com "Entrar novamente", porque ainda não há login. *(2026-10-23)*
 
+- **Tema escuro "quase preto"** (valores do Anexo A, em `tokens.css` e na tabela do `DESIGN.md`); o claro não muda e continuam só dois temas. Substitui o "navy no dark". *(2026-10-23, C1/C2)*
+- **Banner do Início:** sem a foto da sede e sem o lema; no lugar, "SEDUC" em ASCII animado (feixe de luz azul, só cores da paleta). *(2026-10-23, C3/C4/C10)*
+- **Ilustrações ASCII em `<canvas>`** (banner e brasão do Perfil) podem redesenhar a cada quadro, sempre respeitando `prefers-reduced-motion`. O brasão do Perfil usa as cores do próprio brasão. *(2026-10-23, C5/C9)*
+- **Pendente:** C6 (caracteres do ASCII abaixo de 12px). Enquanto não houver resposta, os ASCII usam 12px (`TAMANHO_FONTE_ASCII`).
+
 ## Git e ambientes
 
 - Remoto `origin` = `github.com/404DeleteUser/SEDUC---DataHub` (**público**), branch principal `main`. *(2026-10-23)*

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Camera, LogOut, Pencil, Trash2, User } from 'lucide-react';
 
+import AsciiBrasao from '../components/ascii/AsciiBrasao';
 import PageHeader from '../components/PageHeader';
 import {
   Button,
@@ -248,6 +249,9 @@ export default function Perfil({
               Sair da conta
             </Button>
           </section>
+        </div>
+        <div className="perfil-palco">
+          <AsciiBrasao />
         </div>
       </div>
 

@@ -18,24 +18,30 @@ Modelo:
 
 ---
 
-## 2026-10-23 · codespace · feat/tema-mais-dark-ascii · AGUARDANDO ACORDO
+## 2026-10-23 · codespace · feat/tema-mais-dark-ascii · AGUARDANDO ACORDO (C6)
 
 **Pedido do usuário:** tema "mais dark", sidebar sem a linha do item ativo (e círculos quando recolhida), Logs sem a caixa da lista, seleção de Ferramentas sem a barra lateral, card de Logs do Início com a altura de "Ferramentas mais utilizadas", banner com "SEDUC" em ASCII animado, Perfil sem caixas e com o brasão em ASCII tremulando.
 
-**Feito (sem conflito):** itens 2, 3, 4, 5, a parte do item 8 sem o brasão (caixas removidas, seções separadas por 40px, dados funcionais em linha, avatar ativo com contorno) e o item 7 conferido (a fonte self-hosted tem pesos 100–700). Branch criada a partir de `feat/perfil` (o Perfil só existe nela).
+**Feito:**
+- Itens 2, 3, 4, 5 e 8 (commit `e019f33`): sem caixas e sem barras laterais; contador de Logs só para leitores de tela.
+- Item 1: tema escuro do Anexo A em `tokens.css`, com a tabela do `DESIGN.md` atualizada.
+- Item 6: banner sem a foto e sem o lema, com "SEDUC" em ASCII (`components/ascii/AsciiSeduc.tsx`).
+- Item 8: brasão em ASCII no Perfil (`AsciiBrasao.tsx`), sobre o hook comum `useAsciiCanvas.ts`.
+- Item 7: a máscara usa `'IBM Plex Sans Variable'` 700 (a fonte cobre os pesos 100–700).
+- Correção: o canvas media o pai com a borda e transbordava 2px. O e2e de overflow pegou o problema, e o canvas passou a usar `clientWidth`/`clientHeight`.
+- `src/test/setup.ts`: `getContext` do canvas devolve `null` no jsdom (sem ruído nos testes).
 
-**AGUARDANDO ACORDO (o usuário decide; não implementar antes):**
-- C1 · item 1 · `DESIGN.md` › Cor: tabela fixa os valores dark e "não crie paleta paralela". Proposta: trocar os valores do `[data-theme='dark']` (Anexo A) e atualizar a tabela. Contraste conferido: `--text-muted` fica entre 5,53:1 e 6,54:1.
-- C2 · item 1 · `DESIGN.md` › Identidade: "navy no dark". O novo dark é quase preto.
-- C3 · item 6 · `DESIGN.md` › Identidade: "sede da SEDUC no banner". A foto sai e entra o ASCII.
-- C4 · item 6 · `DESIGN.md` › Modo: "texto do banner não mudam". Remove o lema.
-- C5 · itens 6 e 8 · `DESIGN.md` › Movimento: "Anima só transform, opacity e cores". Os canvas redesenham a cada quadro (respeitam `prefers-reduced-motion`).
-- C6 · itens 6 e 8 · `DESIGN.md` › Tipografia: "Nenhum texto renderizado abaixo de 12px". Caracteres do canvas com 7–8px, decorativos.
-- C9 · item 8 · `DESIGN.md` › Exclusões: "nenhuma cor fora da paleta, exceto corIcone e status". O brasão ASCII usa as cores da imagem do brasão.
-- C10 · item 6 · `DESIGN.md` › Exclusões: "sem gradientes decorativos, sem neon". A faixa de luz do "scanner" é um efeito decorativo de brilho.
-- Sem conflito: C7 já resolvido na sessão `feat/perfil` (Perfil navegável, teste D3d atualizado, decisão em `DECISOES.md`); C8 resolvido mantendo o contador em `sr-only`.
+**Decisões do usuário (2026-10-23):**
+- C1 a · C2 a · C3 a · C4 a · C5 a · C9 a · C10 a.
+- Regras atualizadas no `DESIGN.md` e registradas no `DECISOES.md`.
+- C7: já estava resolvido na `feat/perfil`. C8: resolvido com `sr-only`.
 
-**Verificações (parciais, antes das aprovações):** tsc ✓ · vitest 225/225 ✓ · pytest e e2e — (rodar ao final, depois das decisões).
+**AGUARDANDO ACORDO:**
+- **C6** (caracteres do ASCII abaixo de 12px) ficou sem resposta. Os ASCII usam 12px (`TAMANHO_FONTE_ASCII`), dentro da regra; com 7–8px o desenho fica mais fino, como no código de referência.
+- **C3 (arquivo):** apagar `src/assets/seduc-banner.webp`, que ficou sem uso? Sem resposta; o arquivo continua no repositório.
+- **Banner em 960px:** a palavra ocupa a metade direita e passa, bem apagada, por baixo do parágrafo. Isso vem do desenho de referência. Pode-se esconder o ASCII em banners estreitos, mas é decisão de design.
+
+**Verificações:** tsc ✓ · vitest 225/225 ✓ · build ✓ · pytest 79/79 ✓ · e2e 100/100 ✓ (rodado de novo depois da correção do canvas). Capturas conferidas em claro e escuro, sidebar aberta e recolhida, 1280×800 e 960×640.
 
 **Push:** não feito.
 

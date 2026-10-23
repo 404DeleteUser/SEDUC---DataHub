@@ -6,9 +6,9 @@ Contexto e diagnóstico: [`docs/ux-ui-modernization-plan.md`](docs/ux-ui-moderni
 ## Registro, identidade e âncoras
 
 - **Registro:** `product-app` (ferramenta interna, uso diário por analistas, janela desktop Windows).
-- **Modo:** redesign *overhaul* (aprovado em 21/10/2026): linguagem visual nova sobre o mesmo conteúdo e a mesma arquitetura de informação. Nomes da navegação, rótulos de campo e texto do banner não mudam.
-- **Identidade (herdada, não reinventada):** brasão de MT, sede da SEDUC no banner, navy no dark, cinza muito claro no light, azul institucional para ação primária, ícones Lucide coloridos por processo/ferramenta. A faixa tricolor (verde, ouro e azul) é a **assinatura institucional**: aparece no banner e na marca da sidebar, e em nenhum outro lugar.
-- **Exclusões:** sem gradientes decorativos, sem glassmorphism, sem neon e sem emoji como ícone; nenhuma cor fora da paleta, exceto as cores de identidade de entidades (`corIcone`) e os status.
+- **Modo:** redesign *overhaul* (aprovado em 21/10/2026): linguagem visual nova sobre o mesmo conteúdo e a mesma arquitetura de informação. Nomes da navegação e rótulos de campo não mudam. O texto do banner (eyebrow, título e parágrafo) se mantém; o lema "Interface que organiza / Processos que transformam" saiu em 23/10/2026.
+- **Identidade (herdada, não reinventada):** brasão de MT, "SEDUC" em ASCII animado no banner (substituiu a foto da sede em 23/10/2026), quase preto no dark (substituiu o navy em 23/10/2026), cinza muito claro no light, azul institucional para ação primária, ícones Lucide coloridos por processo/ferramenta. A faixa tricolor (verde, ouro e azul) é a **assinatura institucional**: aparece no banner e na marca da sidebar, e em nenhum outro lugar.
+- **Exclusões:** sem gradientes decorativos, sem glassmorphism, sem neon e sem emoji como ícone; nenhuma cor fora da paleta, exceto as cores de identidade de entidades (`corIcone`), os status e as cores do próprio brasão de MT no brasão em ASCII do Perfil. Exceção aprovada em 23/10/2026: o feixe de luz do "SEDUC" em ASCII no banner (só azuis da paleta).
 - **Âncoras (estrutura e densidade, não aparência):** IBM Carbon para densidade de ferramenta de dados (listas operacionais, linhas de 48px, grid de 4px); Fluent 2 para affordances de desktop Windows (painel mestre-detalhe, barra de comandos no rodapé dos formulários).
 
 ## Tipografia
@@ -24,27 +24,27 @@ Desvio consciente da regra "contraste de peso ≥ 400": em `product-app` o par 6
 
 ## Cor (tokens semânticos)
 
-Os valores de base continuam os de `src/styles/tokens.css`. As mudanças do redesign se limitam ao contraste e às variantes `soft`.
+Os valores de base continuam os de `src/styles/tokens.css`. O tema escuro passou a ser "quase preto" em 23/10/2026 (superfícies neutras, acentos azuis); o tema claro não mudou. Continua havendo só dois temas: não crie paleta paralela.
 
 | Token | Light | Dark | Uso |
 |---|---|---|---|
-| `--bg-app` | `#f3f5f8` | `#0b1422` | fundo da janela |
-| `--bg-sidebar` / `--bg-card` | `#ffffff` | `#0e1929` / `#111e30` | superfícies |
-| `--bg-card-secondary` / `--bg-input` | `#f7f9fb` | `#0e1a2b` / `#0c1828` | superfície recuada, campos |
-| `--border` / `--border-hover` | `#dde3ec` / `#aebbcc` | `#24344a` / `#415773` | divisórias, contorno |
-| `--text-primary` | `#16283f` | `#e8eff8` | títulos, valores |
-| `--text-secondary` | `#475870` | `#b1bfd2` | corpo |
-| `--text-muted` | `#56667c` (≥ 4,5:1 sobre `--bg-app`, `--accent-soft` e `--banner-bg`) | `#90a2bc` | metadados |
-| `--accent` / `--accent-hover` / `--accent-soft` | `#245bcc` / `#194aa9` / `#e8effc` | `#75a8ff` / `#97bdff` / `#1c3151` | ação primária, seleção |
-| `--success` / `--warning` / `--danger` | `#087853` / `#8a5b00` / `#bf2f3b` | `#64d7af` / `#efc269` / `#ff9299` | status |
-| `--*-soft` | `color-mix(status 10%, --bg-card)` | idem com 16% | fundo de aviso |
+| `--bg-app` | `#f3f5f8` | `#05070b` | fundo da janela |
+| `--bg-sidebar` / `--bg-card` | `#ffffff` | `#080b10` / `#0d1117` | superfícies |
+| `--bg-card-secondary` / `--bg-input` | `#f7f9fb` | `#0a0d13` / `#07090d` | superfície recuada, campos |
+| `--border` / `--border-hover` | `#dde3ec` / `#aebbcc` | `#1b222c` / `#303b4b` | divisórias, contorno |
+| `--text-primary` | `#16283f` | `#e7ecf2` | títulos, valores |
+| `--text-secondary` | `#475870` | `#a6b1c0` | corpo |
+| `--text-muted` | `#56667c` (≥ 4,5:1 sobre `--bg-app`, `--accent-soft` e `--banner-bg`) | `#8794a6` (5,5–6,5:1 sobre os fundos escuros) | metadados |
+| `--accent` / `--accent-hover` / `--accent-soft` | `#245bcc` / `#194aa9` / `#e8effc` | `#6f9fff` / `#94b8ff` / `#111c30` | ação primária, seleção |
+| `--success` / `--warning` / `--danger` | `#087853` / `#8a5b00` / `#bf2f3b` | `#5fd3a8` / `#e8bd62` / `#ff8b93` | status |
+| `--*-soft` | `color-mix(status 10%, --bg-card)` | idem com 12% | fundo de aviso |
 
 ## Espaço, raio, elevação e movimento
 
 - **Espaço** (base 4): `--space-1` 4 · `--space-2` 8 · `--space-3` 12 · `--space-4` 16 · `--space-6` 24 · `--space-8` 32. Dentro de um grupo, 8–12; entre seções, 24–32.
 - **Raio:** `--radius-sm` 6 (campos, chips, botões) · `--radius-md` 10 (painéis, linhas de lista) · `--radius-lg` 14 (diálogo, banner).
 - **Elevação:** `--shadow-surface` (painéis: 1px de contorno + sombra difusa de 2 camadas) · `--shadow-dialog`.
-- **Movimento:** `--duration-fast` 120ms · `--duration-base` 200ms · `--ease-out` `cubic-bezier(.2,.8,.2,1)`. Anima só `transform`, `opacity` e cores. Respeita `prefers-reduced-motion`.
+- **Movimento:** `--duration-fast` 120ms · `--duration-base` 200ms · `--ease-out` `cubic-bezier(.2,.8,.2,1)`. Anima só `transform`, `opacity` e cores, **exceto** as ilustrações ASCII em `<canvas>` (`src/components/ascii/`), que redesenham a grade a 24–30 fps (aprovado em 23/10/2026). Tudo respeita `prefers-reduced-motion` (as ilustrações ficam num quadro parado).
 - **Foco:** `outline: 2px solid var(--accent); outline-offset: 2px` em todo elemento interativo.
 
 ## Layout

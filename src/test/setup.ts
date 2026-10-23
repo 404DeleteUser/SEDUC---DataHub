@@ -16,3 +16,8 @@ if (!HTMLDialogElement.prototype.showModal) {
     this.removeAttribute('open');
   };
 }
+
+// jsdom não desenha em canvas (as ilustrações ASCII). Sem contexto, elas não desenham nada.
+HTMLCanvasElement.prototype.getContext = function getContext() {
+  return null;
+} as typeof HTMLCanvasElement.prototype.getContext;

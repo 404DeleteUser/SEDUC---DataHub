@@ -1,8 +1,32 @@
 /* Perfil: foto, nome, dados funcionais (Simulação) e sair; tela de saída. */
 .perfil-pagina {
   display: grid;
-  grid-template-columns: minmax(0, 560px);
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+  gap: var(--space-8) 48px;
   align-items: start;
+}
+/* Brasão de MT em ASCII ocupando o espaço à direita (components/ascii/AsciiBrasao.tsx). */
+.perfil-palco {
+  position: sticky;
+  top: var(--space-4);
+  min-width: 0;
+  height: min(600px, calc(100vh - 180px));
+  min-height: 360px;
+}
+.perfil-ascii {
+  position: absolute;
+  inset: 0;
+}
+@media (max-width: 1099px) {
+  .perfil-pagina {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .perfil-palco {
+    position: relative;
+    top: 0;
+    height: 380px;
+    min-height: 0;
+  }
 }
 /* Sem caixas: as seções se separam só por espaço e títulos. */
 .perfil-conteudo {

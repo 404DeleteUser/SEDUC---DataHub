@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowUpRight, Pencil, Play, Star, Wrench } from 'lucide-react';
-import bannerSeduc from '../assets/seduc-banner.webp';
+import AsciiSeduc from '../components/ascii/AsciiSeduc';
 import ExecuteProcessModal from '../components/ExecuteProcessModal';
 import PageHeader from '../components/PageHeader';
 import ProcessCardAction from '../components/ProcessCardAction';
@@ -15,14 +15,7 @@ type ProcessoDestaque = (typeof processosDestaque)[number];
 function BannerBoasVindas() {
   return (
     <section className="welcome-banner" aria-labelledby="boas-vindas-titulo">
-      <img
-        src={bannerSeduc}
-        alt="Sede da Secretaria de Estado de Educação de Mato Grosso"
-        width={1600}
-        height={688}
-        loading="eager"
-        decoding="async"
-      />
+      <AsciiSeduc />
       <div className="welcome-copy">
         <span className="eyebrow">SEDUC · MATO GROSSO</span>
         <h2 id="boas-vindas-titulo">
@@ -38,11 +31,6 @@ function BannerBoasVindas() {
           <span />
         </div>
       </div>
-      <p className="welcome-motto">
-        INTERFACE QUE ORGANIZA
-        <br />
-        PROCESSOS QUE TRANSFORMAM
-      </p>
     </section>
   );
 }
