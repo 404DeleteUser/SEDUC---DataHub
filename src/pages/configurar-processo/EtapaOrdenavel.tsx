@@ -3,11 +3,12 @@ import { CSS } from '@dnd-kit/utilities';
 import { ChevronDown, ChevronUp, GripVertical, Trash2 } from 'lucide-react';
 import { IconButton } from '../../components/ui';
 import { ferramentasMock } from '../../mock/ferramentasMock';
-import type { EtapaProcesso } from '../../types/processo';
+import { descreverScript } from '../../domain/scriptPython';
+import type { EtapaProcesso, ScriptPython } from '../../types/processo';
 
 type EtapaOrdenavelProps = {
   etapa: EtapaProcesso;
-  arquivoScript: File | null;
+  scriptPython: ScriptPython | null;
   removivel: boolean;
   indice: number;
   selecionada: boolean;
@@ -21,10 +22,12 @@ type EtapaOrdenavelProps = {
 function resumoDaEtapa(
   etapa: EtapaProcesso,
   descricao: string,
-  arquivoScript: File | null
+  scriptPython: ScriptPython | null
 ) {
   if (etapa.ferramentaId === 'script-python') {
-    return arquivoScript?.name ?? 'Script não selecionado';
+    return scriptPython
+      ? descreverScript(scriptPython)
+      : 'Script não selecionado';
   }
   if (etapa.planilhas.length === 0) {
     return descricao;
@@ -35,7 +38,7 @@ function resumoDaEtapa(
 /** Item do fluxo: arraste pelo grip (dnd-kit) ou pelas setas; seleção abre o detalhe. */
 export function EtapaOrdenavel({
   etapa,
-  arquivoScript,
+  scriptPython,
   removivel,
   indice,
   selecionada,
@@ -103,7 +106,7 @@ export function EtapaOrdenavel({
         <span className="config-step__text">
           <span className="config-step__name">{ferramenta.nome}</span>
           <span className="config-step__summary">
-            {resumoDaEtapa(etapa, ferramenta.descricao, arquivoScript)}
+            {resumoDaEtapa(etapa, ferramenta.descricao, scriptPython)}
           </span>
         </span>
       </button>

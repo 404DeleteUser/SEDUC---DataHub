@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   CheckCircle2,
   Clock3,
+  FileSpreadsheet,
   FolderSearch,
   ListChecks,
   Pencil,
@@ -15,9 +16,52 @@ import PageHeader from '../components/PageHeader';
 import ProcessCardAction from '../components/ProcessCardAction';
 import { Button, IconButton, SimulationNotice } from '../components/ui';
 import { processosMock } from '../mock/processosMock';
+import { iconesDisponiveis } from './novo-processo/constantes';
 import type { ProcessoBase } from '../types/processo';
 
-type ProcessoCatalogo = (typeof processosMock)[number];
+type ProcessoCatalogo = (typeof processosMock)[number] & {
+  /** Cor personalizada (fora das cores-padrão) de um processo criado na sessão. */
+  corHex?: string;
+};
+
+// Cores do Novo Processo (coresPadrao) com as classes de identidade equivalentes.
+const classePorCor: Record<string, string> = {
+  '#059669': 'bg-emerald-600 text-white',
+  '#7c3aed': 'bg-violet-600 text-white',
+  '#ea580c': 'bg-orange-600 text-white',
+  '#0891b2': 'bg-cyan-600 text-white',
+  '#2563eb': 'bg-blue-600 text-white',
+  '#dc2626': 'bg-red-600 text-white',
+  '#db2777': 'bg-pink-600 text-white',
+};
+
+/** Processos criados nesta sessão (ainda não persistidos em disco). */
+function processosNovos(
+  configurados: Record<number, ProcessoBase>
+): ProcessoCatalogo[] {
+  return Object.entries(configurados)
+    .filter(([id]) => !processosMock.some((item) => item.id === Number(id)))
+    .map(([id, configuracao]) => ({
+      id: Number(id),
+      nome: configuracao.nome,
+      descricao: configuracao.descricao,
+      icone:
+        iconesDisponiveis.find(
+          (item) => item.id === configuracao.identidadeVisual.icone
+        )?.icone ?? FileSpreadsheet,
+      corIcone:
+        classePorCor[configuracao.identidadeVisual.cor.toLowerCase()] ??
+        // Reserva para o modal de execução, que só usa a classe.
+        'bg-slate-600 text-white',
+      corHex: classePorCor[configuracao.identidadeVisual.cor.toLowerCase()]
+        ? undefined
+        : configuracao.identidadeVisual.cor,
+      etapas: configuracao.etapas.length,
+      ultimaExecucao: 'Nunca executado',
+      categoria: 'Novo',
+      favorito: false,
+    }));
+}
 
 function normalizarTexto(texto: string) {
   return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -26,10 +70,12 @@ function normalizarTexto(texto: string) {
 function LinhaProcesso({
   processo,
   onAbrir,
+  onExecutar,
   onEditar,
 }: {
   processo: ProcessoCatalogo;
   onAbrir: () => void;
+  onExecutar: () => void;
   onEditar: () => void;
 }) {
   const Icone = processo.icone;
@@ -37,7 +83,10 @@ function LinhaProcesso({
     <li className="process-row">
       <ProcessCardAction nome={processo.nome} onAbrir={onAbrir} />
       <div className="process-row-main">
-        <span className={`process-row-icon ${processo.corIcone}`}>
+        <span
+          className={`process-row-icon ${processo.corIcone}`}
+          style={processo.corHex ? { background: processo.corHex } : undefined}
+        >
           <Icone size={18} aria-hidden="true" />
         </span>
         <div className="process-row-text">
@@ -46,7 +95,6 @@ function LinhaProcesso({
         </div>
       </div>
       <div className="process-row-meta">
-        <span className="category-tag">{processo.categoria}</span>
         <span className="process-row-steps">
           <ListChecks size={14} aria-hidden="true" />
           {processo.etapas} etapas
@@ -71,10 +119,15 @@ function LinhaProcesso({
           disabled
         />
       </div>
-      <span className="run-hint" aria-hidden="true">
-        <Play size={14} />
+      <button
+        type="button"
+        className="run-hint"
+        aria-label={`Executar ${processo.nome}`}
+        onClick={onExecutar}
+      >
+        <Play size={14} aria-hidden="true" />
         Executar
-      </span>
+      </button>
     </li>
   );
 }
@@ -96,23 +149,29 @@ export default function Processos({
   const [configuracaoEmExecucao, setConfiguracaoEmExecucao] =
     useState<ProcessoBase>();
 
-  // D3a: abrir o processo mostra o modal de execução sem iniciar.
-  function abrirProcesso(processo: ProcessoCatalogo) {
+  const [executarAoAbrir, setExecutarAoAbrir] = useState(false);
+
+  // Clicar na linha só abre o modal; o botão Executar abre e já executa.
+  function abrirProcesso(processo: ProcessoCatalogo, executar = false) {
     setConfiguracaoEmExecucao(processosConfigurados[processo.id]);
+    setExecutarAoAbrir(executar);
     setProcessoEmExecucao(processo);
   }
 
-  const processosAtualizados = processosMock.map((processo) => {
-    const configuracao = processosConfigurados[processo.id];
-    return configuracao
-      ? {
-          ...processo,
-          nome: configuracao.nome,
-          descricao: configuracao.descricao,
-          etapas: configuracao.etapas.length,
-        }
-      : processo;
-  });
+  const processosAtualizados = [
+    ...processosMock.map((processo) => {
+      const configuracao = processosConfigurados[processo.id];
+      return configuracao
+        ? {
+            ...processo,
+            nome: configuracao.nome,
+            descricao: configuracao.descricao,
+            etapas: configuracao.etapas.length,
+          }
+        : processo;
+    }),
+    ...processosNovos(processosConfigurados),
+  ];
   const termoBusca = normalizarTexto(busca);
   const processosFiltrados = processosAtualizados.filter((processo) =>
     normalizarTexto(`${processo.nome} ${processo.descricao}`).includes(
@@ -137,8 +196,8 @@ export default function Processos({
             <p className="ui-alert ui-alert--success" role="status">
               <CheckCircle2 size={18} aria-hidden="true" />
               <span>
-                Simulação de configuração concluída. Nenhum processo foi
-                persistido.
+                Processo salvo nesta sessão. Nenhum processo foi persistido em
+                disco.
               </span>
             </p>
           )}
@@ -160,11 +219,7 @@ export default function Processos({
               />
             </div>
             <div className="catalog-toolbar-info">
-              <span className="catalog-count" role="status">
-                {processosFiltrados.length} de {processosAtualizados.length}{' '}
-                processos
-              </span>
-              <SimulationNotice detail="Catálogo de exemplo; nada é salvo." />
+              <SimulationNotice detail="Processos de exemplo e criados nesta sessão; nada é gravado em disco." />
             </div>
           </div>
           {processosFiltrados.length ? (
@@ -174,7 +229,6 @@ export default function Processos({
             >
               <div className="process-list-header" aria-hidden="true">
                 <span>Processo</span>
-                <span>Categoria</span>
                 <span>Etapas</span>
                 <span>Última execução</span>
                 <span>Ações</span>
@@ -186,6 +240,7 @@ export default function Processos({
                     key={processo.id}
                     processo={processo}
                     onAbrir={() => abrirProcesso(processo)}
+                    onExecutar={() => abrirProcesso(processo, true)}
                     onEditar={() => onEditarProcesso(processo.id)}
                   />
                 ))}
@@ -205,6 +260,7 @@ export default function Processos({
         aberto={!!processoEmExecucao}
         processo={processoEmExecucao}
         configuracao={configuracaoEmExecucao}
+        executarAoAbrir={executarAoAbrir}
         onClose={() => setProcessoEmExecucao(null)}
       />
     </>

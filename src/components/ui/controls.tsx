@@ -1,5 +1,9 @@
-import type { InputHTMLAttributes, ReactNode } from 'react';
-import { Upload, type LucideIcon } from 'lucide-react';
+import type {
+  ButtonHTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+} from 'react';
+import { FolderOpen, Upload, type LucideIcon } from 'lucide-react';
 
 type FileFieldProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -38,6 +42,45 @@ export function FileField({
         {...props}
       />
     </label>
+  );
+}
+
+type ExplorerFieldProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'type' | 'onClick' | 'value' | 'required'
+> & {
+  id: string;
+  /** O que já foi escolhido (caminho ou nome); vazio mostra o placeholder. */
+  value?: string;
+  placeholder: string;
+  icon?: LucideIcon;
+  required?: boolean;
+  onPick: () => void;
+};
+
+/** Campo que só abre o explorador de arquivos: não aceita digitar caminho. */
+export function ExplorerField({
+  id,
+  value,
+  placeholder,
+  icon: Icone = FolderOpen,
+  required: _required,
+  onPick,
+  className = '',
+  ...props
+}: ExplorerFieldProps) {
+  return (
+    <button
+      type="button"
+      id={id}
+      className={`ui-file ui-file--button ${value ? 'ui-file--filled' : ''} ${className}`.trim()}
+      title={value || undefined}
+      onClick={onPick}
+      {...props}
+    >
+      <Icone size={16} aria-hidden="true" />
+      <span className="ui-file__name">{value || placeholder}</span>
+    </button>
   );
 }
 

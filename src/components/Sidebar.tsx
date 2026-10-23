@@ -11,9 +11,12 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 import brasaoMT from '../assets/brasao-mt.png';
 
 type SidebarProps = {
+  tema: 'dark' | 'light';
+  onToggleTema: () => void;
   collapsed: boolean;
   onToggle: () => void;
   paginaAtual: string;
@@ -35,6 +38,8 @@ function estaAtivo(paginaAtual: string, pagina?: string) {
 }
 
 export default function Sidebar({
+  tema,
+  onToggleTema,
   collapsed,
   onToggle,
   paginaAtual,
@@ -100,19 +105,24 @@ export default function Sidebar({
           {rotuloGrupo('Área de trabalho')}
           {item(House, 'Início', 'inicio')}
           {item(FolderCog, 'Processos', 'processos')}
-          {item(Wrench, 'Ferramentas')}
+          {item(Wrench, 'Ferramentas', 'ferramentas')}
           {item(ShieldCheck, 'Logs de Execução')}
         </nav>
         <nav aria-label="Institucional" className="nav-group">
           {rotuloGrupo('Institucional')}
-          {item(Landmark, 'Sites Institucionais')}
-          {item(Building2, 'Coordenadorias e Equipes')}
+          {item(Landmark, 'Sites Institucionais', 'sites')}
+          {item(Building2, 'Coordenadorias e Equipes', 'coordenadorias')}
         </nav>
         <nav aria-label="Preferências" className="nav-group">
           {item(Settings, 'Configurações')}
         </nav>
       </div>
       <div className="sidebar-footer">
+        <ThemeToggle
+          tema={tema}
+          onToggleTema={onToggleTema}
+          compacto={collapsed}
+        />
         <button
           type="button"
           onClick={onToggle}

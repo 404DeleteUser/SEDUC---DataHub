@@ -441,31 +441,6 @@
 .np-saida-linha__formato {
   flex: 1 1 150px;
 }
-.np-pasta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
-}
-.np-pasta > .ui-button {
-  min-height: 38px;
-}
-.np-pasta__campo {
-  position: relative;
-  flex: 1 1 240px;
-  min-width: 0;
-}
-.np-pasta__campo > svg {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-.np-pasta__campo > .ui-input {
-  padding-left: calc(var(--space-3) + 16px + var(--space-2));
-}
 
 /* Rodapé (barra de comandos) */
 .np-rodape__info {
@@ -494,4 +469,22 @@
   .np-coluna > .ui-panel {
     padding: var(--space-4);
   }
+}
+
+/* Script Python: arquivo ou pasta com o principal */
+.np-script__conexao {
+  display: grid;
+  gap: var(--space-4);
+}
+.np-script__modos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.np-script__modos > legend {
+  margin-bottom: var(--space-2);
+  padding: 0;
 }

@@ -1,12 +1,29 @@
+import type { ParametrosFerramenta } from './ferramenta';
+
 export type AuxiliarProcesso = {
   id: number;
   nome: string;
   arquivo: File | null;
 };
 
+/** Arquivo ou pasta escolhido no explorador (caminho real só no app desktop). */
+export type ItemDoExplorador = {
+  nome: string;
+  caminho?: string;
+  rotulo: string;
+};
+
+export type ScriptPython = {
+  modo: 'arquivo' | 'pasta';
+  /** Script executado. Na pasta, `nome` é o caminho relativo a ela. */
+  principal: ItemDoExplorador;
+  /** Só no modo pasta; `arquivos` (os .py encontrados) só no navegador. */
+  pasta?: ItemDoExplorador & { arquivos?: string[] };
+};
+
 export type ProcessoBase = {
   origem: 'ferramentas' | 'script-python';
-  scriptPython: File | null;
+  scriptPython: ScriptPython | null;
   etapas: EtapaProcesso[];
   nome: string;
   descricao: string;
@@ -55,6 +72,9 @@ export type EtapaProcesso = {
   planilhas: PlanilhaEtapa[];
 
   condicao: CondicaoEtapa;
+
+  /** Configuração da ferramenta, gravada com o processo (ausente no script Python). */
+  parametros?: ParametrosFerramenta;
 };
 
 export type ArquivoDisponivel = {

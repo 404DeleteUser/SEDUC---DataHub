@@ -1,0 +1,8 @@
+{"v":2,"execucao":"ex1","seq":1,"ts":"2026-10-22T14:30:05.120Z","tipo":"progresso","percentual":10,"mensagem":"versão errada"}
+{"v":1,"execucao":"ex1","seq":0,"ts":"2026-10-22T14:30:05.120Z","tipo":"progresso","percentual":10,"mensagem":"seq zero"}
+{"v":1,"execucao":"ex1","seq":1,"ts":"2026-10-22T14:30:05.120Z","tipo":"progresso","percentual":120,"mensagem":"percentual acima de 100"}
+{"v":1,"execucao":"ex1","seq":1,"ts":"2026-10-22T14:30:05.120Z","tipo":"desconhecido"}
+{"v":1,"execucao":"ex1","seq":1,"ts":"2026-10-22T14:30:05.120Z","tipo":"log","nivel":"erro","mensagem":"nível inválido"}
+{"v":1,"execucao":"ex1","seq":1,"ts":"ontem","tipo":"progresso","percentual":10,"mensagem":"ts inválido"}
+{"v":1,"execucao":"ex1","seq":1,"ts":"2026-10-22T14:30:05.120Z","tipo":"execucao.fim","status":"erro","duracao_ms":1,"avisos":0}
+{"v":1,"execucao":"ex1","seq":1,"ts":"2026-10-22T14:30:05.120Z","tipo":"etapa.fim","indice":0,"ferramenta":"dicionario","linhas_antes":10,"linhas_depois":5,"resumo":{"linhas_removidas":"cinco"},"duracao_ms":3}

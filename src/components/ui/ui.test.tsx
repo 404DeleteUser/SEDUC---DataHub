@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   Button,
   Checkbox,
+  ExplorerField,
   Field,
   FileField,
   IconButton,
@@ -211,5 +212,45 @@ describe('SelectableChip', () => {
     expect(chip).toHaveAttribute('aria-pressed', 'false');
     await userEvent.click(chip);
     expect(onToggle).toHaveBeenCalledOnce();
+  });
+});
+
+describe('ExplorerField', () => {
+  it('é um botão rotulado pelo Field que só abre o explorador', async () => {
+    const abrir = vi.fn();
+    render(
+      <Field
+        id="pasta"
+        label="Pasta de destino"
+        required
+        error="Escolha a pasta."
+      >
+        {(controle) => (
+          <ExplorerField
+            {...controle}
+            placeholder="Selecionar pasta…"
+            onPick={abrir}
+          />
+        )}
+      </Field>
+    );
+    const campo = screen.getByRole('button', { name: /Pasta de destino/ });
+    expect(campo).toHaveAttribute('aria-invalid', 'true');
+    expect(campo).toHaveTextContent('Selecionar pasta…');
+    expect(screen.queryByRole('textbox')).toBeNull();
+    await userEvent.click(campo);
+    expect(abrir).toHaveBeenCalledTimes(1);
+  });
+
+  it('mostra o caminho escolhido', () => {
+    render(
+      <ExplorerField
+        id="x"
+        value={'C:\\Relatorios'}
+        placeholder="—"
+        onPick={() => {}}
+      />
+    );
+    expect(screen.getByRole('button')).toHaveTextContent('C:\\Relatorios');
   });
 });

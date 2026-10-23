@@ -1,18 +1,19 @@
 import { processosMock } from './processosMock';
 import { ferramentasMock } from './ferramentasMock';
 import type { EtapaProcesso, ProcessoBase } from '../types/processo';
+import { normalizarParametros } from '../domain/ferramentas';
 
 const ferramentasPorProcesso: Record<number, string[]> = {
-  1: ['juntar-planilhas', 'remover-duplicatas', 'validar-dados'],
-  2: ['validar-dados', 'remover-vazios'],
-  3: ['juntar-planilhas', 'formatar-planilha'],
-  4: ['validar-dados', 'remover-duplicatas'],
-  5: ['remover-vazios', 'formatar-planilha'],
-  6: ['remover-duplicatas', 'formatar-planilha'],
-  7: ['validar-dados', 'remover-duplicatas'],
-  8: ['validar-dados', 'zebrar-planilha'],
-  9: ['juntar-planilhas', 'remover-duplicatas'],
-  10: ['formatar-planilha'],
+  1: ['mesclar-planilhas', 'eliminar-duplicatas', 'dicionario'],
+  2: ['dicionario', 'eliminar-duplicatas'],
+  3: ['mesclar-planilhas', 'zebrar-planilha'],
+  4: ['dicionario', 'eliminar-duplicatas'],
+  5: ['eliminar-duplicatas', 'zebrar-planilha'],
+  6: ['eliminar-duplicatas', 'zebrar-planilha'],
+  7: ['dicionario', 'eliminar-duplicatas'],
+  8: ['dicionario', 'zebrar-planilha'],
+  9: ['mesclar-planilhas', 'eliminar-duplicatas'],
+  10: ['zebrar-planilha'],
 };
 
 function criarEtapa(ferramentaId: string, indice: number): EtapaProcesso {
@@ -27,6 +28,7 @@ function criarEtapa(ferramentaId: string, indice: number): EtapaProcesso {
       coluna: '',
       valor: '',
     },
+    parametros: normalizarParametros(ferramentaId, undefined),
   };
 }
 
@@ -42,7 +44,7 @@ export function criarConfiguracaoProcessoMock(id: number): ProcessoBase | null {
     criarEtapa(
       ferramentasDoProcesso[
         indice % Math.max(ferramentasDoProcesso.length, 1)
-      ] ?? 'validar-dados',
+      ] ?? 'dicionario',
       indice
     )
   );

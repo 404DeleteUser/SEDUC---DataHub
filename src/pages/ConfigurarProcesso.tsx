@@ -26,7 +26,6 @@ import {
 import PageHeader, { ProcessSteps } from '../components/PageHeader';
 import {
   Button,
-  Checkbox,
   Field,
   SectionTitle,
   SimulationNotice,
@@ -39,6 +38,9 @@ import type {
 } from '../types/processo';
 import { ConfiguracaoEtapa } from './configurar-processo/ConfiguracaoEtapa';
 import { EtapaOrdenavel } from './configurar-processo/EtapaOrdenavel';
+import { lerColunas } from '../utils/planilhas';
+import { normalizarParametros } from '../domain/ferramentas';
+import { descreverScript } from '../domain/scriptPython';
 
 type ConfigurarProcessoProps = {
   processo: ProcessoBase;
@@ -88,11 +90,6 @@ function ConfigurarProcesso({
   /* ===================================================== */
   /* 4. LOGS */
   /* ===================================================== */
-  const [mostrarLinhas, setMostrarLinhas] = useState(true);
-  const [mostrarTempo, setMostrarTempo] = useState(true);
-  const [mostrarArquivos, setMostrarArquivos] = useState(false);
-  const [mostrarEtapas, setMostrarEtapas] = useState(false);
-  const [indicadorPrincipal, setIndicadorPrincipal] = useState('linhas');
   /* ===================================================== */
   /* DRAG AND DROP */
   /* ===================================================== */
@@ -165,52 +162,7 @@ function ConfigurarProcesso({
       const falhas: string[] = [];
       for (const item of arquivosDisponiveis) {
         try {
-          const extensao = item.arquivo.name.split('.').pop()?.toLowerCase();
-          if (extensao !== 'xlsx' && extensao !== 'xls' && extensao !== 'csv') {
-            resultado[item.id] = [];
-            falhas.push(item.nome);
-            continue;
-          }
-          const buffer = await item.arquivo.arrayBuffer();
-          const XLSX = await import('xlsx');
-          const workbook = XLSX.read(buffer, {
-            type: 'array',
-          });
-          const nomePrimeiraAba = workbook.SheetNames[0];
-          if (!nomePrimeiraAba) {
-            resultado[item.id] = [];
-            falhas.push(item.nome);
-            continue;
-          }
-          const worksheet = workbook.Sheets[nomePrimeiraAba];
-          if (!worksheet) {
-            resultado[item.id] = [];
-            falhas.push(item.nome);
-            continue;
-          }
-          const linhas = XLSX.utils.sheet_to_json<unknown[]>(worksheet, {
-            header: 1,
-            defval: '',
-            blankrows: false,
-          });
-          if (linhas.length === 0) {
-            resultado[item.id] = [];
-            falhas.push(item.nome);
-            continue;
-          }
-          const cabecalho = linhas[0];
-          if (!Array.isArray(cabecalho)) {
-            resultado[item.id] = [];
-            falhas.push(item.nome);
-            continue;
-          }
-          const colunas = cabecalho
-            .map((coluna) => String(coluna ?? '').trim())
-            .filter(
-              (coluna, index, array) =>
-                coluna.length > 0 && array.indexOf(coluna) === index
-            );
-          resultado[item.id] = colunas;
+          resultado[item.id] = await lerColunas(item.arquivo);
         } catch (erro) {
           console.error(`Erro ao ler colunas de ${item.nome}:`, erro);
           falhas.push(item.nome);
@@ -256,6 +208,7 @@ function ConfigurarProcesso({
         coluna: '',
         valor: '',
       },
+      parametros: normalizarParametros(ferramentaParaAdicionar, undefined),
     };
     setEtapas((anteriores) => [...anteriores, novaEtapa]);
     setEtapaSelecionadaId(novaEtapa.id);
@@ -435,7 +388,7 @@ function ConfigurarProcesso({
             <span className="config-origin__label">Origem:</span>
             <span className="config-origin__value">
               {scriptConectado
-                ? `Script Python${processo.scriptPython ? ` · ${processo.scriptPython.name}` : ''}`
+                ? `Script Python${processo.scriptPython ? ` · ${descreverScript(processo.scriptPython)}` : ''}`
                 : 'Ferramentas do DataHub'}
             </span>
             <span className="config-origin__description">
@@ -496,7 +449,7 @@ function ConfigurarProcesso({
                           <EtapaOrdenavel
                             key={etapa.id}
                             etapa={etapa}
-                            arquivoScript={processo.scriptPython}
+                            scriptPython={processo.scriptPython}
                             removivel={etapa.ferramentaId !== 'script-python'}
                             indice={indice}
                             selecionada={etapaSelecionadaId === etapa.id}
@@ -559,7 +512,7 @@ function ConfigurarProcesso({
               <ConfiguracaoEtapa
                 etapa={etapaSelecionada}
                 ferramenta={ferramentaSelecionada}
-                arquivoScript={processo.scriptPython}
+                scriptPython={processo.scriptPython}
                 arquivosDisponiveis={arquivosDisponiveis}
                 colunasPorArquivo={colunasPorArquivo}
                 carregandoColunas={carregandoColunas}
@@ -584,6 +537,10 @@ function ConfigurarProcesso({
                     colunas
                   )
                 }
+                onAtualizarParametros={(parametros) =>
+                  etapaSelecionada &&
+                  atualizarEtapa(etapaSelecionada.id, { parametros })
+                }
                 onAtualizarCondicao={(alteracoes) =>
                   etapaSelecionada &&
                   atualizarEtapa(etapaSelecionada.id, {
@@ -594,65 +551,6 @@ function ConfigurarProcesso({
             </section>
           </div>
 
-          {/* LOGS */}
-          <section
-            className="ui-panel config-logs"
-            aria-labelledby="titulo-logs"
-          >
-            <SectionTitle
-              id="titulo-logs"
-              step={3}
-              title="Logs de execução"
-              description="Defina quais informações serão mantidas no histórico do processo."
-            />
-            <div className="config-logs__body">
-              <div className="config-logs__options">
-                <Checkbox
-                  label="Linhas processadas"
-                  checked={mostrarLinhas}
-                  onChange={setMostrarLinhas}
-                />
-                <Checkbox
-                  label="Tempo de execução"
-                  checked={mostrarTempo}
-                  onChange={setMostrarTempo}
-                />
-                <Checkbox
-                  label="Arquivos processados"
-                  checked={mostrarArquivos}
-                  onChange={setMostrarArquivos}
-                />
-                <Checkbox
-                  label="Etapas executadas"
-                  checked={mostrarEtapas}
-                  onChange={setMostrarEtapas}
-                />
-              </div>
-              <Field
-                id="indicador-principal"
-                label="Indicador principal"
-                className="config-logs__indicator"
-              >
-                {(controle) => (
-                  <select
-                    {...controle}
-                    name="indicador-principal"
-                    autoComplete="off"
-                    className="ui-input"
-                    value={indicadorPrincipal}
-                    onChange={(event) =>
-                      setIndicadorPrincipal(event.target.value)
-                    }
-                  >
-                    <option value="linhas">Linhas processadas</option>
-                    <option value="tempo">Tempo de execução</option>
-                    <option value="arquivos">Arquivos processados</option>
-                    <option value="etapas">Etapas executadas</option>
-                  </select>
-                )}
-              </Field>
-            </div>
-          </section>
         </div>
       </div>
 

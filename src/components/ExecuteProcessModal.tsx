@@ -6,13 +6,25 @@ import {
   CheckCircle2,
   Clock3,
   FileSpreadsheet,
-  FolderOpen,
   Info,
   Play,
+  Save,
   TerminalSquare,
   X,
 } from 'lucide-react';
-import { Button, Field, IconButton, SimulationNotice } from './ui';
+import {
+  Button,
+  ExplorerField,
+  Field,
+  IconButton,
+  SimulationNotice,
+} from './ui';
+import {
+  roteiroDaExecucao,
+  type PassoDaExecucao,
+} from '../domain/execucaoProcesso';
+import { ferramentasMock } from '../mock/ferramentasMock';
+import { escolherArquivo, escolherDestino } from '../utils/explorador';
 
 type ProcessoModal = {
   id: number;
@@ -35,20 +47,26 @@ const camposVazios: CamposArquivos = {
   complementar: '',
   saida: '',
 };
-const etapasSimuladas = [
-  { progresso: 8, acao: 'Carregando planilha principal…' },
-  { progresso: 18, acao: 'Planilha principal carregada.' },
-  { progresso: 30, acao: 'Carregando planilha complementar…' },
-  { progresso: 42, acao: 'Planilha complementar carregada.' },
-  { progresso: 58, acao: 'Validando estrutura dos dados…' },
-  { progresso: 72, acao: 'Processando registros…' },
-  { progresso: 86, acao: 'Gerando arquivo consolidado…' },
-  { progresso: 100, acao: 'Processo finalizado com sucesso.' },
-];
 const INTERVALO_ETAPA_MS = 1200;
 const MENSAGEM_ENTRADAS_OBRIGATORIAS =
   'Informe a planilha principal e o arquivo de saída para executar a simulação.';
-const PLACEHOLDER_ARQUIVO = 'Selecione o arquivo ou cole o caminho';
+const EXTENSOES_PLANILHA = ['xlsx', 'xls', 'csv'];
+
+/** Nome que o "Salvar como" sugere: o configurado no processo, com o formato. */
+function nomeSugeridoDaSaida(configuracao?: ProcessoBase): string | undefined {
+  const nome = configuracao?.saida.nome.trim();
+  if (!nome) return undefined;
+  return /\.[a-z0-9]+$/i.test(nome)
+    ? nome
+    : `${nome}.${configuracao?.saida.formato || 'xlsx'}`;
+}
+
+function nomeDaFerramenta(ferramentaId: string) {
+  return (
+    ferramentasMock.find((ferramenta) => ferramenta.id === ferramentaId)
+      ?.nome ?? ferramentaId
+  );
+}
 
 function formatarTempo(segundos: number) {
   return [
@@ -63,7 +81,7 @@ function formatarTempo(segundos: number) {
 /** Sem configuração os campos abrem vazios: nenhum caminho fictício (D3b). */
 function camposDaConfiguracao(configuracao?: ProcessoBase): CamposArquivos {
   if (!configuracao) return camposVazios;
-  const nomeSaida = configuracao.saida.nome.trim();
+  const nomeSaida = nomeSugeridoDaSaida(configuracao) ?? '';
   const pastaDestino = configuracao.saida.pastaDestino.trim();
   const arquivoComplementar =
     configuracao.arquivosPrincipais.principal2 ??
@@ -102,6 +120,17 @@ export default function ExecuteProcessModal({
   ]);
   const [executando, setExecutando] = useState(false);
   const [erro, setErro] = useState('');
+  // Passos desta execução: o log embutido das ferramentas de cada etapa.
+  const roteiro = useRef<PassoDaExecucao[]>([]);
+
+  function prepararRoteiro(entradas: CamposArquivos) {
+    roteiro.current = roteiroDaExecucao({
+      arquivos: entradas,
+      etapas: configuracao?.etapas ?? [],
+      scriptPython: configuracao?.scriptPython ?? null,
+      nomeDaFerramenta,
+    });
+  }
 
   useEffect(() => {
     if (!aberto || !processo) {
@@ -114,6 +143,7 @@ export default function ExecuteProcessModal({
       executarAoAbrir &&
       Boolean(camposIniciais.principal.trim() && camposIniciais.saida.trim());
     setCampos(camposIniciais);
+    if (iniciar) prepararRoteiro(camposIniciais);
     setProgresso(0);
     setTempoDecorrido(0);
     setExecutando(iniciar);
@@ -132,7 +162,15 @@ export default function ExecuteProcessModal({
         ? document.activeElement
         : null;
     dialog?.showModal();
+    // Executar sem as entradas: o foco vai direto para o primeiro campo que falta.
+    const quadro =
+      executarAoAbrir && !iniciar
+        ? requestAnimationFrame(() =>
+            dialog?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+          )
+        : undefined;
     return () => {
+      if (quadro !== undefined) cancelAnimationFrame(quadro);
       dialog?.close();
       if (gatilho?.isConnected) gatilho.focus();
     };
@@ -145,17 +183,18 @@ export default function ExecuteProcessModal({
     const intervalo = setInterval(() => {
       // Vários ticks podem chegar juntos (timers agrupados em janelas em
       // segundo plano) antes da limpeza do efeito: nunca ler além do fim.
-      if (indice >= etapasSimuladas.length) {
+      const passos = roteiro.current;
+      if (indice >= passos.length) {
         clearInterval(intervalo);
         return;
       }
-      const etapa = etapasSimuladas[indice];
+      const etapa = passos[indice];
       indice += 1;
       setTempoDecorrido(Math.floor((Date.now() - inicio) / 1000));
       setProgresso(etapa.progresso);
       setAcaoAtual(etapa.acao);
       setLogs((anteriores) => [...anteriores, `[simulação] ${etapa.acao}`]);
-      if (indice >= etapasSimuladas.length) {
+      if (indice >= passos.length) {
         clearInterval(intervalo);
         setExecutando(false);
       }
@@ -178,6 +217,7 @@ export default function ExecuteProcessModal({
       return;
     }
     setErro('');
+    prepararRoteiro(campos);
     setProgresso(0);
     setTempoDecorrido(0);
     setAcaoAtual('Iniciando execução…');
@@ -232,6 +272,7 @@ export default function ExecuteProcessModal({
           </p>
           <CampoArquivo
             label="Planilha principal"
+            tipo="planilha"
             value={campos.principal}
             disabled={executando}
             invalido={invalido(campos.principal)}
@@ -240,6 +281,8 @@ export default function ExecuteProcessModal({
           />
           <CampoArquivo
             label="Planilha complementar"
+            tipo="planilha"
+            opcional
             value={campos.complementar}
             disabled={executando}
             onChange={(valor) => atualizarCampo('complementar', valor)}
@@ -250,7 +293,8 @@ export default function ExecuteProcessModal({
             disabled={executando}
             invalido={invalido(campos.saida)}
             erroId={erro ? erroId : undefined}
-            saida
+            tipo="saida"
+            nomeSugerido={nomeSugeridoDaSaida(configuracao)}
             onChange={(valor) => atualizarCampo('saida', valor)}
           />
           {erro && (
@@ -347,60 +391,63 @@ export default function ExecuteProcessModal({
 function CampoArquivo({
   label,
   value,
-  onChange,
+  tipo,
+  nomeSugerido = 'resultado.xlsx',
   disabled,
   invalido,
   erroId,
-  saida = false,
+  opcional = false,
+  onChange,
 }: {
   label: string;
   value: string;
-  onChange: (valor: string) => void;
+  tipo: 'planilha' | 'saida';
+  /** "Salvar como": nome que o diálogo já traz preenchido. */
+  nomeSugerido?: string;
   disabled: boolean;
   invalido?: true;
   erroId?: string;
-  saida?: boolean;
+  opcional?: boolean;
+  onChange: (valor: string) => void;
 }) {
   const id = useId();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const saida = tipo === 'saida';
+
+  async function escolher() {
+    const escolhido = saida
+      ? await escolherDestino({
+          titulo: label,
+          nomeSugerido,
+          extensoes: [nomeSugerido.split('.').pop() || 'xlsx'],
+        })
+      : await escolherArquivo({ titulo: label, extensoes: EXTENSOES_PLANILHA });
+    if (escolhido) onChange(escolhido.rotulo);
+  }
+
   return (
     <Field id={id} label={label}>
       {(controle) => (
         <div className="execution-field">
-          <input
+          <ExplorerField
             {...controle}
-            name={id}
-            className="ui-input ui-input--mono"
-            autoComplete="off"
-            spellCheck={false}
-            placeholder={PLACEHOLDER_ARQUIVO}
+            icon={saida ? Save : FileSpreadsheet}
             value={value}
+            placeholder={
+              saida ? 'Escolher onde salvar…' : 'Selecionar planilha…'
+            }
             disabled={disabled}
             aria-invalid={invalido}
             aria-describedby={invalido ? erroId : undefined}
-            onChange={(event) => onChange(event.target.value)}
+            onPick={() => void escolher()}
           />
-          {!saida && (
-            <>
-              <IconButton
-                icon={FolderOpen}
-                label={`Selecionar ${label.toLowerCase()}`}
-                variant="soft"
-                disabled={disabled}
-                onClick={() => inputRef.current?.click()}
-              />
-              <input
-                ref={inputRef}
-                type="file"
-                tabIndex={-1}
-                hidden
-                aria-label={`Arquivo para ${label.toLowerCase()}`}
-                onChange={(event) => {
-                  const arquivo = event.target.files?.[0];
-                  if (arquivo) onChange(arquivo.name);
-                }}
-              />
-            </>
+          {opcional && value && (
+            <IconButton
+              icon={X}
+              label={`Remover ${label.toLowerCase()}`}
+              variant="soft"
+              disabled={disabled}
+              onClick={() => onChange('')}
+            />
           )}
         </div>
       )}

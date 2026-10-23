@@ -7,15 +7,20 @@ import type {
   EtapaProcesso,
   PlanilhaEtapa,
   TipoCondicaoEtapa,
+  ScriptPython,
 } from '../../types/processo';
 import { FerramentaCabecalho } from './EtapaOrdenavel';
+import { FormularioFerramenta } from '../../components/ferramentas/FormularioFerramenta';
+import { normalizarParametros } from '../../domain/ferramentas';
+import { descreverScript } from '../../domain/scriptPython';
+import type { ParametrosFerramenta } from '../../types/ferramenta';
 
 type Ferramenta = (typeof ferramentasMock)[number];
 
 type ConfiguracaoEtapaProps = {
   etapa: EtapaProcesso | undefined;
   ferramenta: Ferramenta | undefined;
-  arquivoScript: File | null;
+  scriptPython: ScriptPython | null;
   arquivosDisponiveis: ArquivoDisponivel[];
   colunasPorArquivo: Record<string, string[]>;
   carregandoColunas: boolean;
@@ -25,13 +30,14 @@ type ConfiguracaoEtapaProps = {
   onAlternarColuna: (arquivoId: string, coluna: string) => void;
   onSelecionarTodas: (arquivoId: string, colunas: string[]) => void;
   onAtualizarCondicao: (alteracoes: Partial<CondicaoEtapa>) => void;
+  onAtualizarParametros: (parametros: ParametrosFerramenta) => void;
 };
 
 /** Painel de detalhe: conteúdo da etapa selecionada no fluxo. */
 export function ConfiguracaoEtapa({
   etapa,
   ferramenta,
-  arquivoScript,
+  scriptPython,
   arquivosDisponiveis,
   colunasPorArquivo,
   carregandoColunas,
@@ -41,6 +47,7 @@ export function ConfiguracaoEtapa({
   onAlternarColuna,
   onSelecionarTodas,
   onAtualizarCondicao,
+  onAtualizarParametros,
 }: ConfiguracaoEtapaProps) {
   if (!etapa || !ferramenta) {
     return (
@@ -61,7 +68,9 @@ export function ConfiguracaoEtapa({
             Script conectado
           </p>
           <p className="config-mono">
-            {arquivoScript?.name ?? 'Nenhum script selecionado.'}
+            {scriptPython
+              ? descreverScript(scriptPython)
+              : 'Nenhum script selecionado.'}
           </p>
           <p className="config-hint">
             As opções de arquivos e pastas declaradas no script serão exibidas
@@ -79,6 +88,12 @@ export function ConfiguracaoEtapa({
         etapa={etapa}
         arquivosDisponiveis={arquivosDisponiveis}
         onAlternarPlanilha={onAlternarPlanilha}
+      />
+      <ParametrosDaEtapa
+        etapa={etapa}
+        arquivosDisponiveis={arquivosDisponiveis}
+        colunasPorArquivo={colunasPorArquivo}
+        onChange={onAtualizarParametros}
       />
       {ferramenta.usaColunas && etapa.planilhas.length > 0 && (
         <div className="config-group">
@@ -386,6 +401,42 @@ function CondicaoDaEtapa({
           </Field>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Parâmetros da ferramenta: ficam gravados na etapa e vão junto ao salvar o processo. */
+function ParametrosDaEtapa({
+  etapa,
+  arquivosDisponiveis,
+  colunasPorArquivo,
+  onChange,
+}: {
+  etapa: EtapaProcesso;
+  arquivosDisponiveis: ArquivoDisponivel[];
+  colunasPorArquivo: Record<string, string[]>;
+  onChange: (parametros: ParametrosFerramenta) => void;
+}) {
+  const parametros = normalizarParametros(etapa.ferramentaId, etapa.parametros);
+  if (!parametros) return null;
+  // Colunas das planilhas escolhidas para a etapa; sem escolha, de todos os arquivos.
+  const origem = etapa.planilhas.length
+    ? etapa.planilhas.map((planilha) => planilha.arquivoId)
+    : arquivosDisponiveis.map((arquivo) => arquivo.id);
+  const colunas = [
+    ...new Set(
+      origem.flatMap((arquivoId) => colunasPorArquivo[arquivoId] ?? [])
+    ),
+  ];
+  return (
+    <div className="config-group">
+      <h3 className="config-group__title">Parâmetros da ferramenta</h3>
+      <FormularioFerramenta
+        idBase={`etapa-${etapa.id}`}
+        parametros={parametros}
+        colunas={colunas}
+        onChange={onChange}
+      />
     </div>
   );
 }

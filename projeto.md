@@ -61,8 +61,11 @@ src/
 │   ├── ThemeToggle.tsx
 │   ├── PageHeader.tsx           # PageHeader + ProcessSteps
 │   ├── ProcessCardAction.tsx
-│   ├── FolderPicker.tsx
-│   └── ExecuteProcessModal.tsx
+│   ├── ExecuteProcessModal.tsx
+│   └── organograma/             # Organograma: caixas no arranjo do PDF, zoom e arraste
+├── utils/explorador.ts         # abre o explorador: diálogo nativo (Tauri) ou do navegador
+├── data/
+│   └── organogramaSeduc.ts      # setores do Decreto nº 2.236/2026 (dados reais, públicos)
 ├── mock/
 │   ├── homeMock.ts
 │   ├── ferramentasMock.ts
@@ -214,7 +217,7 @@ Controle:
 - `data-theme="light|dark"`
 
 Botão global:
-`src/components/ThemeToggle.tsx`, montado na barra superior (`.app-topbar`) pelo `App.tsx`.
+`src/components/ThemeToggle.tsx`, no rodapé da sidebar, acima de "Recolher sidebar" (estado do tema continua no `App.tsx`).
 
 Não duplicar lógica de tema em páginas.
 
@@ -336,6 +339,21 @@ Itens conhecidos:
 - Perfil
 
 Pode ser expandida/recolhida; recolhe automaticamente abaixo de 1100px de largura, salvo escolha manual. Itens sem tela mostram "Em breve". O Perfil não exibe nome fictício.
+
+### Motor de execução (`engine/`)
+Projeto Python separado que executa as ferramentas de verdade e grava o log de cada execução (um `.jsonl` por execução, retenção de 90 dias). Contrato dos eventos em `engine/contrato/EVENTOS.md`, espelhado em `src/domain/eventosExecucao.ts`; os dois lados testam os mesmos exemplos. Ver `engine/README.md`. Ainda não está ligado ao app: o modal e a aba Ferramentas continuam simulados até a entrega 2/3.
+
+### Sites Institucionais (`pages/SitesInstitucionais.tsx`)
+Atalhos para os sistemas do dia a dia, agrupados por órgão (`src/data/sitesInstitucionais.ts`), com busca e "Copiar link". Os sites abrem fora do app (`utils/abrirLink.ts`): no app desktop, no navegador padrão (plugin opener, permissão `opener:default`); no navegador, em nova aba com `noopener`. Só endereços `http`/`https` são aceitos; site sem HTTPS recebe o selo "Sem HTTPS".
+
+### Coordenadorias e Equipes (`pages/Coordenadorias.tsx`)
+Organograma da SEDUC-MT em caixas, no mesmo arranjo do PDF oficial (Secretário e unidades de apoio no topo, gabinetes adjuntos lado a lado, subordinados em lista recuada, diretorias regionais numa faixa tracejada). Arraste, zoom pela roda do mouse e pelos botões, busca e seleção. As caixas são botões: navegáveis por teclado e leitor de tela. Abre com zoom legível no topo; "Ajustar à tela" mostra tudo.
+- Fonte: `src/data/organogramaSeduc.ts`, extraído do PDF oficial do Decreto nº 2.236/2026 e conferido manualmente. Cada setor tem `id` estável, `paiId` e `vinculo` (linha cheia = subordinação; tracejada = vinculação).
+- Arranjo (`estruturaDoOrganograma`) e cores (`categoriasDosSetores`), ambos em `domain/organograma.ts`. Cores, prioridade nesta ordem: Gabinete do Secretário (roxo-azulado); sem ligação a um gabinete (laranja-claro: colegiados e Conselho Estadual de Educação); gabinetes (azul forte); superintendências (azul claro); coordenadorias (azul mais claro); outros com subordinados (cinza-azulado); sem subordinados (branco).
+- Ao trocar de decreto, regenere o arquivo de dados e confira os testes de `domain/organograma.test.ts`.
+- Painel "Equipe do setor" (à esquerda): o usuário carrega a planilha de lotação (colunas `Lotacao`, `Nome`, `EmailCompleto`, `Funcao`, `NumFunc`) e vê, para o setor selecionado, nome, função, matrícula e e-mail, com "Copiar e-mails". A planilha é lida só em memória (`domain/lotacao.ts`); nada é gravado, nem em `localStorage`.
+- Lotação × organograma: comparação sem caixa, acento, pontuação e sigla final, mais a tabela `EQUIVALENCIAS` para nomes escritos de outro jeito na planilha. Nome repetido (ex.: "Unidade de Assessoria") vale o da sede. Lotações que não existem no decreto aparecem em "Lotações fora do organograma".
+- **Dados pessoais:** a planilha real fica na pasta protegida (no `.gitignore` e no `.graphifyignore`, com leitura bloqueada para o Claude Code em `.claude/settings.local.json`). Nunca commitar, nunca colar no chat; testes usam só dados fictícios.
 
 ### `ExecuteProcessModal.tsx`
 Objetivo: interface de execução de processo.

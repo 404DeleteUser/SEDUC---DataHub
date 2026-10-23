@@ -16,6 +16,7 @@ import {
   logsRecentes,
   processosDestaque,
 } from '../mock/homeMock';
+import type { FerramentaId } from '../types/ferramenta';
 import type { ProcessoBase } from '../types/processo';
 
 type ProcessoDestaque = (typeof processosDestaque)[number];
@@ -72,7 +73,7 @@ function ProcessosEmDestaque({
   onVerTodos,
 }: {
   processos: ProcessoDestaque[];
-  onAbrir: (processo: ProcessoDestaque) => void;
+  onAbrir: (processo: ProcessoDestaque, executar?: boolean) => void;
   onEditar: (id: number) => void;
   onVerTodos: () => void;
 }) {
@@ -111,10 +112,15 @@ function ProcessosEmDestaque({
                   size="sm"
                   onClick={() => onEditar(processo.id)}
                 />
-                <span className="run-hint" aria-hidden="true">
-                  <Play size={14} />
+                <button
+                  type="button"
+                  className="run-hint"
+                  aria-label={`Executar ${processo.nome}`}
+                  onClick={() => onAbrir(processo, true)}
+                >
+                  <Play size={14} aria-hidden="true" />
                   Executar
-                </span>
+                </button>
               </div>
             </li>
           );
@@ -124,7 +130,13 @@ function ProcessosEmDestaque({
   );
 }
 
-function FerramentasMaisUsadas() {
+function FerramentasMaisUsadas({
+  onAbrir,
+  onVerTodas,
+}: {
+  onAbrir: (ferramentaId: FerramentaId) => void;
+  onVerTodas: () => void;
+}) {
   return (
     <section
       className="ui-panel home-panel"
@@ -135,17 +147,9 @@ function FerramentasMaisUsadas() {
         title="Ferramentas mais utilizadas"
         icon={Wrench}
         aside={
-          <>
-            <span className="soon-pill">Em breve</span>
-            <button
-              type="button"
-              className="home-link"
-              disabled
-              title="Tela de ferramentas em preparação"
-            >
-              Ver todas <ArrowUpRight size={14} aria-hidden="true" />
-            </button>
-          </>
+          <button type="button" className="home-link" onClick={onVerTodas}>
+            Ver todas <ArrowUpRight size={14} aria-hidden="true" />
+          </button>
         }
       />
       <ul className="home-tool-list">
@@ -153,6 +157,12 @@ function FerramentasMaisUsadas() {
           const Icone = ferramenta.icone;
           return (
             <li key={ferramenta.id} className="home-tool-item">
+              <button
+                type="button"
+                className="process-card-open"
+                aria-label={`Abrir ${ferramenta.nome}`}
+                onClick={() => onAbrir(ferramenta.id)}
+              />
               <span
                 className={`home-entity-icon home-entity-icon--sm ${ferramenta.corIcone}`}
               >
@@ -160,7 +170,7 @@ function FerramentasMaisUsadas() {
               </span>
               <div className="home-tool-text">
                 <h3>{ferramenta.nome}</h3>
-                <p title={ferramenta.descricao}>{ferramenta.descricao}</p>
+                <p>{ferramenta.descricao}</p>
               </div>
             </li>
           );
@@ -222,9 +232,13 @@ function LogsDeExecucao() {
 export default function Home({
   onProcessos,
   onEditarProcesso,
+  onAbrirFerramenta,
+  onFerramentas,
   processosConfigurados,
 }: {
   onProcessos: () => void;
+  onAbrirFerramenta: (ferramentaId: FerramentaId) => void;
+  onFerramentas: () => void;
   onEditarProcesso: (id: number) => void;
   processosConfigurados: Record<number, ProcessoBase>;
 }) {
@@ -243,9 +257,12 @@ export default function Home({
   const [configuracaoEmExecucao, setConfiguracaoEmExecucao] =
     useState<ProcessoBase>();
 
-  // D3a: abrir o processo mostra o modal de execução sem iniciar.
-  function abrirProcesso(processo: ProcessoDestaque) {
+  const [executarAoAbrir, setExecutarAoAbrir] = useState(false);
+
+  // Clicar na linha só abre o modal; o botão Executar abre e já executa.
+  function abrirProcesso(processo: ProcessoDestaque, executar = false) {
     setConfiguracaoEmExecucao(processosConfigurados[processo.id]);
+    setExecutarAoAbrir(executar);
     setProcessoEmExecucao(processo);
   }
 
@@ -269,7 +286,10 @@ export default function Home({
                 onEditar={onEditarProcesso}
                 onVerTodos={onProcessos}
               />
-              <FerramentasMaisUsadas />
+              <FerramentasMaisUsadas
+                onAbrir={onAbrirFerramenta}
+                onVerTodas={onFerramentas}
+              />
             </div>
             <LogsDeExecucao />
           </div>
@@ -279,6 +299,7 @@ export default function Home({
         aberto={!!processoEmExecucao}
         processo={processoEmExecucao}
         configuracao={configuracaoEmExecucao}
+        executarAoAbrir={executarAoAbrir}
         onClose={() => setProcessoEmExecucao(null)}
       />
     </>

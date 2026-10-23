@@ -1,10 +1,9 @@
-/* Shell: sidebar, barra superior, cabeçalho de página e layout das páginas. Dono: lote L3. */
+/* Shell: sidebar (com o alternador de tema), cabeçalho de página e layout das páginas. */
 
 /* ---------- Layout geral ---------- */
 .app-shell {
   --sidebar-width: 240px;
   --sidebar-width-collapsed: 64px;
-  --topbar-height: 44px;
   --page-gutter: clamp(var(--space-4), 2vw, var(--space-8));
 
   display: flex;
@@ -240,46 +239,6 @@
   padding-inline: 0;
 }
 
-/* ---------- Barra superior (futura titlebar customizada, projeto.md §12) ---------- */
-.app-topbar {
-  flex-shrink: 0;
-  height: var(--topbar-height);
-  padding: 0 var(--space-2) 0 var(--page-gutter);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-card);
-}
-.app-breadcrumb {
-  min-width: 0;
-  overflow: hidden;
-}
-.app-breadcrumb ol {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-width: 0;
-  white-space: nowrap;
-}
-.app-breadcrumb li {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-width: 0;
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-.app-breadcrumb li > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.app-breadcrumb [aria-current='page'] {
-  color: var(--text-primary);
-  font-weight: var(--weight-medium);
-}
-
 /* ---------- Páginas ---------- */
 .page-scroll,
 .form-page {
@@ -288,6 +247,8 @@
   min-height: 0;
 }
 .page-scroll {
+  /* Contém os .sr-only (inputs de arquivo): sem isso eles esticam o documento. */
+  position: relative;
   overflow-y: auto;
 }
 .form-page {

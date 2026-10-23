@@ -26,3 +26,15 @@ dist-ssr
 # Playwright
 test-results/
 playwright-report/
+
+# Dados pessoais (planilhas de lotação): nunca commitar
+dados-sensiveis/
+
+# Configuração local do Claude Code
+.claude/settings.local.json
+
+# Motor Python
+engine/.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/

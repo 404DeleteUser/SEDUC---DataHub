@@ -51,13 +51,15 @@ Os valores de base continuam os de `src/styles/tokens.css`. As mudanças do rede
 
 - **Janela:** inicial 1280×800, mínima 960×640 (`tauri.conf.json`).
 - **Shell:** sidebar de 240px (recolhida: 64px) + coluna de conteúdo. A sidebar recolhe automaticamente abaixo de 1100px de largura, a menos que o usuário a tenha expandido manualmente.
-- **Barra superior (`.app-topbar`, 44px):** trilha (breadcrumb) à esquerda e alternador de tema à direita; é também a área da futura titlebar customizada (`projeto.md` §12).
+- **Sem barra superior:** removida a pedido em 22/10/2026. O alternador de tema fica no rodapé da sidebar, acima de "Recolher sidebar".
+- **Rolagem:** cada página rola no próprio contêiner (`.page-scroll` / `.form-content`); na aba Ferramentas (≥1100px), catálogo e painel rolam de forma independente.
 - **Cabeçalho de página:** botão Voltar opcional, título (`2xl`), descrição (`sm`) e um slot de ações à direita. Nada em `position: fixed` sobre o conteúdo.
 - **Conteúdo:** largura máxima de 1440px; formulários com largura máxima de 880px na coluna principal.
 
 ## Componentes compartilhados (`src/components/ui/`)
 
-`Button` (primary, secondary, ghost, danger, icon) · `Field` (rótulo, controle, dica, erro e obrigatório) · `SectionTitle` · `OptionCard` · `FileField` · `SimulationNotice` · `StatusText` · `Checkbox` · `SelectableChip`.
+`Button` (primary, secondary, ghost, danger, icon) · `Field` (rótulo, controle, dica, erro e obrigatório) · `SectionTitle` · `OptionCard` · `FileField` · `ExplorerField` · `SimulationNotice` · `StatusText` · `Checkbox` · `SelectableChip`.
+**Caminhos de arquivo e pasta** (pasta de destino, planilhas e arquivo de saída da execução, script Python) usam sempre `ExplorerField`: um campo só, que abre o explorador (`utils/explorador.ts`: diálogo nativo do Windows no app desktop, seletor do navegador fora dele). Não há campo para digitar ou colar caminho.
 Estados obrigatórios em cada componente interativo: padrão, hover, foco, ativo, desabilitado, e carregando/vazio/erro quando aplicável.
 
 ## Linguagem

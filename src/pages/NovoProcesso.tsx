@@ -1,20 +1,24 @@
 import PageHeader, { ProcessSteps } from '../components/PageHeader';
-import FolderPicker from '../components/FolderPicker';
 import { useEffect, useState } from 'react';
 
-import type { ProcessoBase, AuxiliarProcesso } from '../types/processo';
+import type {
+  ProcessoBase,
+  AuxiliarProcesso,
+  ScriptPython,
+} from '../types/processo';
+import { escolherPasta } from '../utils/explorador';
 
 import {
   ChevronRight,
   Database,
   FileCode2,
   FileIcon,
-  Folder,
   Wrench,
 } from 'lucide-react';
 
 import {
   Button,
+  ExplorerField,
   Field,
   FileField,
   OptionCard,
@@ -22,6 +26,10 @@ import {
   SimulationNotice,
 } from '../components/ui';
 import { ArquivosAuxiliares } from './novo-processo/ArquivosAuxiliares';
+import {
+  ConexaoScriptPython,
+  ID_CAMPO_SCRIPT,
+} from './novo-processo/ConexaoScriptPython';
 import { IdentidadeVisual } from './novo-processo/IdentidadeVisual';
 import { IndiceSecoes } from './novo-processo/IndiceSecoes';
 import { ResumoErros } from './novo-processo/ResumoErros';
@@ -106,7 +114,7 @@ function NovoProcesso({
   const [origem, setOrigem] = useState(
     processoInicial?.origem ?? 'ferramentas'
   );
-  const [scriptPython, setScriptPython] = useState<File | null>(
+  const [scriptPython, setScriptPython] = useState<ScriptPython | null>(
     processoInicial?.scriptPython ?? null
   );
 
@@ -196,19 +204,21 @@ function NovoProcesso({
     setIconeSelecionado('personalizado');
   }
 
-  function selecionarScriptPython(arquivo: File | null) {
-    if (arquivo && !arquivo.name.toLowerCase().endsWith('.py')) {
-      setErrosFormulario([
-        {
-          id: 'arquivo-script-python',
-          mensagem: 'Selecione um arquivo .py.',
-        },
-      ]);
-      return;
+  function atualizarScriptPython(script: ScriptPython | null) {
+    setScriptPython(script);
+    if (script) {
+      setErrosFormulario((erros) =>
+        erros.filter((erro) => erro.id !== ID_CAMPO_SCRIPT)
+      );
     }
-    if (arquivo) setScriptPython(arquivo);
+  }
+
+  async function selecionarPastaDestino() {
+    const pasta = await escolherPasta({ titulo: 'Pasta de destino' });
+    if (!pasta) return;
+    setPastaDestino(pasta.rotulo);
     setErrosFormulario((erros) =>
-      erros.filter((erro) => erro.id !== 'arquivo-script-python')
+      erros.filter((erro) => erro.id !== 'pasta-de-destino')
     );
   }
 
@@ -217,11 +227,11 @@ function NovoProcesso({
       if (origem === 'script-python' && !scriptPython) {
         setErrosFormulario([
           {
-            id: 'arquivo-script-python',
+            id: ID_CAMPO_SCRIPT,
             mensagem: 'Selecione o script Python que deseja conectar.',
           },
         ]);
-        document.getElementById('arquivo-script-python')?.focus();
+        document.getElementById(ID_CAMPO_SCRIPT)?.focus();
         return;
       }
       setErrosFormulario([]);
@@ -242,7 +252,7 @@ function NovoProcesso({
       ...(origem === 'script-python'
         ? [
             {
-              id: 'arquivo-script-python',
+              id: ID_CAMPO_SCRIPT,
               preenchido: !!scriptPython,
               mensagem: 'Selecione o script Python que deseja conectar.',
             },
@@ -337,7 +347,7 @@ function NovoProcesso({
     'principal-1': origemPython
       ? 'Arquivo de entrada do script'
       : 'Principal 1',
-    'arquivo-script-python': 'Arquivo Python',
+    ID_CAMPO_SCRIPT: 'Arquivo Python',
     'nome-do-arquivo-de-sa-da': origemPython
       ? 'Nome do arquivo de saída do script'
       : 'Nome do arquivo de saída',
@@ -440,23 +450,11 @@ function NovoProcesso({
 
                 {origemPython && (
                   <div className="np-script">
-                    <Field
-                      id="arquivo-script-python"
-                      label="Arquivo Python"
-                      required
-                      error={erroDe('arquivo-script-python')}
-                    >
-                      {(controle) => (
-                        <FileField
-                          {...controle}
-                          accept=".py,text/x-python"
-                          icon={FileCode2}
-                          file={scriptPython}
-                          placeholder="Selecionar arquivo .py…"
-                          onChange={selecionarScriptPython}
-                        />
-                      )}
-                    </Field>
+                    <ConexaoScriptPython
+                      value={scriptPython}
+                      erro={erroDe(ID_CAMPO_SCRIPT)}
+                      onChange={atualizarScriptPython}
+                    />
 
                     <div className="np-previa">
                       <div className="np-previa__cabecalho">
@@ -683,27 +681,16 @@ function NovoProcesso({
                   id="pasta-de-destino"
                   label={rotulos['pasta-de-destino']}
                   required
-                  hint="Seleção simulada no navegador. O caminho completo será conectado ao app desktop."
+                  hint="Abre o explorador de arquivos. No navegador aparece só o nome da pasta; no app desktop, o caminho completo."
                   error={erroDe('pasta-de-destino')}
                 >
                   {(controle) => (
-                    <div className="np-pasta">
-                      <div className="np-pasta__campo">
-                        <Folder size={16} aria-hidden="true" />
-                        <input
-                          {...controle}
-                          name="pasta-de-destino"
-                          autoComplete="off"
-                          value={pastaDestino}
-                          onChange={(event) =>
-                            setPastaDestino(event.target.value)
-                          }
-                          placeholder="Nenhuma pasta selecionada"
-                          className="ui-input"
-                        />
-                      </div>
-                      <FolderPicker onSelect={setPastaDestino} />
-                    </div>
+                    <ExplorerField
+                      {...controle}
+                      value={pastaDestino}
+                      placeholder="Selecionar pasta…"
+                      onPick={() => void selecionarPastaDestino()}
+                    />
                   )}
                 </Field>
               </div>

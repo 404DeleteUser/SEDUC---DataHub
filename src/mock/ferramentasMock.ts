@@ -1,65 +1,70 @@
+import type { LucideIcon } from 'lucide-react';
 import {
   Combine,
-  Eraser,
-  FileCheck2,
+  CopyX,
   FileCode2,
-  Paintbrush,
+  ListFilter,
   Rows3,
-  Trash2,
+  Split,
 } from 'lucide-react';
+import type { FerramentaId } from '../types/ferramenta';
 
-export const ferramentasMock = [
+export type Ferramenta = {
+  id: FerramentaId | 'script-python';
+  nome: string;
+  descricao: string;
+  icone: LucideIcon;
+  /** Cor de identidade da ferramenta (classe Tailwind), com ícone branco. */
+  cor: string;
+  /** Seleção genérica de colunas da etapa; as ferramentas atuais usam parâmetros próprios. */
+  usaColunas: boolean;
+};
+
+/** Catálogo único de ferramentas: aba Ferramentas, Início e etapas de processo. */
+export const ferramentasMock: Ferramenta[] = [
   {
-    id: 'juntar-planilhas',
-    nome: 'Juntar Planilhas',
-    descricao: 'Combina duas ou mais bases em uma única estrutura.',
+    id: 'zebrar-planilha',
+    nome: 'Zebrar Planilha',
+    descricao:
+      'Pinta o cabeçalho e alterna duas cores nas linhas para facilitar a leitura.',
+    icone: Rows3,
+    cor: 'bg-orange-600',
+    usaColunas: false,
+  },
+  {
+    id: 'eliminar-duplicatas',
+    nome: 'Eliminar Duplicatas',
+    descricao:
+      'Remove linhas repetidas considerando as colunas escolhidas como chave.',
+    icone: CopyX,
+    cor: 'bg-red-600',
+    usaColunas: false,
+  },
+  {
+    id: 'dicionario',
+    nome: 'Dicionário',
+    descricao:
+      'Mantém só as linhas em que a coluna contém, ou é igual a, um dos valores informados.',
+    icone: ListFilter,
+    cor: 'bg-emerald-600',
+    usaColunas: false,
+  },
+  {
+    id: 'mesclar-planilhas',
+    nome: 'Mesclar Planilhas',
+    descricao:
+      'Empilha planilhas com o mesmo cabeçalho ou junta cada arquivo como uma aba.',
     icone: Combine,
     cor: 'bg-blue-600',
     usaColunas: false,
   },
-
   {
-    id: 'remover-duplicatas',
-    nome: 'Remover Duplicatas',
-    descricao: 'Remove registros repetidos com base nas colunas escolhidas.',
-    icone: Trash2,
-    cor: 'bg-red-600',
-    usaColunas: true,
-  },
-
-  {
-    id: 'remover-vazios',
-    nome: 'Remover Vazios',
-    descricao: 'Remove registros vazios considerando as colunas selecionadas.',
-    icone: Eraser,
-    cor: 'bg-rose-600',
-    usaColunas: true,
-  },
-
-  {
-    id: 'validar-dados',
-    nome: 'Validar Dados',
-    descricao: 'Executa verificações nas colunas selecionadas das bases.',
-    icone: FileCheck2,
-    cor: 'bg-emerald-600',
-    usaColunas: true,
-  },
-
-  {
-    id: 'formatar-planilha',
-    nome: 'Formatar Planilha',
-    descricao: 'Aplica formatação ao resultado do processamento.',
-    icone: Paintbrush,
+    id: 'dividir-por',
+    nome: 'Dividir Por',
+    descricao:
+      'Mantém a aba consolidada e cria uma aba para cada valor da coluna escolhida.',
+    icone: Split,
     cor: 'bg-violet-600',
-    usaColunas: true,
-  },
-
-  {
-    id: 'zebrar-planilha',
-    nome: 'Zebrar Planilha',
-    descricao: 'Aplica cores alternadas nas linhas para facilitar a leitura.',
-    icone: Rows3,
-    cor: 'bg-orange-600',
     usaColunas: false,
   },
   {
@@ -71,3 +76,9 @@ export const ferramentasMock = [
     usaColunas: false,
   },
 ];
+
+/** Ferramentas que podem ser usadas avulsas ou adicionadas como etapa. */
+export const ferramentasDoCatalogo = ferramentasMock.filter(
+  (ferramenta): ferramenta is Ferramenta & { id: FerramentaId } =>
+    ferramenta.id !== 'script-python'
+);

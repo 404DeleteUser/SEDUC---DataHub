@@ -80,8 +80,7 @@
   align-items: start;
 }
 .config-flow,
-.config-detail,
-.config-logs {
+.config-detail {
   display: grid;
   gap: var(--space-4);
   align-content: start;
@@ -438,30 +437,6 @@
 .config-hint {
   color: var(--text-muted);
   font-size: var(--text-xs);
-}
-
-/* ---------- Logs ---------- */
-.config-logs__body {
-  display: grid;
-  gap: var(--space-4);
-}
-.config-logs__options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: var(--space-2);
-}
-.config-logs__options .ui-checkbox {
-  cursor: pointer;
-}
-@container (min-width: 940px) {
-  .config-logs__body {
-    grid-template-columns: minmax(0, 1fr) 300px;
-    align-items: end;
-  }
-  .config-logs__indicator {
-    padding-left: var(--space-4);
-    border-left: 1px solid var(--border);
-  }
 }
 
 /* ---------- Rodapé ---------- */

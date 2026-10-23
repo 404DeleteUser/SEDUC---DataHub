@@ -188,6 +188,18 @@ textarea.ui-input {
 .ui-file:has(input[aria-invalid='true']) {
   border-color: var(--danger);
 }
+.ui-file--button {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.ui-file--button[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+.ui-file--button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 .ui-file__name {
   min-width: 0;
   overflow: hidden;
@@ -424,9 +436,11 @@ textarea.ui-input {
   color: var(--success);
 }
 
-/* Linha clicável de processo (Início e Processos): ProcessCardAction + dica Executar */
-/* Dica visual de executar: decorativa, o clique cai no botão sobreposto */
+/* Linha clicável de processo (Início e Processos): a linha abre o modal
+   (ProcessCardAction) e o botão Executar, acima dela, abre e executa. */
 .run-hint {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -438,16 +452,16 @@ textarea.ui-input {
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   white-space: nowrap;
-  pointer-events: none;
   transition:
     background-color var(--duration-fast) var(--ease-out),
     color var(--duration-fast) var(--ease-out);
 }
-:is(.home-process-row, .process-row):has(> .process-card-open:hover) .run-hint,
-:is(.home-process-row, .process-row):has(> .process-card-open:focus-visible)
-  .run-hint {
+.run-hint:hover {
   background: var(--accent);
   color: var(--on-accent);
+}
+.run-hint:active {
+  transform: translateY(1px);
 }
 
 /* Botão invisível que cobre a linha (ProcessCardAction) */
@@ -460,8 +474,4 @@ textarea.ui-input {
 }
 .process-card-open:focus-visible {
   outline-offset: -2px;
-}
-.process-card-open:active ~ .run-hint,
-.process-card-open:active ~ * .run-hint {
-  transform: translateY(1px);
 }

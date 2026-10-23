@@ -1,0 +1,9 @@
+{"v":1,"execucao":"ex1","seq":1,"ts":"2026-10-22T14:30:05.120Z","tipo":"execucao.inicio","nome":"Auditoria de Faltas","origem":"processo","usuario":"analista","maquina":"SEDUC-PC01","entradas":[{"nome":"faltas.xlsx","caminho":"C:\\Bases\\faltas.xlsx"}],"saida":{"nome":"faltas-tratado.xlsx","caminho":"C:\\Saida\\faltas-tratado.xlsx"},"etapas":[{"indice":0,"ferramenta":"eliminar-duplicatas","parametros":{"ferramentaId":"eliminar-duplicatas","colunasChave":["CPF"]}}]}
+{"v":1,"execucao":"ex1","seq":2,"ts":"2026-10-22T14:30:05.300Z","tipo":"entrada.lida","arquivo":"faltas.xlsx","abas":1,"linhas":1520,"colunas":8}
+{"v":1,"execucao":"ex1","seq":3,"ts":"2026-10-22T14:30:05.310Z","tipo":"etapa.inicio","indice":0,"ferramenta":"eliminar-duplicatas","nome":"Eliminar Duplicatas"}
+{"v":1,"execucao":"ex1","seq":4,"ts":"2026-10-22T14:30:05.400Z","tipo":"progresso","percentual":50,"mensagem":"Comparando linhas pelas colunas: CPF"}
+{"v":1,"execucao":"ex1","seq":5,"ts":"2026-10-22T14:30:05.410Z","tipo":"log","nivel":"aviso","mensagem":"12 linhas sem valor nas colunas-chave foram mantidas.","etapa":0}
+{"v":1,"execucao":"ex1","seq":6,"ts":"2026-10-22T14:30:05.500Z","tipo":"etapa.fim","indice":0,"ferramenta":"eliminar-duplicatas","linhas_antes":1520,"linhas_depois":1108,"resumo":{"duplicadas_removidas":412},"duracao_ms":190}
+{"v":1,"execucao":"ex1","seq":7,"ts":"2026-10-22T14:30:05.900Z","tipo":"saida.gravada","caminho":"C:\\Saida\\faltas-tratado.xlsx","abas":1,"linhas":1108}
+{"v":1,"execucao":"ex1","seq":8,"ts":"2026-10-22T14:30:05.910Z","tipo":"execucao.fim","status":"concluido_com_avisos","duracao_ms":790,"avisos":1}
+{"v":1,"execucao":"ex2","seq":4,"ts":"2026-10-22T15:00:00.000Z","tipo":"execucao.fim","status":"erro","duracao_ms":40,"avisos":0,"erro":{"mensagem":"A coluna CPF não existe em base.xlsx.","etapa":0}}

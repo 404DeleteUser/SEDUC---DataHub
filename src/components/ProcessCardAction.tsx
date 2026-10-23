@@ -13,7 +13,7 @@ export default function ProcessCardAction({
     <button
       type="button"
       className="process-card-open"
-      aria-label={`Executar ${nome}`}
+      aria-label={`Abrir ${nome}`}
       onClick={onAbrir}
     />
   );

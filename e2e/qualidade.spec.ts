@@ -31,6 +31,72 @@ const estados: Record<string, (page: Page) => Promise<void>> = {
       .click();
     await expect(page.getByRole('dialog')).toBeVisible();
   },
+  ferramentas: async (page) => {
+    await page
+      .getByRole('navigation', { name: 'Navegação principal' })
+      .getByRole('button', { name: 'Ferramentas' })
+      .click();
+  },
+  'ferramenta-dicionario-erros': async (page) => {
+    await estados.ferramentas(page);
+    await page
+      .getByRole('list', { name: 'Catálogo de ferramentas' })
+      .getByRole('button', { name: /^Dicionário/ })
+      .click();
+    await page.getByRole('button', { name: /^Executar$/ }).click();
+  },
+  coordenadorias: async (page) => {
+    await page
+      .getByRole('button', { name: 'Coordenadorias e Equipes' })
+      .click();
+    await expect(
+      page.getByRole('region', { name: 'Organograma' })
+    ).toBeVisible();
+  },
+  'coordenadorias-selecao': async (page) => {
+    await estados.coordenadorias(page);
+    await page.getByPlaceholder('Buscar setor…').fill('juína');
+    await page
+      .getByRole('list', { name: 'Resultados da busca' })
+      .getByRole('button')
+      .first()
+      .click();
+  },
+  'coordenadorias-equipe': async (page) => {
+    await estados.coordenadorias(page);
+    // Planilha fictícia: nenhum dado real.
+    await page.getByLabel(/Carregar planilha/).setInputFiles({
+      name: 'lotacao-ficticia.csv',
+      mimeType: 'text/csv',
+      buffer: Buffer.from(
+        'Lotacao,Nome,EmailCompleto,Funcao,NumFunc\n' +
+          'NÚCLEO DE FROTAS,Ana Teste,ana@exemplo.test,Chefe,111\n' +
+          'NÚCLEO DE FROTAS,Bruna Teste,bruna@exemplo.test,Apoio,222\n' +
+          'SETOR INEXISTENTE,Caio Teste,caio@exemplo.test,Apoio,333\n'
+      ),
+    });
+    await page.getByPlaceholder('Buscar setor…').fill('núcleo de frotas');
+    await page
+      .getByRole('list', { name: 'Resultados da busca' })
+      .getByRole('button')
+      .first()
+      .click();
+    await expect(
+      page.getByRole('list', { name: 'Pessoas lotadas' })
+    ).toBeVisible();
+  },
+  sites: async (page) => {
+    await page.getByRole('button', { name: 'Sites Institucionais' }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Sites Institucionais' })
+    ).toBeVisible();
+  },
+  'etapa-com-parametros': async (page) => {
+    await estados['configurar-processo'](page);
+    await page
+      .getByRole('button', { name: /Dicionário/, pressed: false })
+      .click();
+  },
 };
 
 const viewports = [

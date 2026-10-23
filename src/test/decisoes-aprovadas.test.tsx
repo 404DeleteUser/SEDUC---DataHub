@@ -1,5 +1,5 @@
 // Aceitação das mudanças de comportamento aprovadas (D3 em docs/ux-ui-modernization-plan.md §11).
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import App from '../App';
@@ -17,10 +17,10 @@ async function irPara(pagina: 'Início' | 'Processos') {
 describe.each(['Início', 'Processos'] as const)(
   'cards de processo em %s',
   (pagina) => {
-    it('D3a: o card abre a execução sem iniciar', async () => {
+    it('clicar na linha só abre o modal, sem executar', async () => {
       const user = await irPara(pagina);
       await user.click(
-        screen.getByRole('button', { name: 'Executar Cruzamento SEAP x Folha' })
+        screen.getByRole('button', { name: 'Abrir Cruzamento SEAP x Folha' })
       );
       const dialog = screen.getByRole('dialog', {
         name: 'Cruzamento SEAP x Folha',
@@ -29,9 +29,29 @@ describe.each(['Início', 'Processos'] as const)(
         'aria-valuenow',
         '0'
       );
-      expect(
-        within(dialog).getByRole('button', { name: /^Executar$/ })
-      ).toBeEnabled();
+      expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('o botão Executar abre, tenta executar e aponta a entrada que falta', async () => {
+      const user = await irPara(pagina);
+      await user.click(
+        screen.getByRole('button', { name: 'Executar Cruzamento SEAP x Folha' })
+      );
+      const dialog = screen.getByRole('dialog', {
+        name: 'Cruzamento SEAP x Folha',
+      });
+      expect(within(dialog).getByRole('alert')).toHaveTextContent(
+        /planilha principal/i
+      );
+      expect(within(dialog).getByRole('progressbar')).toHaveAttribute(
+        'aria-valuenow',
+        '0'
+      );
+      await waitFor(() =>
+        expect(
+          within(dialog).getByLabelText('Planilha principal')
+        ).toHaveFocus()
+      );
     });
 
     it('D3a: editar fica só no lápis (uma ação de edição por card)', async () => {
@@ -55,7 +75,9 @@ describe('modal de execução', () => {
     expect(
       within(dialog).queryByDisplayValue(/C:\\Dados/)
     ).not.toBeInTheDocument();
-    expect(within(dialog).getByLabelText('Planilha principal')).toHaveValue('');
+    expect(
+      within(dialog).getByLabelText('Planilha principal')
+    ).toHaveTextContent('Selecionar planilha…');
     await user.click(
       within(dialog).getByRole('button', { name: /^Executar$/ })
     );

@@ -4,6 +4,25 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import App from '../App';
 
+// O explorador de arquivos é do sistema: aqui a escolha é simulada.
+vi.mock('../utils/explorador', () => ({
+  escolherArquivo: vi.fn(async () => ({
+    nome: 'seap.xlsx',
+    caminho: 'C:\\Bases\\seap.xlsx',
+    rotulo: 'C:\\Bases\\seap.xlsx',
+  })),
+  escolherPasta: vi.fn(async () => ({
+    nome: 'Resultados',
+    caminho: 'C:\\Resultados',
+    rotulo: 'C:\\Resultados',
+  })),
+  escolherDestino: vi.fn(async () => ({
+    nome: 'resultado.xlsx',
+    caminho: 'C:\\Saida\\resultado.xlsx',
+    rotulo: 'C:\\Saida\\resultado.xlsx',
+  })),
+}));
+
 function renderApp() {
   const user = userEvent.setup({
     advanceTimers: (ms) => {
@@ -154,10 +173,7 @@ describe('novo processo — validação', () => {
       screen.getByLabelText(/Nome do arquivo de saída/),
       'Saida.xlsx'
     );
-    await user.type(
-      screen.getByLabelText(/Pasta de destino/),
-      'C:\\Resultados'
-    );
+    await user.click(screen.getByLabelText(/Pasta de destino/));
     await user.click(screen.getByRole('button', { name: /Próximo/ }));
     expect(
       screen.getByRole('heading', { level: 1, name: 'Configurar Ferramentas' })
@@ -232,14 +248,8 @@ describe('modal de execução (simulada)', () => {
     await irParaProcessos(user);
     await user.click(screen.getAllByRole('button', { name: /^Executar/ })[0]);
     const dialog = screen.getByRole('dialog');
-    await user.type(
-      within(dialog).getByLabelText('Planilha principal'),
-      'C:\\Bases\\seap.xlsx'
-    );
-    await user.type(
-      within(dialog).getByLabelText('Arquivo de saída'),
-      'C:\\Saida\\resultado.xlsx'
-    );
+    await user.click(within(dialog).getByLabelText('Planilha principal'));
+    await user.click(within(dialog).getByLabelText('Arquivo de saída'));
     await user.click(
       within(dialog).getByRole('button', { name: /^Executar$/ })
     );
@@ -264,14 +274,8 @@ describe('modal de execução (simulada)', () => {
     await irParaProcessos(user);
     await user.click(screen.getAllByRole('button', { name: /^Executar/ })[0]);
     const dialog = screen.getByRole('dialog');
-    await user.type(
-      within(dialog).getByLabelText('Planilha principal'),
-      'C:\\Bases\\seap.xlsx'
-    );
-    await user.type(
-      within(dialog).getByLabelText('Arquivo de saída'),
-      'C:\\Saida\\resultado.xlsx'
-    );
+    await user.click(within(dialog).getByLabelText('Planilha principal'));
+    await user.click(within(dialog).getByLabelText('Arquivo de saída'));
     await user.click(
       within(dialog).getByRole('button', { name: /^Executar$/ })
     );

@@ -1,15 +1,18 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { ChevronRight } from 'lucide-react';
 
 import Sidebar from './components/Sidebar';
-import ThemeToggle from './components/ThemeToggle';
 
 import Home from './pages/Home';
 import Processos from './pages/Processos';
 import NovoProcesso from './pages/NovoProcesso';
 import ConfigurarProcesso from './pages/ConfigurarProcesso';
+import Ferramentas from './pages/Ferramentas';
+import Coordenadorias from './pages/Coordenadorias';
+import SitesInstitucionais from './pages/SitesInstitucionais';
 
 import type { ProcessoBase } from './types/processo';
+import type { FerramentaId } from './types/ferramenta';
+import { processosMock } from './mock/processosMock';
 import { criarConfiguracaoProcessoMock } from './mock/configuracaoProcessosMock';
 
 const CONSULTA_JANELA_ESTREITA = '(max-width: 1099px)';
@@ -31,39 +34,6 @@ function useJanelaEstreita(): boolean {
     assinarJanelaEstreita,
     lerJanelaEstreita,
     () => false
-  );
-}
-
-function montarTrilha(pagina: string, emEdicao: boolean): string[] {
-  const fluxo = emEdicao ? 'Editar processo' : 'Novo processo';
-  switch (pagina) {
-    case 'processos':
-      return ['Processos'];
-    case 'novo-processo':
-      return ['Processos', fluxo];
-    case 'configurar-processo':
-      return ['Processos', fluxo, 'Ferramentas'];
-    default:
-      return ['Início'];
-  }
-}
-
-function Trilha({ partes }: { partes: string[] }) {
-  const itens = ['DataHub', ...partes];
-  return (
-    <nav aria-label="Trilha" className="app-breadcrumb">
-      <ol>
-        {itens.map((parte, indice) => {
-          const ultima = indice === itens.length - 1;
-          return (
-            <li key={`${parte}-${indice}`}>
-              {indice > 0 && <ChevronRight size={14} aria-hidden="true" />}
-              <span aria-current={ultima ? 'page' : undefined}>{parte}</span>
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
   );
 }
 
@@ -95,6 +65,17 @@ function App() {
 
   const [processoEmCriacao, setProcessoEmCriacao] =
     useState<ProcessoBase | null>(null);
+  const [ferramentaInicial, setFerramentaInicial] = useState<FerramentaId>();
+
+  function abrirFerramentas(ferramentaId?: FerramentaId) {
+    setFerramentaInicial(ferramentaId);
+    setPaginaAtual('ferramentas');
+  }
+
+  function navegar(pagina: string) {
+    if (pagina === 'ferramentas') setFerramentaInicial(undefined);
+    setPaginaAtual(pagina);
+  }
 
   function alternarTema() {
     setTema((temaAtual) => (temaAtual === 'dark' ? 'light' : 'dark'));
@@ -106,19 +87,14 @@ function App() {
         Ir para o conteúdo
       </a>
       <Sidebar
+        tema={tema}
+        onToggleTema={alternarTema}
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarManual(!sidebarCollapsed)}
         paginaAtual={paginaAtual}
-        onNavigate={setPaginaAtual}
+        onNavigate={navegar}
       />
       <div className="app-column">
-        <header className="app-topbar">
-          <Trilha
-            partes={montarTrilha(paginaAtual, processoEmEdicaoId !== null)}
-          />
-          <ThemeToggle tema={tema} onToggleTema={alternarTema} />
-        </header>
-
         {paginaAtual === 'inicio' && (
           <Home
             processosConfigurados={processosConfigurados}
@@ -132,8 +108,14 @@ function App() {
               setPaginaAtual('novo-processo');
             }}
             onProcessos={() => setPaginaAtual('processos')}
+            onAbrirFerramenta={abrirFerramentas}
+            onFerramentas={() => abrirFerramentas()}
           />
         )}
+
+        {paginaAtual === 'coordenadorias' && <Coordenadorias />}
+
+        {paginaAtual === 'sites' && <SitesInstitucionais />}
 
         {paginaAtual === 'processos' && (
           <Processos
@@ -179,16 +161,27 @@ function App() {
               setPaginaAtual('novo-processo');
             }}
             onSalvar={(processoSalvo) => {
-              if (processoEmEdicaoId !== null) {
-                setProcessosConfigurados((atuais) => ({
-                  ...atuais,
-                  [processoEmEdicaoId]: processoSalvo,
-                }));
-              }
+              setProcessosConfigurados((atuais) => {
+                // Processo novo recebe o próximo id livre e entra no catálogo.
+                const id =
+                  processoEmEdicaoId ??
+                  Math.max(
+                    0,
+                    ...processosMock.map((processo) => processo.id),
+                    ...Object.keys(atuais).map(Number)
+                  ) + 1;
+                return { ...atuais, [id]: processoSalvo };
+              });
               setSalvamentoSimulado(true);
 
               setPaginaAtual('processos');
             }}
+          />
+        )}
+        {paginaAtual === 'ferramentas' && (
+          <Ferramentas
+            key={ferramentaInicial ?? 'catalogo'}
+            ferramentaInicial={ferramentaInicial}
           />
         )}
       </div>
