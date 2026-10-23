@@ -1,0 +1,184 @@
+/* Entrada e troca de senha: janela inteira, sem rolagem, sem cartões nem caixas. */
+.entrada {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  height: 100dvh;
+  padding: var(--space-6) var(--space-4);
+  overflow: hidden;
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+.entrada:focus {
+  outline: none;
+}
+.entrada__palco {
+  position: relative;
+  flex: 0 1 440px;
+  min-width: 0;
+  height: min(460px, 100%);
+}
+.entrada__coluna {
+  display: flex;
+  flex: 0 0 240px;
+  flex-direction: column;
+  width: 240px;
+}
+
+.entrada__marca {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+}
+.entrada__marca-nome {
+  font-weight: var(--weight-semibold);
+}
+.entrada__marca-orgao {
+  padding-left: var(--space-2);
+  border-left: 1px solid var(--border-hover);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  line-height: 1;
+}
+.entrada__titulo {
+  margin-bottom: var(--space-6);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+.entrada__texto {
+  margin-bottom: var(--space-6);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.entrada__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Campo sem caixa: só a linha de base. O foco engrossa a linha em --accent
+   (exceção ao contorno padrão registrada no DESIGN.md). */
+.entrada__input {
+  width: 100%;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--border-hover);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+.entrada__input::placeholder {
+  color: var(--text-muted);
+}
+.entrada__input:focus,
+.entrada__input:focus-visible {
+  outline: none;
+  border-bottom-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
+.entrada__input[aria-invalid='true'] {
+  border-bottom-color: var(--danger);
+}
+.entrada__input[aria-invalid='true']:focus {
+  box-shadow: 0 1px 0 var(--danger);
+}
+.entrada__input[readonly] {
+  color: var(--text-secondary);
+}
+
+.entrada__opcoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+}
+.entrada__manter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.entrada__manter input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.entrada__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+.entrada__link:hover {
+  text-decoration: underline;
+}
+
+.entrada__recuperar {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+.entrada__recuperar[hidden] {
+  display: none;
+}
+.entrada__aviso:empty {
+  display: none;
+}
+
+.entrada__botao {
+  justify-content: space-between;
+  width: 100%;
+  height: 32px;
+  min-height: 32px;
+}
+.entrada__botao--inicio {
+  justify-content: flex-start;
+}
+.entrada__falha {
+  color: var(--danger);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+@media (max-width: 1023px) {
+  .entrada {
+    gap: 48px;
+  }
+}
+@media (max-width: 719px) {
+  .entrada {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: var(--space-6);
+    overflow-y: auto;
+  }
+  .entrada__palco {
+    flex: 0 0 22vh;
+    width: 100%;
+    max-width: 440px;
+    height: 22vh;
+  }
+}
+
+.raiz-carregando {
+  height: 100dvh;
+  background: var(--bg-app);
+}

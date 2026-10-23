@@ -1,6 +1,6 @@
 // Critérios de aceitação visuais e de acessibilidade (docs/ux-ui-modernization-plan.md §8.1).
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { verificarQualidade } from './verificacoes';
 
 const estados: Record<string, (page: Page) => Promise<void>> = {
   inicio: async () => {},
@@ -111,17 +111,6 @@ const estados: Record<string, (page: Page) => Promise<void>> = {
       page.getByRole('heading', { level: 1, name: 'Perfil' })
     ).toBeVisible();
   },
-  'tela-de-saida': async (page) => {
-    await estados.perfil(page);
-    await page.getByRole('button', { name: 'Sair da conta' }).click();
-    await page
-      .getByRole('dialog')
-      .getByRole('button', { name: 'Sair', exact: true })
-      .click();
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Você saiu do DataHub' })
-    ).toBeVisible();
-  },
   'etapa-com-parametros': async (page) => {
     await estados['configurar-processo'](page);
     await page
@@ -157,53 +146,7 @@ for (const tema of ['light', 'dark'] as const) {
           )
         );
         await page.waitForTimeout(250);
-        await page.screenshot({ path: testInfo.outputPath(`${estado}.png`) });
-
-        const axe = await new AxeBuilder({ page }).analyze();
-        const graves = axe.violations.filter(
-          (v) => v.impact === 'serious' || v.impact === 'critical'
-        );
-        expect(
-          graves.map(
-            (v) =>
-              `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`
-          )
-        ).toEqual([]);
-
-        const textoPequeno = await page.evaluate(() => {
-          const achados: string[] = [];
-          const walker = document.createTreeWalker(
-            document.body,
-            NodeFilter.SHOW_TEXT
-          );
-          while (walker.nextNode()) {
-            const el = walker.currentNode.parentElement;
-            const texto = walker.currentNode.textContent?.trim();
-            if (!el || !texto || !el.checkVisibility()) continue;
-            const tamanho = parseFloat(getComputedStyle(el).fontSize);
-            if (tamanho < 12)
-              achados.push(`${tamanho}px "${texto.slice(0, 30)}"`);
-          }
-          return achados;
-        });
-        expect(textoPequeno).toEqual([]);
-
-        const overflow = await page.evaluate(() =>
-          [
-            ...document.querySelectorAll<HTMLElement>(
-              'main, aside, header, dialog[open], section'
-            ),
-          ]
-            .filter(
-              (el) =>
-                el.checkVisibility() && el.scrollWidth > el.clientWidth + 1
-            )
-            .map(
-              (el) =>
-                `${el.tagName.toLowerCase()}.${el.className.toString().split(' ')[0]} ${el.scrollWidth}>${el.clientWidth}`
-            )
-        );
-        expect(overflow).toEqual([]);
+        await verificarQualidade(page, testInfo, estado);
         expect(erros).toEqual([]);
       });
     }

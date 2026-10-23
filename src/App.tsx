@@ -11,16 +11,12 @@ import Coordenadorias from './pages/Coordenadorias';
 import SitesInstitucionais from './pages/SitesInstitucionais';
 import LogsExecucao from './pages/LogsExecucao';
 import Perfil from './pages/Perfil';
-import TelaSaida from './components/TelaSaida';
-import TelaAcesso from './components/acesso/TelaAcesso';
-import TelaNovaSenha from './components/acesso/TelaNovaSenha';
-import { useConta } from './hooks/useConta';
 import {
   carregarPerfil,
   removerFoto,
-  sair,
   salvarFoto,
   salvarNome,
+  type Conta,
 } from './services/conta';
 
 import type { ProcessoBase } from './types/processo';
@@ -53,7 +49,13 @@ function useJanelaEstreita(): boolean {
   );
 }
 
-function App() {
+type AppProps = {
+  /** null no modo local (sem Supabase): perfil no navegador e sem "Sair da conta". */
+  conta?: Conta | null;
+  onSair?: () => void | Promise<void>;
+};
+
+function App({ conta = null, onSair }: AppProps) {
   const [tema, setTema] = useState<'dark' | 'light'>(() => {
     const temaSalvo = localStorage.getItem('datahub-theme');
 
@@ -83,20 +85,14 @@ function App() {
     useState<ProcessoBase | null>(null);
   const [ferramentaInicial, setFerramentaInicial] = useState<FerramentaId>();
   const [logInicial, setLogInicial] = useState<string>();
-  const { estado: estadoDaConta, concluirRecuperacao } = useConta();
-  const conta = estadoDaConta.modo === 'conectado' ? estadoDaConta.conta : null;
   const [perfil, setPerfil] = useState<PerfilLocal>(() =>
-    estadoDaConta.modo === 'local' ? lerPerfilLocal() : { nome: '', foto: null }
+    conta ? { nome: '', foto: null } : lerPerfilLocal()
   );
-  // Modo local (sem Supabase): sair é uma Simulação que mostra a tela de saída.
-  const [sessaoEncerrada, setSessaoEncerrada] = useState(false);
 
-  // Conectado: o perfil vem da conta; ao trocar de conta, volta ao Início.
+  // Conectado: o perfil vem da conta (a Raiz remonta o App a cada conta).
   useEffect(() => {
     if (!conta) return;
     let ativo = true;
-    setPaginaAtual('inicio');
-    setPerfil({ nome: '', foto: null });
     carregarPerfil(conta)
       .then((remoto) => ativo && setPerfil(remoto))
       .catch(() => undefined); // sem perfil carregado, a tela mostra "Nome não definido"
@@ -125,18 +121,6 @@ function App() {
     }
   }
 
-  async function sairDaConta() {
-    if (!conta) {
-      setSessaoEncerrada(true);
-      return;
-    }
-    try {
-      await sair();
-    } catch {
-      // Mesmo se o servidor não responder, a sessão local é encerrada pelo Supabase.
-    }
-  }
-
   function abrirFerramentas(ferramentaId?: FerramentaId) {
     setFerramentaInicial(ferramentaId);
     setPaginaAtual('ferramentas');
@@ -155,29 +139,6 @@ function App() {
 
   function alternarTema() {
     setTema((temaAtual) => (temaAtual === 'dark' ? 'light' : 'dark'));
-  }
-
-  if (estadoDaConta.modo === 'carregando') {
-    return (
-      <main id="conteudo-principal" className="tela-saida">
-        <p role="status">Carregando…</p>
-      </main>
-    );
-  }
-  if (estadoDaConta.modo === 'sem-conta') return <TelaAcesso />;
-  if (estadoDaConta.modo === 'recuperando-senha') {
-    return <TelaNovaSenha onConcluir={concluirRecuperacao} />;
-  }
-
-  if (sessaoEncerrada) {
-    return (
-      <TelaSaida
-        onEntrar={() => {
-          setSessaoEncerrada(false);
-          setPaginaAtual('inicio');
-        }}
-      />
-    );
   }
 
   return (
@@ -232,7 +193,7 @@ function App() {
             }
             armazenamento={conta ? 'conta' : 'computador'}
             onAlterar={alterarPerfil}
-            onSair={() => void sairDaConta()}
+            onSair={onSair && (() => void onSair())}
           />
         )}
         {paginaAtual === 'logs' && (

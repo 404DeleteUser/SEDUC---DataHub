@@ -13,7 +13,7 @@ o código é preparado pelo agente.
 Atenção: o plano Hobby é para uso **não comercial**. Se a SEDUC adotar o sistema oficialmente,
 avalie o plano Pro.
 
-## 2. Supabase (login, perfil e logs) — será usado a partir da fase F2
+## 2. Supabase (login, perfil e logs)
 
 1. Crie a conta em <https://supabase.com> e um **New project**:
    - **Region:** South America (São Paulo).
@@ -34,21 +34,37 @@ avalie o plano Pro.
    - a tabela `perfis` (nome e caminho da foto), em que cada pessoa só vê e altera o próprio;
    - o bucket privado `fotos-perfil` (JPEG até 1 MB, cada pessoa só na própria pasta).
 5. **Endereços de retorno dos e-mails:** em **Authentication → URL Configuration**:
-   - **Site URL:** o endereço do site na Vercel (ex.: `https://seduc-datahub.vercel.app`);
-   - **Redirect URLs:** o mesmo endereço e `http://localhost:5173` (para testar no computador).
-   Sem isso, o link de confirmação e o de "Esqueci a senha" voltam para o lugar errado.
-6. **Confirmação de e-mail:** deixe ligada (**Authentication → Sign In / Providers → Email →
-   Confirm email**). Assim só entra quem tem acesso à caixa `@edu.mt.gov.br`.
+   - **Site URL:** o endereço do site na Vercel (ex.: `https://seduc-datahub.vercel.app`). O link
+     do **convite** volta para cá;
+   - **Redirect URLs:** `https://<seu-site>/redefinir-senha` (link de "Esqueci a senha") e, para
+     testar no computador, `http://localhost:1420/redefinir-senha`.
+6. **Sem cadastro aberto:** em **Authentication → Sign In / Providers**, desligue **Allow new
+   users to sign up**. A tela não tem "Criar conta", e assim ninguém cria conta direto pela API.
+   Os convites continuam funcionando.
+7. **Criar o acesso de uma pessoa:** **Authentication → Users → Add user → Send invitation**, com o
+   e-mail `@edu.mt.gov.br` dela (outro domínio é recusado pelo banco). Ela recebe o e-mail, clica
+   no link, cria a senha na tela "Criar sua senha" e já entra.
 
-O envio de e-mails do plano gratuito tem **limite baixo** (poucos por hora). Se várias pessoas se
-cadastrarem ao mesmo tempo e os e-mails não chegarem, configure um SMTP próprio em
+O envio de e-mails do plano gratuito tem **limite baixo** (poucos por hora). Se vários convites ou
+pedidos de nova senha não chegarem, configure um SMTP próprio em
 **Authentication → Emails → SMTP Settings**.
+
+### Segurança no navegador (CSP)
+
+O `vercel.json` só permite que a página fale com o próprio site e com
+`https://mdqmwefvzpzntichkwrt.supabase.co`. Se trocar de projeto Supabase, troque o domínio
+também na `Content-Security-Policy` do `vercel.json`, senão o login para de funcionar.
 
 ### Testar no computador (Codespaces ou local)
 
 Crie `.env.development.local` (não vai para o git) com as duas variáveis do `.env.example` e rode
-`npm run dev`. Os testes automáticos (`npm test` e Playwright) não leem esse arquivo e rodam
-sempre em modo local.
+`npm run dev`. Os testes automáticos não leem esse arquivo: `npm test` simula o Supabase, e o
+Playwright abre a Entrada com um Supabase fictício.
+
+Para o Playwright testar também o **login de verdade**, crie uma conta de teste (convite para um
+e-mail `@edu.mt.gov.br` de teste) e defina, como secrets do Codespaces/GitHub ou no terminal:
+`E2E_SUPABASE_URL`, `E2E_SUPABASE_ANON_KEY`, `E2E_EMAIL` e `E2E_SENHA`. Sem elas, esses testes
+são pulados com aviso. Nunca coloque a senha da conta de teste em arquivo do repositório.
 
 O projeto gratuito do Supabase **pausa depois de 1 semana sem uso**; para reativar, abra o painel
 do projeto e clique em **Restore**.

@@ -1,9 +1,17 @@
 // Cliente do Supabase. Sem as variáveis de ambiente, fica null e o app roda no
 // modo local (sem login), como nos testes e no desenvolvimento sem conta.
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { lerLinkDeAcesso, type LinkDeAcesso } from '../domain/entrada';
+import { armazenamentoSessao } from './armazenamentoSessao';
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const chave = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+/** Lido antes de criar o cliente, que limpa o "#access_token…&type=…" da barra. */
+export const linkDeAcesso: LinkDeAcesso = lerLinkDeAcesso(
+  window.location.pathname,
+  window.location.hash
+);
 
 export const supabase: SupabaseClient | null =
   url && chave
@@ -12,7 +20,10 @@ export const supabase: SupabaseClient | null =
           persistSession: true,
           autoRefreshToken: true,
           detectSessionInUrl: true,
-          flowType: 'pkce',
+          // Implícito: os convites do painel do Supabase chegam nesse formato, e o
+          // link de nova senha funciona mesmo aberto em outro navegador.
+          flowType: 'implicit',
+          storage: armazenamentoSessao,
         },
       })
     : null;

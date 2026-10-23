@@ -1,4 +1,4 @@
-// Tela de Perfil: foto, nome (salvos neste computador), dados de exemplo e sair (Simulação).
+// Tela de Perfil: foto, nome (salvos neste computador no modo local) e dados de exemplo.
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -115,27 +115,11 @@ describe('tela de Perfil', () => {
   });
 });
 
-describe('sair da conta (Simulação)', () => {
-  it('confirma, mostra a tela de saída e permite entrar de novo', async () => {
-    const user = await abrirPerfil();
-    await user.click(screen.getByRole('button', { name: 'Sair da conta' }));
-    const dialogo = screen.getByRole('dialog', { name: 'Sair do DataHub?' });
-    await user.click(within(dialogo).getByRole('button', { name: 'Cancelar' }));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sair da conta' })).toHaveFocus();
-
-    await user.click(screen.getByRole('button', { name: 'Sair da conta' }));
-    await user.click(
-      within(screen.getByRole('dialog')).getByRole('button', { name: 'Sair' })
-    );
+describe('sair da conta', () => {
+  it('no modo local (sem Supabase) não há sessão para encerrar', async () => {
+    await abrirPerfil();
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Você saiu do DataHub' })
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Entrar novamente' }));
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Início' })
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: 'Sair da conta' })
+    ).not.toBeInTheDocument();
   });
 });

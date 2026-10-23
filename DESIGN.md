@@ -8,7 +8,7 @@ Contexto e diagnóstico: [`docs/ux-ui-modernization-plan.md`](docs/ux-ui-moderni
 - **Registro:** `product-app` (ferramenta interna, uso diário por analistas, janela desktop Windows).
 - **Modo:** redesign *overhaul* (aprovado em 21/10/2026): linguagem visual nova sobre o mesmo conteúdo e a mesma arquitetura de informação. Nomes da navegação e rótulos de campo não mudam. O texto do banner (eyebrow, título e parágrafo) se mantém; o lema "Interface que organiza / Processos que transformam" saiu em 23/10/2026.
 - **Identidade (herdada, não reinventada):** brasão de MT, "SEDUC" em ASCII animado no banner (substituiu a foto da sede em 23/10/2026), quase preto no dark (substituiu o navy em 23/10/2026), cinza muito claro no light, azul institucional para ação primária, ícones Lucide coloridos por processo/ferramenta. A faixa tricolor (verde, ouro e azul) é a **assinatura institucional**: aparece no banner e na marca da sidebar, e em nenhum outro lugar.
-- **Exclusões:** sem gradientes decorativos, sem glassmorphism, sem neon e sem emoji como ícone; nenhuma cor fora da paleta, exceto as cores de identidade de entidades (`corIcone`), os status e as cores do próprio brasão de MT no brasão em ASCII do Perfil. Exceção aprovada em 23/10/2026: o feixe de luz do "SEDUC" em ASCII no banner (só azuis da paleta).
+- **Exclusões:** sem gradientes decorativos, sem glassmorphism, sem neon e sem emoji como ícone; nenhuma cor fora da paleta, exceto as cores de identidade de entidades (`corIcone`), os status e as cores do próprio brasão de MT no brasão em ASCII (Perfil e Entrada). Exceção aprovada em 23/10/2026: o feixe de luz do "SEDUC" em ASCII no banner (só azuis da paleta).
 - **Âncoras (estrutura e densidade, não aparência):** IBM Carbon para densidade de ferramenta de dados (listas operacionais, linhas de 48px, grid de 4px); Fluent 2 para affordances de desktop Windows (painel mestre-detalhe, barra de comandos no rodapé dos formulários).
 
 ## Tipografia
@@ -46,6 +46,7 @@ Os valores de base continuam os de `src/styles/tokens.css`. O tema escuro passou
 - **Elevação:** `--shadow-surface` (painéis: 1px de contorno + sombra difusa de 2 camadas) · `--shadow-dialog`.
 - **Movimento:** `--duration-fast` 120ms · `--duration-base` 200ms · `--ease-out` `cubic-bezier(.2,.8,.2,1)`. Anima só `transform`, `opacity` e cores, **exceto** as ilustrações ASCII em `<canvas>` (`src/components/ascii/`), que redesenham a grade a 24–30 fps (aprovado em 23/10/2026). Tudo respeita `prefers-reduced-motion` (as ilustrações ficam num quadro parado).
 - **Foco:** `outline: 2px solid var(--accent); outline-offset: 2px` em todo elemento interativo.
+  Exceção (aprovada em 23/10/2026): os campos da Entrada e da `/redefinir-senha` não têm caixa, só a linha de base de 1px (`--border-hover`); no foco, ela vira 2px em `--accent` (em erro, `--danger`), sem o contorno.
 
 ## Layout
 
@@ -55,6 +56,10 @@ Os valores de base continuam os de `src/styles/tokens.css`. O tema escuro passou
 - **Rolagem:** cada página rola no próprio contêiner (`.page-scroll` / `.form-content`); na aba Ferramentas (≥1100px), catálogo e painel rolam de forma independente.
 - **Cabeçalho de página:** botão Voltar opcional, título (`2xl`), descrição (`sm`) e um slot de ações à direita. Nada em `position: fixed` sobre o conteúdo.
 - **Conteúdo:** largura máxima de 1440px; formulários com largura máxima de 880px na coluna principal.
+
+## Entrada (`src/pages/Entrada.tsx`, `src/styles/entrada.css`)
+
+Janela inteira, sem rolagem até 960×640, fundo `--bg-app`, sem cartões nem divisórias. Duas colunas no centro, 56px entre elas (48px abaixo de 1024px): à esquerda o brasão em ASCII (até 440×460px), à direita o formulário solto, com 240px. Abaixo de 720px, o brasão vai para cima (22vh). A `/redefinir-senha` usa a mesma moldura (`components/entrada/MolduraEntrada.tsx`).
 
 ## Componentes compartilhados (`src/components/ui/`)
 

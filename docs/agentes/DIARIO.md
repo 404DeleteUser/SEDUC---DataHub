@@ -18,6 +18,47 @@ Modelo:
 
 ---
 
+## 2026-10-23 · codespace · feat/entrada-supabase · AGUARDANDO ACORDO (branch do local)
+
+**Pedido do usuário:** prompt "Tela de entrada do DataHub (login real com Supabase Auth)", trocando a parte simulada da Entrada pela autenticação real e mantendo o visual.
+
+**Divergência:** o prompt diz que a branch `feat/tela-de-entrada` já tinha `Entrada.tsx`, `entrada.css`, `entrada.ts` e `Raiz.tsx`, mas ela **não existe no GitHub** (deve estar só no Windows). O usuário escolheu **recriar aqui pelo prompt**, na branch `feat/entrada-supabase` (nome diferente de propósito, para não sobrescrever a do local). **Agente local:** não faça push da `feat/tela-de-entrada` por cima. Compare com esta e combine com o usuário qual versão fica. Esta já tem os testes e a autenticação real.
+
+**Outras decisões do usuário nesta sessão:**
+- Contas **só por convite**: sai o "Criar conta" da F2.
+- **App.tsx aprovado**: "Sair" real, a `TelaSaida` deixa de existir e o modo local continua.
+- E2E com conta real lida do ambiente, **pulado se faltar**.
+
+**Feito** (sobre a `feat/f2-login`):
+- Telas e roteamento:
+  - `pages/Entrada.tsx`, `pages/RedefinirSenha.tsx` (recuperação, convite e link vencido), `components/entrada/MolduraEntrada.tsx` e `styles/entrada.css`;
+  - `Raiz.tsx` (sessão → Entrada, troca de senha ou App);
+  - tema aplicado no `main.tsx`.
+- Regras e sessão:
+  - `domain/entrada.ts` (validação, mensagens e leitura do link);
+  - `services/armazenamentoSessao.ts` ("Manter conectado");
+  - cliente com `flowType: 'implicit'`, porque o PKCE recusa o convite do painel ("Not a valid PKCE flow url").
+- Remoções: `TelaSaida`, `TelaAcesso`, `TelaNovaSenha` e `domain/acesso.ts`.
+- Perfil sem "Sair" no modo local.
+- `vercel.json` com CSP.
+- e2e:
+  - projeto `entrada` (porta 1421, Supabase fictício ou o de teste);
+  - verificações comuns extraídas para `e2e/verificacoes.ts`;
+  - `e2e/entrar.ts`.
+- Documentação: `PUBLICAR.md` (convite, "Allow new users to sign up" desligado, Redirect URLs com `/redefinir-senha`, CSP, variáveis E2E_*), `DECISOES.md` e `DESIGN.md` (exceção de foco dos campos da Entrada).
+
+**Verificações:** tsc ✓ · vitest 253/253 ✓ · pytest 79/79 ✓ (`engine/.venv`) · e2e 134 ✓ + 2 pulados (login real sem conta de teste) · build ✓.
+
+**Mudança no Playwright:** o e2e local agora usa a **porta 1422**, sem reaproveitar servidor. Na 1420, ele reaproveitava o `npm run dev` aberto, que lê `.env.development.local`, abre na Entrada e travava a suíte. A CSP foi conferida servindo o `dist` com o cabeçalho: nenhum erro no console, fonte carregada.
+
+**Pendente / próximos passos:**
+- O usuário roda o SQL, desliga o cadastro aberto, ajusta as URLs e convida as pessoas.
+- Criar a conta de teste e os secrets E2E_*.
+- Testar o fluxo real.
+- Contraste da linha de base dos campos (`--border-hover`) abaixo de 3:1 no tema claro (WCAG 1.4.11): seguido como pedido, mas vale revisar.
+
+**Push:** não feito (aguarda pedido).
+
 ## 2026-10-23 · codespace · feat/f2-login · CONCLUÍDO (aguarda ações do usuário no Supabase)
 
 **Pedido do usuário:** iniciar a F2 com a Project URL e a chave publishable do Supabase.

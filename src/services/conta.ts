@@ -1,6 +1,12 @@
 // Conta e perfil no Supabase. As telas usam só estas funções; sem Supabase
 // configurado (modo local), contaConfigurada() é false e o app não pede login.
-import { supabase } from './supabase';
+import {
+  CAMINHO_REDEFINIR_SENHA,
+  normalizarEmail,
+  type LinkDeAcesso,
+} from '../domain/entrada';
+import { definirManterConectado } from './armazenamentoSessao';
+import { linkDeAcesso, supabase } from './supabase';
 
 export type Conta = { id: string; email: string };
 
@@ -29,9 +35,9 @@ export function contaConfigurada(): boolean {
   return supabase !== null;
 }
 
-/** Para onde os links de confirmação e de nova senha voltam. */
-function enderecoDoApp() {
-  return window.location.origin;
+/** O link (convite, nova senha ou vencido) pelo qual o app foi aberto. */
+export function linkDeAcessoInicial(): LinkDeAcesso {
+  return linkDeAcesso;
 }
 
 export async function contaAtual(): Promise<Conta | null> {
@@ -51,34 +57,25 @@ export function aoMudarSessao(
   return () => data.subscription.unsubscribe();
 }
 
-export async function entrar(email: string, senha: string): Promise<Conta> {
+export async function entrar(
+  email: string,
+  senha: string,
+  manter: boolean
+): Promise<Conta> {
+  // Antes do login: a sessão nova já é gravada no lugar escolhido.
+  definirManterConectado(manter);
   const { data, error } = await cliente().auth.signInWithPassword({
-    email: email.trim().toLowerCase(),
+    email: normalizarEmail(email),
     password: senha,
   });
   if (error) throw error;
   return paraConta(data.user)!;
 }
 
-/** Devolve a conta se já entrou; null se precisa confirmar o e-mail antes. */
-export async function cadastrar(
-  email: string,
-  senha: string,
-  nome: string
-): Promise<Conta | null> {
-  const { data, error } = await cliente().auth.signUp({
-    email: email.trim().toLowerCase(),
-    password: senha,
-    options: { data: { nome: nome.trim() }, emailRedirectTo: enderecoDoApp() },
-  });
-  if (error) throw error;
-  return data.session ? paraConta(data.user) : null;
-}
-
 export async function enviarRecuperacaoDeSenha(email: string): Promise<void> {
   const { error } = await cliente().auth.resetPasswordForEmail(
-    email.trim().toLowerCase(),
-    { redirectTo: enderecoDoApp() }
+    normalizarEmail(email),
+    { redirectTo: `${window.location.origin}${CAMINHO_REDEFINIR_SENHA}` }
   );
   if (error) throw error;
 }

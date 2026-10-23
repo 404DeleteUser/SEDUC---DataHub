@@ -20,7 +20,8 @@ type PerfilProps = {
   armazenamento?: 'computador' | 'conta';
   /** Devolve false se não deu para salvar. */
   onAlterar: (perfil: PerfilLocal) => boolean | Promise<boolean>;
-  onSair: () => void;
+  /** Só com conta (Supabase): no modo local não há sessão para encerrar. */
+  onSair?: () => void;
 };
 
 const ID_BOTAO_NOME = 'perfil-editar-nome';
@@ -248,50 +249,51 @@ export default function Perfil({
             </dl>
           </section>
 
-          <section
-            className="perfil-secao perfil-sessao"
-            aria-labelledby="perfil-sessao-titulo"
-          >
-            <SectionTitle
-              id="perfil-sessao-titulo"
-              title="Sessão"
-              description="Encerra o uso do DataHub neste computador."
-            />
-            <Button
-              variant="danger"
-              icon={LogOut}
-              onClick={() => setConfirmandoSaida(true)}
+          {onSair && (
+            <section
+              className="perfil-secao perfil-sessao"
+              aria-labelledby="perfil-sessao-titulo"
             >
-              Sair da conta
-            </Button>
-          </section>
+              <SectionTitle
+                id="perfil-sessao-titulo"
+                title="Sessão"
+                description="Encerra o uso do DataHub neste computador."
+              />
+              <Button
+                variant="danger"
+                icon={LogOut}
+                onClick={() => setConfirmandoSaida(true)}
+              >
+                Sair da conta
+              </Button>
+            </section>
+          )}
         </div>
         <div className="perfil-palco">
           <AsciiBrasao />
         </div>
       </div>
 
-      <ConfirmarSaida
-        aberto={confirmandoSaida}
-        armazenamento={armazenamento}
-        onCancelar={() => setConfirmandoSaida(false)}
-        onConfirmar={() => {
-          setConfirmandoSaida(false);
-          onSair();
-        }}
-      />
+      {onSair && (
+        <ConfirmarSaida
+          aberto={confirmandoSaida}
+          onCancelar={() => setConfirmandoSaida(false)}
+          onConfirmar={() => {
+            setConfirmandoSaida(false);
+            onSair();
+          }}
+        />
+      )}
     </main>
   );
 }
 
 function ConfirmarSaida({
   aberto,
-  armazenamento,
   onCancelar,
   onConfirmar,
 }: {
   aberto: boolean;
-  armazenamento: 'computador' | 'conta';
   onCancelar: () => void;
   onConfirmar: () => void;
 }) {
@@ -326,8 +328,7 @@ function ConfirmarSaida({
       <h2 id="perfil-confirmacao-titulo">Sair do DataHub?</h2>
       <p id="perfil-confirmacao-texto">
         Você poderá entrar de novo em seguida. Seu nome e sua foto continuam
-        salvos {armazenamento === 'conta' ? 'na sua conta' : 'neste computador'}
-        .
+        salvos na sua conta.
       </p>
       <div className="perfil-confirmacao__botoes">
         <Button variant="ghost" onClick={onCancelar}>

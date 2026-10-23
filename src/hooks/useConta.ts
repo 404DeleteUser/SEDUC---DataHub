@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import type { LinkDeAcesso } from '../domain/entrada';
 import {
   aoMudarSessao,
   contaAtual,
   contaConfigurada,
+  linkDeAcessoInicial,
   type Conta,
 } from '../services/conta';
 
@@ -11,8 +13,24 @@ export type EstadoDaConta =
   | { modo: 'local' }
   | { modo: 'carregando' }
   | { modo: 'sem-conta' }
-  | { modo: 'recuperando-senha'; conta: Conta | null }
+  | {
+      modo: 'redefinir-senha';
+      conta: Conta | null;
+      link: Exclude<LinkDeAcesso, null>;
+    }
   | { modo: 'conectado'; conta: Conta };
+
+function estadoInicial(conta: Conta | null): EstadoDaConta {
+  const link = linkDeAcessoInicial();
+  if (link) return { modo: 'redefinir-senha', conta, link };
+  return conta ? { modo: 'conectado', conta } : { modo: 'sem-conta' };
+}
+
+/** Sai de /redefinir-senha sem recarregar a página. */
+function voltarParaRaiz() {
+  if (window.location.pathname !== '/')
+    window.history.replaceState(null, '', '/');
+}
 
 export function useConta() {
   const configurada = contaConfigurada();
@@ -23,31 +41,21 @@ export function useConta() {
   useEffect(() => {
     if (!configurada) return;
     let ativo = true;
+    // getSession espera o cliente ler o link do e-mail; até lá, os eventos não decidem.
     contaAtual()
-      .then((conta) => {
-        if (!ativo) return;
-        setEstado((anterior) =>
-          anterior.modo !== 'carregando'
-            ? anterior
-            : conta
-              ? { modo: 'conectado', conta }
-              : { modo: 'sem-conta' }
-        );
-      })
-      .catch(() => ativo && setEstado({ modo: 'sem-conta' }));
+      .catch(() => null)
+      .then((conta) => ativo && setEstado(estadoInicial(conta)));
     const parar = aoMudarSessao((evento, conta) => {
-      if (evento === 'recuperando-senha') {
-        setEstado({ modo: 'recuperando-senha', conta });
-      } else if (evento === 'saiu' || !conta) {
-        setEstado({ modo: 'sem-conta' });
-      } else {
+      setEstado((anterior) => {
+        if (evento === 'saiu') return { modo: 'sem-conta' };
+        if (evento === 'recuperando-senha') {
+          return { modo: 'redefinir-senha', conta, link: 'recuperacao' };
+        }
+        if (anterior.modo === 'carregando' || !conta) return anterior;
         // Durante a troca de senha a sessão já existe: a tela de nova senha continua.
-        setEstado((anterior) =>
-          anterior.modo === 'recuperando-senha'
-            ? anterior
-            : { modo: 'conectado', conta }
-        );
-      }
+        if (anterior.modo === 'redefinir-senha') return { ...anterior, conta };
+        return { modo: 'conectado', conta };
+      });
     });
     return () => {
       ativo = false;
@@ -55,13 +63,15 @@ export function useConta() {
     };
   }, [configurada]);
 
-  function concluirRecuperacao() {
+  /** Depois de salvar a senha (ou diante de um link vencido): com sessão, segue para o app. */
+  function sairDaRedefinicao() {
+    voltarParaRaiz();
     setEstado((anterior) =>
-      anterior.modo === 'recuperando-senha' && anterior.conta
+      anterior.modo === 'redefinir-senha' && anterior.conta
         ? { modo: 'conectado', conta: anterior.conta }
-        : anterior
+        : { modo: 'sem-conta' }
     );
   }
 
-  return { estado, concluirRecuperacao };
+  return { estado, sairDaRedefinicao };
 }
