@@ -3,11 +3,13 @@ import { CheckCircle2, TerminalSquare } from 'lucide-react';
 
 const INTERVALO_PASSO_MS = 700;
 
-/** Avança uma lista de mensagens como se fosse uma execução real. */
+/** Avança uma lista de mensagens como uma simulação de execução. */
 export function useExecucaoSimulada() {
   const [passos, setPassos] = useState<string[]>([]);
   const [concluidos, setConcluidos] = useState(0);
-  const executando = passos.length > 0 && concluidos < passos.length;
+  const [cancelado, setCancelado] = useState(false);
+  const executando =
+    passos.length > 0 && concluidos < passos.length && !cancelado;
 
   useEffect(() => {
     if (!executando) return;
@@ -21,14 +23,17 @@ export function useExecucaoSimulada() {
   return {
     executando,
     iniciado: passos.length > 0,
+    cancelado,
     progresso: passos.length
       ? Math.round((concluidos / passos.length) * 100)
       : 0,
     logs: passos.slice(0, concluidos),
     iniciar: (mensagens: string[]) => {
+      setCancelado(false);
       setConcluidos(0);
       setPassos(mensagens);
     },
+    cancelar: () => setCancelado(true),
   };
 }
 
@@ -36,17 +41,21 @@ export function ExecucaoSimulada({
   progresso,
   logs,
   executando,
+  cancelado,
 }: {
   progresso: number;
   logs: string[];
   executando: boolean;
+  cancelado: boolean;
 }) {
   const logRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
-  }, [logs]);
-  const concluido = progresso === 100 && !executando;
-  const acao = logs[logs.length - 1] ?? 'Iniciando execução…';
+  }, [logs, cancelado]);
+  const concluido = progresso === 100 && !executando && !cancelado;
+  const acao = cancelado
+    ? 'Cancelado: a execução foi interrompida.'
+    : (logs[logs.length - 1] ?? 'Iniciando execução…');
 
   return (
     <div className="ferramenta-execucao">
@@ -84,6 +93,12 @@ export function ExecucaoSimulada({
         {logs.map((linha, indice) => (
           <div key={indice}>[simulação] {linha}</div>
         ))}
+        {cancelado && (
+          <div>
+            [simulação] Execução cancelada pelo usuário. Nenhum arquivo de saída
+            foi gravado.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Info, Play, Plus, RotateCcw, Search, Trash2 } from 'lucide-react';
+import {
+  CircleStop,
+  Info,
+  Play,
+  Plus,
+  RotateCcw,
+  Search,
+  Trash2,
+} from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import {
   ExecucaoSimulada,
@@ -200,6 +208,17 @@ function PainelFerramenta({
   const [nomeSaida, setNomeSaida] = useState('');
   const [erros, setErros] = useState<ErroParametro[]>([]);
   const execucao = useExecucaoSimulada();
+  const acoesRef = useRef<HTMLElement>(null);
+
+  function cancelarExecucao() {
+    execucao.cancelar();
+    // O botão Cancelar some: o foco vai para Executar e não se perde.
+    requestAnimationFrame(() =>
+      acoesRef.current
+        ?.querySelector<HTMLButtonElement>('.ui-button--primary')
+        ?.focus()
+    );
+  }
 
   useEffect(() => {
     if (focarAoMontar) tituloRef.current?.focus();
@@ -472,7 +491,7 @@ function PainelFerramenta({
         </Field>
       </div>
 
-      <footer className="ferramenta-painel__acoes">
+      <footer ref={acoesRef} className="ferramenta-painel__acoes">
         <Button
           icon={RotateCcw}
           onClick={onLimpar}
@@ -488,6 +507,11 @@ function PainelFerramenta({
         >
           Executar
         </Button>
+        {execucao.executando && (
+          <Button variant="danger" icon={CircleStop} onClick={cancelarExecucao}>
+            Cancelar execução
+          </Button>
+        )}
       </footer>
 
       {execucao.iniciado && (
@@ -495,6 +519,7 @@ function PainelFerramenta({
           progresso={execucao.progresso}
           logs={execucao.logs}
           executando={execucao.executando}
+          cancelado={execucao.cancelado}
         />
       )}
     </section>

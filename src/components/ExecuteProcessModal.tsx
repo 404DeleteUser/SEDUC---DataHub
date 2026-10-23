@@ -4,6 +4,7 @@ import type { ProcessoBase } from '../types/processo';
 import {
   AlertCircle,
   CheckCircle2,
+  CircleStop,
   Clock3,
   FileSpreadsheet,
   Info,
@@ -119,6 +120,7 @@ export default function ExecuteProcessModal({
     '[simulação] Processo pronto para execução.',
   ]);
   const [executando, setExecutando] = useState(false);
+  const [cancelado, setCancelado] = useState(false);
   const [erro, setErro] = useState('');
   // Passos desta execução: o log embutido das ferramentas de cada etapa.
   const roteiro = useRef<PassoDaExecucao[]>([]);
@@ -147,6 +149,7 @@ export default function ExecuteProcessModal({
     setProgresso(0);
     setTempoDecorrido(0);
     setExecutando(iniciar);
+    setCancelado(false);
     setErro(executarAoAbrir && !iniciar ? MENSAGEM_ENTRADAS_OBRIGATORIAS : '');
     setAcaoAtual(iniciar ? 'Iniciando execução…' : 'Aguardando execução…');
     setLogs([
@@ -217,6 +220,7 @@ export default function ExecuteProcessModal({
       return;
     }
     setErro('');
+    setCancelado(false);
     prepararRoteiro(campos);
     setProgresso(0);
     setTempoDecorrido(0);
@@ -225,12 +229,28 @@ export default function ExecuteProcessModal({
     setExecutando(true);
   }
 
+  function cancelarExecucao() {
+    setExecutando(false);
+    setCancelado(true);
+    setAcaoAtual('Cancelado: a execução foi interrompida.');
+    setLogs((anteriores) => [
+      ...anteriores,
+      '[simulação] Execução cancelada pelo usuário. Nenhum arquivo de saída foi gravado.',
+    ]);
+    // O botão Cancelar some: o foco vai para "Executar novamente" e não se perde.
+    requestAnimationFrame(() =>
+      dialogRef.current
+        ?.querySelector<HTMLButtonElement>('.execution-run')
+        ?.focus()
+    );
+  }
+
   if (!aberto || !processo) return null;
   const Icone = processo.icone;
-  const concluido = progresso === 100 && !executando;
+  const concluido = progresso === 100 && !executando && !cancelado;
   const rotuloExecutar = executando
     ? 'Executando…'
-    : concluido
+    : concluido || cancelado
       ? 'Executar novamente'
       : 'Executar';
   const invalido = (valor: string) =>
@@ -303,15 +323,26 @@ export default function ExecuteProcessModal({
               <span>{erro}</span>
             </p>
           )}
-          <Button
-            variant="primary"
-            icon={Play}
-            className="execution-run"
-            disabled={executando}
-            onClick={iniciarExecucao}
-          >
-            {rotuloExecutar}
-          </Button>
+          <div className="execution-controls">
+            <Button
+              variant="primary"
+              icon={Play}
+              className="execution-run"
+              disabled={executando}
+              onClick={iniciarExecucao}
+            >
+              {rotuloExecutar}
+            </Button>
+            {executando && (
+              <Button
+                variant="danger"
+                icon={CircleStop}
+                onClick={cancelarExecucao}
+              >
+                Cancelar execução
+              </Button>
+            )}
+          </div>
         </section>
 
         <section className="execution-status">

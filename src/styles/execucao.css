@@ -97,9 +97,16 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
+.execution-controls {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+.execution-controls > .ui-button {
+  flex: 1;
+}
 .execution-run {
   width: 100%;
-  margin-top: auto;
 }
 
 /* Direita: progresso em cima, logs embaixo */
