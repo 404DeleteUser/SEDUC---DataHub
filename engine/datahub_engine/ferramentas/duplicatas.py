@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..pasta import Pasta
-from .base import ContextoDaEtapa, ErroDaFerramenta, ResultadoDaEtapa, indice_obrigatorio
+from .base import ContextoDaEtapa, ErroDaFerramenta, Ferramenta, Parametro, ResultadoDaEtapa, indice_obrigatorio
 
 
 def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa) -> ResultadoDaEtapa:
@@ -36,3 +36,20 @@ def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa
         pasta,
         {"duplicadas_removidas": removidas, "grupos_com_duplicatas": grupos_com_duplicatas},
     )
+
+
+FERRAMENTA = Ferramenta(
+    id="eliminar-duplicatas",
+    nome="Eliminar Duplicatas",
+    descricao="Remove linhas repetidas considerando as colunas escolhidas como chave.",
+    parametros=(
+        Parametro(
+            "colunasChave",
+            "Colunas-chave",
+            "colunas",
+            "Escolha ao menos uma coluna para identificar as duplicatas.",
+            ajuda="Linhas com os mesmos valores nessas colunas são duplicatas; uma delas é mantida.",
+        ),
+    ),
+    executar=executar,
+)

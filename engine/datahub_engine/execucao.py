@@ -119,7 +119,7 @@ def executar_plano(
         for etapa in plano.etapas:
             cancelamento.verificar()
             etapa_atual = etapa.indice
-            nome = NOME_SCRIPT_PYTHON if etapa.ferramenta == SCRIPT_PYTHON else FERRAMENTAS[etapa.ferramenta][0]
+            nome = NOME_SCRIPT_PYTHON if etapa.ferramenta == SCRIPT_PYTHON else FERRAMENTAS[etapa.ferramenta].nome
             emissor.emitir("etapa.inicio", indice=etapa.indice, ferramenta=etapa.ferramenta, nome=nome)
             avancar(nome)
             comeco = time.monotonic()
@@ -142,7 +142,9 @@ def executar_plano(
                     avancar=lambda pct, mensagem: avancar(mensagem or nome, pct / 100),
                 )
             else:
-                resultado = FERRAMENTAS[etapa.ferramenta][1](pasta, etapa.parametros, contexto)
+                ferramenta = FERRAMENTAS[etapa.ferramenta]
+                ferramenta.validar(etapa.parametros)
+                resultado = ferramenta.executar(pasta, etapa.parametros, contexto)
             pasta = resultado.pasta
             for aviso in resultado.avisos:
                 emissor.emitir("log", nivel="aviso", mensagem=aviso, etapa=etapa.indice)

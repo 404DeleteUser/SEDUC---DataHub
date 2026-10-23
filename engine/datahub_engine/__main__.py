@@ -3,6 +3,7 @@
     datahub-engine executar --plano plano.json [--logs-dir PASTA] [--reter-dias 90]
     datahub-engine logs listar [--logs-dir PASTA] [--desde 2026-10-01]
     datahub-engine logs limpar [--logs-dir PASTA] [--dias 90]
+    datahub-engine catalogo --saida catalogo.json
     datahub-engine versao
 """
 
@@ -19,6 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import __version__, registro
+from .catalogo import gravar_catalogo
 from .eventos import Emissor
 from .execucao import Cancelamento, executar_plano
 from .plano import PlanoInvalido, carregar_plano
@@ -103,6 +105,9 @@ def main(argv: list[str] | None = None) -> int:
     logs.add_argument("--desde")
     logs.add_argument("--dias", type=int, default=RETENCAO_PADRAO_DIAS)
 
+    catalogo = comandos.add_parser("catalogo", help="grava o catálogo de ferramentas (JSON) para o app")
+    catalogo.add_argument("--saida", required=True)
+
     comandos.add_parser("versao", help="mostra a versão")
 
     args = parser.parse_args(argv)
@@ -110,6 +115,9 @@ def main(argv: list[str] | None = None) -> int:
         return _executar(args)
     if args.comando == "logs":
         return _logs(args)
+    if args.comando == "catalogo":
+        gravar_catalogo(Path(args.saida))
+        return 0
     print(__version__)
     return 0
 

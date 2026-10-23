@@ -6,7 +6,7 @@ import re
 from typing import Any
 
 from ..pasta import Pasta, Zebra
-from .base import ContextoDaEtapa, ErroDaFerramenta, ResultadoDaEtapa
+from .base import ContextoDaEtapa, ErroDaFerramenta, Ferramenta, Parametro, ResultadoDaEtapa
 
 _COR = re.compile(r"^#[0-9a-fA-F]{6}$")
 _CAMPOS = {
@@ -22,3 +22,15 @@ def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa
             raise ErroDaFerramenta(f"A cor {rotulo} é inválida (use o formato #RRGGBB).")
     pasta.zebra = Zebra(parametros["corCabecalho"], parametros["corLinhaA"], parametros["corLinhaB"])
     return ResultadoDaEtapa(pasta, {"abas_formatadas": len(pasta.abas)})
+
+
+FERRAMENTA = Ferramenta(
+    id="zebrar-planilha",
+    nome="Zebrar Planilha",
+    descricao="Pinta o cabeçalho e alterna duas cores nas linhas para facilitar a leitura.",
+    parametros=tuple(
+        Parametro(campo, f"Cor {rotulo}", "cor", f"A cor {rotulo} é inválida (use o formato #RRGGBB).", padrao=padrao)
+        for (campo, rotulo), padrao in zip(_CAMPOS.items(), ("#1f4e79", "#ffffff", "#e8effc"))
+    ),
+    executar=executar,
+)

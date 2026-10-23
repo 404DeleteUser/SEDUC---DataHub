@@ -6,7 +6,7 @@ from typing import Any
 
 from ..pasta import Aba, Pasta
 from ..texto import gerador_de_nomes_unicos, texto_normalizado
-from .base import ContextoDaEtapa, ErroDaFerramenta, ResultadoDaEtapa
+from .base import ContextoDaEtapa, ErroDaFerramenta, Ferramenta, Parametro, ResultadoDaEtapa
 
 
 def _divergencias(referencia: Aba, outra: Aba, arquivo: str) -> str | None:
@@ -35,7 +35,7 @@ def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa
     if modo == "abas":
         unico = gerador_de_nomes_unicos([])
         novas = [
-            Aba(unico(entrada.caminho.stem), list(entrada.aba.cabecalho), [list(l) for l in entrada.aba.linhas])
+            Aba.de_linhas(unico(entrada.caminho.stem), list(entrada.aba.cabecalho), [list(l) for l in entrada.aba.linhas])
             for entrada in contexto.entradas
         ]
         return ResultadoDaEtapa(Pasta(novas, pasta.zebra), {"arquivos_mesclados": len(novas), "abas": len(novas)})
@@ -54,5 +54,23 @@ def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa
         posicoes = {texto_normalizado(coluna): i for i, coluna in enumerate(aba.cabecalho)}
         ordem = [posicoes[texto_normalizado(coluna)] for coluna in referencia.cabecalho]
         linhas.extend([linha[i] for i in ordem] for linha in aba.linhas)
-    mesclada = Aba(referencia.nome, list(referencia.cabecalho), linhas)
+    mesclada = Aba.de_linhas(referencia.nome, list(referencia.cabecalho), linhas)
     return ResultadoDaEtapa(Pasta([mesclada], pasta.zebra), {"arquivos_mesclados": len(abas), "linhas": len(linhas)})
+
+
+FERRAMENTA = Ferramenta(
+    id="mesclar-planilhas",
+    nome="Mesclar Planilhas",
+    descricao="Empilha planilhas com o mesmo cabeçalho ou junta cada arquivo como uma aba.",
+    parametros=(
+        Parametro(
+            "modo",
+            "Como mesclar",
+            "escolha",
+            "Escolha como mesclar: empilhar linhas ou um arquivo por aba.",
+            opcoes=(("vertical", "Empilhar linhas"), ("abas", "Um arquivo por aba")),
+            padrao="vertical",
+        ),
+    ),
+    executar=executar,
+)

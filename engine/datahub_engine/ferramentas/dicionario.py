@@ -9,7 +9,15 @@ from typing import Any
 
 from ..pasta import Pasta
 from ..texto import texto_normalizado
-from .base import ContextoDaEtapa, ErroDaFerramenta, ResultadoDaEtapa, indice_obrigatorio, texto_obrigatorio
+from .base import (
+    ContextoDaEtapa,
+    ErroDaFerramenta,
+    Ferramenta,
+    Parametro,
+    ResultadoDaEtapa,
+    indice_obrigatorio,
+    texto_obrigatorio,
+)
 
 
 def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa) -> ResultadoDaEtapa:
@@ -34,3 +42,29 @@ def executar(pasta: Pasta, parametros: dict[str, Any], contexto: ContextoDaEtapa
     mantidas = pasta.linhas
     avisos = ["Nenhuma linha corresponde aos valores do dicionário."] if antes and not mantidas else []
     return ResultadoDaEtapa(pasta, {"linhas_mantidas": mantidas, "linhas_removidas": antes - mantidas}, avisos)
+
+
+FERRAMENTA = Ferramenta(
+    id="dicionario",
+    nome="Dicionário",
+    descricao="Mantém só as linhas em que a coluna contém, ou é igual a, um dos valores informados.",
+    parametros=(
+        Parametro("coluna", "Coluna", "coluna", "Escolha a coluna do dicionário."),
+        Parametro(
+            "modo",
+            "Como comparar",
+            "escolha",
+            "Escolha se o valor deve estar contido ou ser exato.",
+            opcoes=(("contem", "Contém"), ("exato", "Exato")),
+            padrao="contem",
+        ),
+        Parametro(
+            "valores",
+            "Valores para manter",
+            "lista_texto",
+            "Informe ao menos um valor para manter.",
+            ajuda="Sem diferenciar maiúsculas, minúsculas e acentos.",
+        ),
+    ),
+    executar=executar,
+)

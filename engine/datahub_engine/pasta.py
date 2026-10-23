@@ -1,7 +1,8 @@
-"""Pasta de trabalho em memória: abas com cabeçalho e linhas, lidas e gravadas em disco.
+"""Pasta de trabalho em memória: abas com um DataFrame cada, lidas e gravadas em disco.
 
-Os valores das células são mantidos como vieram (número, data, texto), para que a
-saída preserve os tipos da planilha original.
+Os DataFrames usam dtype `object`: os valores das células ficam como vieram (número,
+data, texto, None), para que a saída preserve os tipos da planilha original. Colunas
+com nome repetido são permitidas; as ferramentas acessam colunas por posição.
 """
 
 from __future__ import annotations
@@ -10,9 +11,12 @@ import csv
 import io
 import os
 import tempfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
+
+import numpy as np
+import pandas as pd
 
 from .texto import nome_de_aba
 
@@ -24,11 +28,48 @@ class ErroDePlanilha(Exception):
     """Problema com um arquivo, explicado para o usuário."""
 
 
+def novo_dataframe(cabecalho: list[str], linhas: list[list[Any]]) -> pd.DataFrame:
+    return pd.DataFrame(linhas, columns=list(cabecalho), dtype=object)
+
+
+def valor_python(valor: Any) -> Any:
+    """Célula pronta para gravar: NaN/NaT viram None e escalares numpy viram tipos Python."""
+    if valor is None:
+        return None
+    if isinstance(valor, np.generic):
+        valor = valor.item()
+    if isinstance(valor, float) and np.isnan(valor):
+        return None
+    if valor is pd.NaT:
+        return None
+    return valor
+
+
 @dataclass
 class Aba:
     nome: str
-    cabecalho: list[str]
-    linhas: list[list[Any]]
+    dados: pd.DataFrame
+
+    @classmethod
+    def de_linhas(cls, nome: str, cabecalho: list[str], linhas: list[list[Any]]) -> Aba:
+        return cls(nome, novo_dataframe(cabecalho, linhas))
+
+    @property
+    def cabecalho(self) -> list[str]:
+        return [str(coluna) for coluna in self.dados.columns]
+
+    @property
+    def linhas(self) -> list[list[Any]]:
+        """Cópia das linhas como listas Python (para gravar, comparar e testar)."""
+        return [[valor_python(valor) for valor in linha] for linha in self.dados.itertuples(index=False, name=None)]
+
+    @linhas.setter
+    def linhas(self, linhas: list[list[Any]]) -> None:
+        # Ponte provisória: remover quando todas as ferramentas trabalharem com `dados`.
+        self.dados = novo_dataframe(self.cabecalho, linhas)
+
+    def com_dados(self, dados: pd.DataFrame) -> Aba:
+        return replace(self, dados=dados)
 
     def indice_da_coluna(self, coluna: str) -> int | None:
         try:
@@ -51,7 +92,7 @@ class Pasta:
 
     @property
     def linhas(self) -> int:
-        return sum(len(aba.linhas) for aba in self.abas)
+        return sum(len(aba.dados) for aba in self.abas)
 
 
 @dataclass
@@ -78,7 +119,7 @@ def _montar_aba(nome: str, linhas: list[list[Any]], arquivo: str) -> Aba:
         cabecalho.append(nome_coluna or f"Coluna {indice + 1}")
     largura = len(cabecalho)
     dados = [(linha + [None] * largura)[:largura] for linha in linhas[1:] if not _vazia(linha)]
-    return Aba(nome=nome_de_aba(nome), cabecalho=cabecalho, linhas=dados)
+    return Aba.de_linhas(nome_de_aba(nome), cabecalho, dados)
 
 
 def _texto_do_csv(bruto: bytes) -> str:
