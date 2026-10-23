@@ -9,7 +9,7 @@ import {
   type ErrosNovaSenha,
   type LinkDeAcesso,
 } from '../domain/entrada';
-import { definirNovaSenha, type Conta } from '../services/conta';
+import { definirNovaSenha, emSimulacao, type Conta } from '../services/conta';
 
 type RedefinirSenhaProps = {
   conta: Conta | null;
@@ -52,7 +52,9 @@ export default function RedefinirSenha({
   async function salvar(evento: FormEvent) {
     evento.preventDefault();
     if (salvando) return;
-    const encontrados = validarNovaSenha(senha, confirmacao);
+    const encontrados = emSimulacao()
+      ? {}
+      : validarNovaSenha(senha, confirmacao);
     setErros(encontrados);
     setFalha('');
     if (encontrados.senha || encontrados.confirmacao) {

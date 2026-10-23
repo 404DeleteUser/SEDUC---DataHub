@@ -37,6 +37,7 @@ vi.mock('../services/supabase', () => {
     get linkDeAcesso() {
       return sim.link;
     },
+    acessoSimulado: false,
     supabase: { auth, from: () => consulta },
   };
 });

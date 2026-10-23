@@ -7,6 +7,9 @@ import { armazenamentoSessao } from './armazenamentoSessao';
 const url = import.meta.env.VITE_SUPABASE_URL;
 const chave = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+/** Temporário: a Entrada aparece, mas sem autenticação (ver `.env.production`). */
+export const acessoSimulado = import.meta.env.VITE_ACESSO_SIMULADO === 'true';
+
 /** Lido antes de criar o cliente, que limpa o "#access_token…&type=…" da barra. */
 export const linkDeAcesso: LinkDeAcesso = lerLinkDeAcesso(
   window.location.pathname,
@@ -14,7 +17,7 @@ export const linkDeAcesso: LinkDeAcesso = lerLinkDeAcesso(
 );
 
 export const supabase: SupabaseClient | null =
-  url && chave
+  url && chave && !acessoSimulado
     ? createClient(url, chave, {
         auth: {
           persistSession: true,

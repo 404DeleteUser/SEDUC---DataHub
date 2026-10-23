@@ -15,6 +15,10 @@ avalie o plano Pro.
 
 ## 2. Supabase (login, perfil e logs)
 
+> **Por enquanto o site publicado usa o acesso simulado** (`VITE_ACESSO_SIMULADO=true` no
+> `.env.production`): a Entrada aparece, mas qualquer e-mail e senha entram. Para ligar o login de
+> verdade, apague essa linha e faça os passos abaixo.
+
 1. Crie a conta em <https://supabase.com> e um **New project**:
    - **Region:** South America (São Paulo).
    - Guarde a senha do banco num lugar seguro (não envie para ninguém).

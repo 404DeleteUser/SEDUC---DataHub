@@ -2,7 +2,7 @@ import App from './App';
 import Entrada from './pages/Entrada';
 import RedefinirSenha from './pages/RedefinirSenha';
 import { useConta } from './hooks/useConta';
-import { sair } from './services/conta';
+import { emSimulacao, sair } from './services/conta';
 
 /** Decide pela sessão do Supabase: Entrada, troca de senha ou o app. */
 export default function Raiz() {
@@ -28,7 +28,8 @@ export default function Raiz() {
       return (
         <App
           key={estado.conta.id}
-          conta={estado.conta}
+          // Simulação: o perfil fica no navegador, como no modo local.
+          conta={emSimulacao() ? null : estado.conta}
           onSair={async () => {
             try {
               await sair();

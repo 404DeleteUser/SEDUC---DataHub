@@ -277,6 +277,7 @@ export default function Perfil({
       {onSair && (
         <ConfirmarSaida
           aberto={confirmandoSaida}
+          armazenamento={armazenamento}
           onCancelar={() => setConfirmandoSaida(false)}
           onConfirmar={() => {
             setConfirmandoSaida(false);
@@ -290,10 +291,12 @@ export default function Perfil({
 
 function ConfirmarSaida({
   aberto,
+  armazenamento,
   onCancelar,
   onConfirmar,
 }: {
   aberto: boolean;
+  armazenamento: 'computador' | 'conta';
   onCancelar: () => void;
   onConfirmar: () => void;
 }) {
@@ -328,7 +331,8 @@ function ConfirmarSaida({
       <h2 id="perfil-confirmacao-titulo">Sair do DataHub?</h2>
       <p id="perfil-confirmacao-texto">
         Você poderá entrar de novo em seguida. Seu nome e sua foto continuam
-        salvos na sua conta.
+        salvos {armazenamento === 'conta' ? 'na sua conta' : 'neste computador'}
+        .
       </p>
       <div className="perfil-confirmacao__botoes">
         <Button variant="ghost" onClick={onCancelar}>

@@ -182,3 +182,8 @@
   height: 100dvh;
   background: var(--bg-app);
 }
+
+/* Selo do acesso simulado: largura do próprio texto. */
+.entrada__form > .ui-simulation {
+  align-self: flex-start;
+}

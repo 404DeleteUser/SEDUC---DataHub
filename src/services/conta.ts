@@ -1,12 +1,19 @@
 // Conta e perfil no Supabase. As telas usam só estas funções; sem Supabase
 // configurado (modo local), contaConfigurada() é false e o app não pede login.
+// Com o acesso simulado, a Entrada aparece, mas nada vai ao Supabase.
 import {
   CAMINHO_REDEFINIR_SENHA,
   normalizarEmail,
   type LinkDeAcesso,
 } from '../domain/entrada';
+import {
+  aoMudarSessaoSimulada,
+  contaAtualSimulada,
+  entrarSimulado,
+  sairSimulado,
+} from './acessoSimulado';
 import { definirManterConectado } from './armazenamentoSessao';
-import { linkDeAcesso, supabase } from './supabase';
+import { acessoSimulado, linkDeAcesso, supabase } from './supabase';
 
 export type Conta = { id: string; email: string };
 
@@ -32,7 +39,12 @@ function paraConta(usuario: { id: string; email?: string } | null | undefined) {
 }
 
 export function contaConfigurada(): boolean {
-  return supabase !== null;
+  return supabase !== null || acessoSimulado;
+}
+
+/** Acesso simulado: sem validação nem Supabase, só para conferir o fluxo. */
+export function emSimulacao(): boolean {
+  return acessoSimulado;
 }
 
 /** O link (convite, nova senha ou vencido) pelo qual o app foi aberto. */
@@ -41,6 +53,7 @@ export function linkDeAcessoInicial(): LinkDeAcesso {
 }
 
 export async function contaAtual(): Promise<Conta | null> {
+  if (acessoSimulado) return contaAtualSimulada(linkDeAcesso !== null);
   const { data } = await cliente().auth.getSession();
   return paraConta(data.session?.user);
 }
@@ -48,6 +61,7 @@ export async function contaAtual(): Promise<Conta | null> {
 export function aoMudarSessao(
   aviso: (evento: EventoDeSessao, conta: Conta | null) => void
 ): () => void {
+  if (acessoSimulado) return aoMudarSessaoSimulada(aviso);
   const { data } = cliente().auth.onAuthStateChange((evento, sessao) => {
     const conta = paraConta(sessao?.user);
     if (evento === 'PASSWORD_RECOVERY') aviso('recuperando-senha', conta);
@@ -62,6 +76,7 @@ export async function entrar(
   senha: string,
   manter: boolean
 ): Promise<Conta> {
+  if (acessoSimulado) return entrarSimulado(email);
   // Antes do login: a sessão nova já é gravada no lugar escolhido.
   definirManterConectado(manter);
   const { data, error } = await cliente().auth.signInWithPassword({
@@ -73,6 +88,7 @@ export async function entrar(
 }
 
 export async function enviarRecuperacaoDeSenha(email: string): Promise<void> {
+  if (acessoSimulado) return;
   const { error } = await cliente().auth.resetPasswordForEmail(
     normalizarEmail(email),
     { redirectTo: `${window.location.origin}${CAMINHO_REDEFINIR_SENHA}` }
@@ -81,11 +97,13 @@ export async function enviarRecuperacaoDeSenha(email: string): Promise<void> {
 }
 
 export async function definirNovaSenha(senha: string): Promise<void> {
+  if (acessoSimulado) return;
   const { error } = await cliente().auth.updateUser({ password: senha });
   if (error) throw error;
 }
 
 export async function sair(): Promise<void> {
+  if (acessoSimulado) return sairSimulado();
   const { error } = await cliente().auth.signOut();
   if (error) throw error;
 }

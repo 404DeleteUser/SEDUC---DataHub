@@ -2,14 +2,18 @@ import { useId, useState, type FormEvent } from 'react';
 import { LogIn, Mail } from 'lucide-react';
 
 import MolduraEntrada from '../components/entrada/MolduraEntrada';
-import { Button, Field } from '../components/ui';
+import { Button, Field, SimulationNotice } from '../components/ui';
 import {
   DOMINIO_INSTITUCIONAL,
   falhaDeEntrada,
   validarEmail,
   validarSenha,
 } from '../domain/entrada';
-import { enviarRecuperacaoDeSenha, entrar } from '../services/conta';
+import {
+  emSimulacao,
+  enviarRecuperacaoDeSenha,
+  entrar,
+} from '../services/conta';
 
 type Erros = { email?: string; senha?: string };
 
@@ -38,10 +42,10 @@ export default function Entrada() {
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
     if (entrando) return;
-    const encontrados: Erros = {
-      email: validarEmail(email),
-      senha: validarSenha(senha),
-    };
+    // Simulação: sem validação, qualquer e-mail e senha entram.
+    const encontrados: Erros = emSimulacao()
+      ? {}
+      : { email: validarEmail(email), senha: validarSenha(senha) };
     setErros(encontrados);
     setFalha('');
     const primeiro = (['email', 'senha'] as const).find((c) => encontrados[c]);
@@ -60,7 +64,7 @@ export default function Entrada() {
   }
 
   async function enviarLink() {
-    const problema = validarEmail(email);
+    const problema = emSimulacao() ? undefined : validarEmail(email);
     setErros({ email: problema });
     setAvisoLink('');
     if (problema) {
@@ -170,6 +174,9 @@ export default function Entrada() {
           <p className="entrada__falha" role="alert">
             {falha}
           </p>
+        )}
+        {emSimulacao() && (
+          <SimulationNotice detail="Acesso sem login: qualquer e-mail e senha entram." />
         )}
       </form>
     </MolduraEntrada>

@@ -18,6 +18,25 @@ Modelo:
 
 ---
 
+## 2026-10-23 · codespace · feat/acesso-simulado → main · CONCLUÍDO
+
+**Pedido do usuário:** "faça o merge e suba na main, porém por enquanto sem as autenticações, sem validações, somente para verificar o fluxo do site".
+
+**Feito:**
+- `services/acessoSimulado.ts`: sessão simulada na aba, via `sessionStorage`.
+- `conta.ts` desvia para a simulação quando `VITE_ACESSO_SIMULADO=true`.
+- Entrada e `/redefinir-senha` sem validação nesse modo, com o selo Simulação.
+- A Raiz passa `conta={null}` ao App, então o perfil fica no navegador.
+- Texto do "Sair" volta a dizer "neste computador" quando aplicável.
+- `.env.production` versionado liga o modo, e só o build de produção o lê; testes e e2e não mudam.
+- Merge na `main` por fast-forward (`feat/f2-login` → `feat/entrada-supabase` → `feat/acesso-simulado`) e push da `main`.
+
+**Verificações:** tsc ✓ · vitest 257/257 ✓ · pytest 79/79 ✓ · e2e 134 ✓ + 2 pulados (login real) · build de produção servido com a CSP: Entrada → Início → Sair → Entrada e `/redefinir-senha` → Início, sem erro no console e sem rolagem em 960×640.
+
+**Pendente / próximos passos:** quando o usuário quiser o login real, apagar `VITE_ACESSO_SIMULADO` do `.env.production` e seguir `docs/web/PUBLICAR.md` (SQL, cadastro aberto desligado, Redirect URLs, convites, variáveis na Vercel).
+
+**Push:** `main` (pedido pelo usuário).
+
 ## 2026-10-23 · codespace · feat/entrada-supabase · RESOLVIDO (2026-10-23, a Entrada desta branch é a final)
 
 **Pedido do usuário:** prompt "Tela de entrada do DataHub (login real com Supabase Auth)", trocando a parte simulada da Entrada pela autenticação real e mantendo o visual.
