@@ -1,35 +1,16 @@
 import { useState } from 'react';
-import { ArrowUpRight, Clock3, Pencil, Play, Star, Wrench } from 'lucide-react';
+import { ArrowUpRight, Pencil, Play, Star, Wrench } from 'lucide-react';
 import bannerSeduc from '../assets/seduc-banner.webp';
 import ExecuteProcessModal from '../components/ExecuteProcessModal';
 import PageHeader from '../components/PageHeader';
 import ProcessCardAction from '../components/ProcessCardAction';
-import {
-  IconButton,
-  SectionTitle,
-  SimulationNotice,
-  StatusText,
-  type StatusExecucao,
-} from '../components/ui';
-import {
-  ferramentasMaisUsadas,
-  logsRecentes,
-  processosDestaque,
-} from '../mock/homeMock';
+import { IconButton, SectionTitle, SimulationNotice } from '../components/ui';
+import LogsRecentes from '../components/logs/LogsRecentes';
+import { ferramentasMaisUsadas, processosDestaque } from '../mock/homeMock';
 import type { FerramentaId } from '../types/ferramenta';
 import type { ProcessoBase } from '../types/processo';
 
 type ProcessoDestaque = (typeof processosDestaque)[number];
-
-const STATUS_VALIDOS: readonly StatusExecucao[] = [
-  'concluido',
-  'atencao',
-  'erro',
-];
-
-function paraStatus(status: string): StatusExecucao {
-  return STATUS_VALIDOS.find((valido) => valido === status) ?? 'erro';
-}
 
 function BannerBoasVindas() {
   return (
@@ -180,65 +161,20 @@ function FerramentasMaisUsadas({
   );
 }
 
-function LogsDeExecucao() {
-  return (
-    <aside
-      className="ui-panel home-panel home-logs"
-      aria-labelledby="logs-titulo"
-    >
-      <SectionTitle
-        id="logs-titulo"
-        title="Logs de Execução"
-        icon={Clock3}
-        aside={
-          <SimulationNotice detail="Histórico de exemplo; nada foi executado." />
-        }
-      />
-      <ol className="log-timeline">
-        {logsRecentes.map((log) => {
-          const origem =
-            log.tipo === 'processo' ? processosDestaque : ferramentasMaisUsadas;
-          const item = origem.find(
-            (entrada) => entrada.id === log.referenciaId
-          );
-          if (!item) return null;
-          const Icone = item.icone;
-          return (
-            <li key={log.id} className="log-entry">
-              <span
-                className={`home-entity-icon home-entity-icon--sm ${item.corIcone}`}
-              >
-                <Icone size={15} aria-hidden="true" />
-              </span>
-              <div className="log-entry-body">
-                <div className="log-entry-head">
-                  <h3>{item.nome}</h3>
-                  <time>{log.horario}</time>
-                </div>
-                <p>{log.detalhe}</p>
-                <div className="log-entry-meta">
-                  <StatusText status={paraStatus(log.status)} />
-                  <span className="log-duration">{log.duracao}</span>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </aside>
-  );
-}
-
 export default function Home({
   onProcessos,
   onEditarProcesso,
   onAbrirFerramenta,
   onFerramentas,
+  onLogs,
+  onAbrirLog,
   processosConfigurados,
 }: {
   onProcessos: () => void;
   onAbrirFerramenta: (ferramentaId: FerramentaId) => void;
   onFerramentas: () => void;
+  onLogs: () => void;
+  onAbrirLog: (execucao: string) => void;
   onEditarProcesso: (id: number) => void;
   processosConfigurados: Record<number, ProcessoBase>;
 }) {
@@ -291,7 +227,7 @@ export default function Home({
                 onVerTodas={onFerramentas}
               />
             </div>
-            <LogsDeExecucao />
+            <LogsRecentes onAbrir={onAbrirLog} onVerTodos={onLogs} />
           </div>
         </div>
       </main>

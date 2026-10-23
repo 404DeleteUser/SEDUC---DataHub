@@ -67,14 +67,21 @@ function App() {
   const [processoEmCriacao, setProcessoEmCriacao] =
     useState<ProcessoBase | null>(null);
   const [ferramentaInicial, setFerramentaInicial] = useState<FerramentaId>();
+  const [logInicial, setLogInicial] = useState<string>();
 
   function abrirFerramentas(ferramentaId?: FerramentaId) {
     setFerramentaInicial(ferramentaId);
     setPaginaAtual('ferramentas');
   }
 
+  function abrirLogs(execucao?: string) {
+    setLogInicial(execucao);
+    setPaginaAtual('logs');
+  }
+
   function navegar(pagina: string) {
     if (pagina === 'ferramentas') setFerramentaInicial(undefined);
+    if (pagina === 'logs') setLogInicial(undefined);
     setPaginaAtual(pagina);
   }
 
@@ -111,13 +118,20 @@ function App() {
             onProcessos={() => setPaginaAtual('processos')}
             onAbrirFerramenta={abrirFerramentas}
             onFerramentas={() => abrirFerramentas()}
+            onLogs={() => abrirLogs()}
+            onAbrirLog={abrirLogs}
           />
         )}
 
         {paginaAtual === 'coordenadorias' && <Coordenadorias />}
 
         {paginaAtual === 'sites' && <SitesInstitucionais />}
-        {paginaAtual === 'logs' && <LogsExecucao />}
+        {paginaAtual === 'logs' && (
+          <LogsExecucao
+            key={logInicial ?? 'recentes'}
+            execucaoInicial={logInicial}
+          />
+        )}
 
         {paginaAtual === 'processos' && (
           <Processos

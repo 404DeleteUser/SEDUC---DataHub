@@ -47,7 +47,6 @@ export type EtapaDoDetalhe = {
 
 export type DetalheDaExecucao = {
   resumo: ResumoDaExecucao;
-  maquina: string;
   entradas: {
     arquivo: string;
     linhas: number;

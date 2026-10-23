@@ -18,8 +18,6 @@ function Metadados({ detalhe }: { detalhe: Detalhe }) {
   const itens = [
     ['Início', formatarDataHora(resumo.inicio)],
     ['Duração', formatarDuracao(resumo.duracao_ms)],
-    ['Usuário', resumo.usuario],
-    ['Máquina', detalhe.maquina],
     ['Origem', ROTULOS_DA_ORIGEM[resumo.origem]],
     ['Etapas', String(resumo.etapas)],
   ];

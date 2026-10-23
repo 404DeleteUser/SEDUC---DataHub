@@ -14,13 +14,20 @@ import type { StatusDaExecucao } from '../types/logExecucao';
 
 const resumos = listarExecucoes(logsExecucaoMock);
 
-export default function LogsExecucao() {
+export default function LogsExecucao({
+  execucaoInicial,
+}: {
+  /** Execução aberta a partir do Início; sem ela, a mais recente. */
+  execucaoInicial?: string;
+}) {
   const [busca, setBusca] = useState('');
   const [status, setStatus] = useState<StatusDaExecucao | 'todos'>('todos');
   const [origem, setOrigem] = useState<'todas' | 'processo' | 'ferramenta'>(
     'todas'
   );
-  const [selecionada, setSelecionada] = useState(resumos[0]?.execucao ?? '');
+  const [selecionada, setSelecionada] = useState(
+    execucaoInicial ?? resumos[0]?.execucao ?? ''
+  );
   const [copia, setCopia] = useState('');
   const filtrados = useMemo(
     () => filtrarExecucoes(resumos, { busca, status, origem }),

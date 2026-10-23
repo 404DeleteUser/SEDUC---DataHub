@@ -103,6 +103,8 @@ export function listarExecucoes(
     .sort((a, b) => b.inicio.localeCompare(a.inicio));
 }
 
+/** Busca pelo nome e pelo arquivo de saída. Usuário e máquina não aparecem na tela:
+ * cada pessoa usa o app no próprio ambiente, isolado. */
 export function filtrarExecucoes(
   resumos: ResumoDaExecucao[],
   { busca, status, origem }: FiltroDeExecucoes
@@ -114,7 +116,7 @@ export function filtrarExecucoes(
       (origem === 'todas' || resumo.origem === origem) &&
       (!termo ||
         textoNormalizado(
-          `${resumo.nome} ${resumo.usuario} ${nomeDoArquivo(resumo.saida)}`
+          `${resumo.nome} ${nomeDoArquivo(resumo.saida)}`
         ).includes(termo))
   );
 }
@@ -242,7 +244,6 @@ export function detalheDaExecucao(
   const saida = doTipo(eventos, 'saida.gravada')[0];
   return {
     resumo,
-    maquina: doTipo(eventos, 'execucao.inicio')[0].maquina,
     entradas: doTipo(eventos, 'entrada.lida').map(
       ({ arquivo, linhas, colunas, abas }) => ({
         arquivo,
@@ -266,6 +267,22 @@ export function detalheDaExecucao(
   };
 }
 
+/** Uma linha para listas curtas (widget do Início): erro, linhas gravadas ou etapas feitas. */
+export function descricaoCurtaDaExecucao({
+  erro,
+  saidaGravada,
+  etapas,
+}: DetalheDaExecucao): string {
+  if (erro) return erro.mensagem;
+  if (saidaGravada) {
+    return `${saidaGravada.linhas.toLocaleString('pt-BR')} linhas gravadas`;
+  }
+  const feitas = etapas.filter(
+    (etapa) => etapa.situacao === 'concluida'
+  ).length;
+  return `${feitas} de ${etapas.length} etapas concluídas`;
+}
+
 /** Igual ao log legível: "0,4 s", "12 s", "2 min 05 s". */
 export function formatarDuracao(ms: number | null): string {
   if (ms === null) return '—';
@@ -274,6 +291,16 @@ export function formatarDuracao(ms: number | null): string {
   if (segundos < 60) return `${segundos} s`;
   const minutos = Math.floor(segundos / 60);
   return `${minutos} min ${String(segundos % 60).padStart(2, '0')} s`;
+}
+
+/** Data e hora locais sem o ano (dd/mm, hh:mm), para listas curtas. */
+export function formatarDataCurta(ts: string): string {
+  return new Date(ts).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
 /** Data e hora locais (dd/mm/aaaa hh:mm) de um `ts` UTC do contrato. */

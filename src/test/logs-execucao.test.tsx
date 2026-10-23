@@ -118,3 +118,77 @@ describe('Logs de Execução', () => {
     expect(within(detalhe).getByText('Não executada')).toBeInTheDocument();
   });
 });
+
+describe('Logs de Execução sem dados de usuário e máquina', () => {
+  it('o detalhe não mostra usuário nem máquina e a busca não os considera', async () => {
+    const user = await abrir();
+    const painel = screen.getByRole('region', {
+      name: /Cruzamento SEAP x Folha/,
+    });
+    expect(within(painel).queryByText('Usuário')).not.toBeInTheDocument();
+    expect(within(painel).queryByText('Máquina')).not.toBeInTheDocument();
+    expect(within(painel).queryByText('ana.souza')).not.toBeInTheDocument();
+    expect(within(painel).queryByText('SEDUC-CPD-014')).not.toBeInTheDocument();
+    await user.type(
+      screen.getByRole('searchbox', { name: 'Buscar execução' }),
+      'ana.souza'
+    );
+    expect(
+      screen.getByText('Nenhuma execução encontrada.')
+    ).toBeInTheDocument();
+  });
+});
+
+describe('Logs de Execução no Início', () => {
+  it('mostra as 5 execuções mais recentes da mesma fonte da página', () => {
+    render(<App />);
+    const widget = screen.getByRole('complementary', {
+      name: 'Logs de Execução',
+    });
+    const botoes = within(widget).getAllByRole('button', {
+      name: /^Ver log de/,
+    });
+    expect(botoes).toHaveLength(5);
+    expect(botoes[0]).toHaveAccessibleName(
+      /^Ver log de Cruzamento SEAP x Folha/
+    );
+    expect(within(widget).getByText('Em andamento')).toBeInTheDocument();
+    expect(
+      within(widget).getByText('12.877 linhas gravadas')
+    ).toBeInTheDocument();
+  });
+
+  it('Ver todos abre a página com a mais recente selecionada', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const widget = screen.getByRole('complementary', {
+      name: 'Logs de Execução',
+    });
+    await user.click(
+      within(widget).getByRole('button', { name: /Ver todos os logs/ })
+    );
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Logs de Execução' })
+    ).toBeInTheDocument();
+    const lista = screen.getByRole('list', { name: 'Execuções' });
+    expect(within(lista).getAllByRole('button')[0]).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
+
+  it('clicar numa execução abre a página com ela selecionada', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(
+      screen.getByRole('button', { name: /^Ver log de Eliminar Duplicatas/ })
+    );
+    const selecionada = within(
+      screen.getByRole('list', { name: 'Execuções' })
+    ).getByRole('button', { pressed: true });
+    expect(selecionada).toHaveTextContent('Eliminar Duplicatas');
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Eliminar Duplicatas' })
+    ).toBeInTheDocument();
+  });
+});

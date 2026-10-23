@@ -344,3 +344,8 @@
 .home-tool-item:hover {
   background: var(--hover);
 }
+
+.home-logs__todos {
+  justify-self: start;
+  margin-top: var(--space-2);
+}

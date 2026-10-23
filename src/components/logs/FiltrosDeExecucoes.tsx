@@ -29,7 +29,7 @@ export default function FiltrosDeExecucoes({
         <input
           type="search"
           value={busca}
-          placeholder="Buscar por processo, usuário ou arquivo…"
+          placeholder="Buscar por processo ou arquivo…"
           onChange={(e) => aoBuscar(e.target.value)}
         />
       </label>

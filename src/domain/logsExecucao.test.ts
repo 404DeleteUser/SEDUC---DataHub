@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  descricaoCurtaDaExecucao,
   detalheDaExecucao,
   filtrarExecucoes,
+  formatarDataCurta,
   formatarDataHora,
   formatarDuracao,
   listarExecucoes,
@@ -9,6 +11,7 @@ import {
   resumoDaExecucao,
 } from './logsExecucao';
 import type { EventoDeExecucao } from './eventosExecucao';
+import { logsExecucaoMock } from '../mock/logsExecucaoMock';
 import type { ExecucaoRegistrada } from '../types/logExecucao';
 
 const ts = '2026-10-22T14:05:12.000Z';
@@ -115,7 +118,7 @@ describe('logs de execução: resumo e filtros', () => {
     ).toEqual(['recente', 'exec-1']);
   });
 
-  it('filtra status, origem e busca sem caixa/acento por nome, usuário e nome do arquivo, sem buscar pasta', () => {
+  it('filtra status, origem e busca sem caixa/acento por nome e nome do arquivo, sem buscar pasta nem usuário', () => {
     const a = resumoDaExecucao(registro([inicio()]))!;
     const b = {
       ...a,
@@ -135,7 +138,8 @@ describe('logs de execução: resumo e filtros', () => {
     expect(filtrar('auditoria agil').map((r) => r.execucao)).toEqual([
       'exec-1',
     ]);
-    expect(filtrar('jose')).toEqual([a]);
+    expect(filtrar('jose.silva')).toEqual([]);
+    expect(filtrar('maria')).toEqual([]);
     expect(filtrar('saida.xlsx').map((r) => r.execucao)).toEqual(['b']);
     expect(filtrar('C:\\José')).toEqual([]);
     expect(filtrar('', 'erro', 'ferramenta')).toEqual([b]);
@@ -338,5 +342,42 @@ describe('formatadores', () => {
         minute: '2-digit',
       })
     );
+  });
+});
+
+describe('descrição curta da execução', () => {
+  function descricaoDe(nome: string, status: string) {
+    const registro = logsExecucaoMock.find((item) => {
+      const resumo = resumoDaExecucao(item);
+      return resumo?.nome === nome && resumo.status === status;
+    });
+    return descricaoCurtaDaExecucao(detalheDaExecucao(registro!)!);
+  }
+
+  it('mostra o erro, as linhas gravadas ou as etapas concluídas', () => {
+    expect(descricaoDe('Lotação por DRE', 'erro')).toBe(
+      'A coluna DRE não existe na aba Lotação.'
+    );
+    expect(descricaoDe('Eliminar Duplicatas', 'concluido')).toBe(
+      '7.828 linhas gravadas'
+    );
+    expect(descricaoDe('Cruzamento SEAP x Folha', 'em_andamento')).toBe(
+      '1 de 2 etapas concluídas'
+    );
+  });
+});
+
+describe('data curta', () => {
+  it('omite o ano e usa o fuso local', () => {
+    const valor = '2026-07-15T16:24:00.000Z';
+    expect(formatarDataCurta(valor)).toBe(
+      new Date(valor).toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    );
+    expect(formatarDataCurta(valor)).not.toContain('2026');
   });
 });
