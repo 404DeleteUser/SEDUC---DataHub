@@ -18,7 +18,7 @@ Modelo:
 
 ---
 
-## 2026-10-23 · codespace · docs/migracao-web · AGUARDANDO ACORDO (plano da migração)
+## 2026-10-23 · codespace · docs/migracao-web · EM ANDAMENTO (plano aprovado; F1 preparada)
 
 **Pedido do usuário:** trocar o app desktop (Tauri + instalador) por um **app web na Vercel + Supabase, ambos gratuitos**. Motivo: não pagar certificado de assinatura (o instalador sem assinatura dispara aviso de vírus) e poder deixar o repositório privado depois (o que elimina o SignPath, que é gratuito só para código aberto e repositório público).
 
@@ -26,7 +26,7 @@ Modelo:
 
 **Avisos dados ao usuário (ele decidiu mesmo assim):** o plano Hobby da Vercel é "não comercial"; o Supabase grátis pausa o projeto depois de 1 semana sem uso; planilhas com dados pessoais não devem ir para o servidor (LGPD).
 
-**AGUARDANDO ACORDO:** o plano da migração, apresentado ao usuário nesta sessão (motor no navegador, login, o que vai para o Supabase, o que acontece com o Tauri). Nada foi implementado ainda.
+**Plano aprovado** (escolhas em `DECISOES.md`). **F1 preparada:** `vercel.json` (build estático, cabeçalhos de segurança) e `docs/web/PUBLICAR.md` (passo a passo das contas). **Próximo:** o usuário cria as contas e envia a Project URL e a chave anon; então F2 (login e perfil). CSP fica para a F2/F3, quando os domínios (Supabase, Pyodide) estiverem definidos.
 
 **Push:** não feito.
 
