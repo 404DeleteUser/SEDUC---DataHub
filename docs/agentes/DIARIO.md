@@ -18,6 +18,18 @@ Modelo:
 
 ---
 
+## 2026-10-23 · codespace · docs/migracao-web · AGUARDANDO ACORDO (plano da migração)
+
+**Pedido do usuário:** trocar o app desktop (Tauri + instalador) por um **app web na Vercel + Supabase, ambos gratuitos**. Motivo: não pagar certificado de assinatura (o instalador sem assinatura dispara aviso de vírus) e poder deixar o repositório privado depois (o que elimina o SignPath, que é gratuito só para código aberto e repositório público).
+
+**Decisão registrada em `DECISOES.md`:** mudança de plataforma. **Fase C cancelada**: o outro agente **não deve** continuar a ponte Rust↔Python, o Python embutido nem o GitHub Actions do instalador.
+
+**Avisos dados ao usuário (ele decidiu mesmo assim):** o plano Hobby da Vercel é "não comercial"; o Supabase grátis pausa o projeto depois de 1 semana sem uso; planilhas com dados pessoais não devem ir para o servidor (LGPD).
+
+**AGUARDANDO ACORDO:** o plano da migração, apresentado ao usuário nesta sessão (motor no navegador, login, o que vai para o Supabase, o que acontece com o Tauri). Nada foi implementado ainda.
+
+**Push:** não feito.
+
 ## 2026-10-23 · codespace · feat/tema-mais-dark-ascii · AGUARDANDO ACORDO (C6)
 
 **Pedido do usuário:** tema "mais dark", sidebar sem a linha do item ativo (e círculos quando recolhida), Logs sem a caixa da lista, seleção de Ferramentas sem a barra lateral, card de Logs do Início com a altura de "Ferramentas mais utilizadas", banner com "SEDUC" em ASCII animado, Perfil sem caixas e com o brasão em ASCII tremulando.

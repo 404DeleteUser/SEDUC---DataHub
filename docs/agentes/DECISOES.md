@@ -4,16 +4,17 @@ Fonte da verdade para os dois agentes (local e Codespace). Não contrarie nada d
 
 ## Produto e uso
 
-- **App individual.** Cada servidor usa o DataHub no próprio computador, em ambiente isolado. Não há compartilhamento, multiusuário nem auditoria de quem rodou. *(2026-10-23)*
+- **MUDANÇA DE PLATAFORMA (2026-10-23, usuário):** o DataHub passa a ser um **app web** hospedado na **Vercel** (plano gratuito), com **Supabase** (plano gratuito) para login, perfil e logs. Motivo: evitar o custo de certificado de assinatura e o aviso de vírus do instalador; o repositório deve ficar privado depois. Substitui: app desktop Tauri, Python embutido no instalador, distribuição por releases do GitHub e a fase C. Os detalhes da migração aguardam aprovação do plano (ver `DIARIO.md`).
+- ~~**App individual.** Cada servidor usa o DataHub no próprio computador, em ambiente isolado.~~ Substituída pela mudança de plataforma acima. *(2026-10-23)*
 - **Usuário e máquina não aparecem na interface** (página e busca de Logs de Execução). O motor **continua gravando** `usuario` e `maquina` no `.jsonl`: a remoção foi "só da tela", por escolha do usuário. Não alterar o contrato de eventos por causa disso. *(2026-10-23)*
 - Tudo que ainda não é real aparece como **"Simulação"** (componente `SimulationNotice`, `DESIGN.md`).
-- Distribuição pelo **GitHub** (releases).
+- ~~Distribuição pelo **GitHub** (releases).~~ Substituída: o app é publicado na Vercel. *(2026-10-23)*
 
 ## Motor (`engine/`)
 
 - Python + **pandas** (`pandas==2.2.3`). Cada aba é um DataFrame com `dtype=object`, para preservar int, data e `None`. As colunas são acessadas **por posição**, porque nomes podem se repetir. As ferramentas não alteram o DataFrame de entrada. *(2026-10-21/22)*
 - Cada ferramenta declara seus parâmetros (`Ferramenta`/`Parametro` em `ferramentas/base.py`), e o motor valida com a mensagem de cada campo. O catálogo para o app é gerado com `python -m datahub_engine catalogo --saida ../src/generated/catalogo.json` (rodando de dentro de `engine/`). *(2026-10-22)*
-- Python será **embutido no instalador** (python-build-standalone como recurso do Tauri) e chamado diretamente pelo Rust, sem `.cmd`, `.ps1` nem contorno de política de execução. *(2026-10-21)*
+- ~~Python será **embutido no instalador** (python-build-standalone como recurso do Tauri) e chamado diretamente pelo Rust, sem `.cmd`, `.ps1` nem contorno de política de execução.~~ Substituída pela mudança para web (2026-10-23).
 - **Contrato de eventos v1** (`engine/contrato/EVENTOS.md`), espelhado em `src/domain/eventosExecucao.ts`. Mudanças nele exigem aprovação e atualização dos dois lados e dos exemplos.
 - **Privacidade:** eventos e logs nunca contêm valores de células. O log legível mostra só a **quantidade** de valores do Dicionário e nunca o traceback.
 - **Log legível** `<saida>_log.txt` ao lado do arquivo gerado (UTF-8 com BOM, CRLF, para o Bloco de Notas), além do `.jsonl` técnico em `%APPDATA%\DataHub\logs` (retenção de 90 dias). *(2026-10-22)*
@@ -47,6 +48,6 @@ Fonte da verdade para os dois agentes (local e Codespace). Não contrarie nada d
 ## Pendente de aprovação (não implementar sem o "sim" do usuário)
 
 - A UI montar os formulários a partir do `catalogo.json`. Hoje ela usa `src/mock/ferramentasMock.ts` e `FormularioFerramenta.tsx`.
-- **Fase C:** ponte Rust↔Python, build com Python embutido, GitHub Actions para gerar o instalador.
+- ~~**Fase C:** ponte Rust↔Python, build com Python embutido, GitHub Actions para gerar o instalador.~~ **Cancelada** pela mudança para web (2026-10-23). Não implementar.
 - `.devcontainer` para o Codespace já subir com Node, Python 3.12, as dependências e o Chromium (oferecido em 2026-10-23, sem resposta).
 - Bug B4 de `docs/ux-ui-modernization-plan.md`: as opções de log não são salvas no processo.
