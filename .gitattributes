@@ -1,0 +1,13 @@
+# Fim de linha padronizado: LF no repositório e no disco, em qualquer máquina
+# (independe do core.autocrlf do Git instalado; o Prettier do projeto também usa LF).
+* text=auto eol=lf
+
+# Binários: nunca converter.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.icns binary
+*.xlsx binary
+*.xls binary
